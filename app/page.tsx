@@ -64,12 +64,7 @@ export default function Home() {
     { id: 3, nome: "Blazer Linho Premium", preco: 320.00, imagens: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000", "https://images.unsplash.com/photo-1601924582970-9238bcb495d9?q=80&w=1000", "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1000"] },
   ];
 
-  const elogiosGosto = [
-    "Escolha impecável! ✨", 
-    "Que bom gosto! Você tem um olhar incrível. ✨", 
-    "Essa peça vai realçar sua essência! ✨",
-    "Sofisticação pura na sua escolha! ✨"
-  ];
+  const elogiosGosto = ["Escolha impecável! ✨", "Que bom gosto! ✨", "Essa peça vai realçar sua essência! ✨"];
 
   const adicionarAoCarrinho = (produto: any) => {
     setCarrinho([...carrinho, { ...produto, image: produto.imagens[0] }]);
@@ -79,9 +74,9 @@ export default function Home() {
 
   const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
 
-  // FUNÇÃO DE FINALIZAÇÃO ATUALIZADA COM SEU NÚMERO
+  // FUNÇÃO DE FINALIZAÇÃO ATUALIZADA COM DDD 21
   const finalizarPedidoWhatsApp = () => {
-    const foneWhatsApp = "5524971366354"; 
+    const foneWhatsApp = "5521971366354"; 
     let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
     
     carrinho.forEach((item, index) => {
@@ -137,7 +132,7 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <h3 className="text-3xl font-serif italic mb-8">Nossa Essência</h3>
           <p className="text-sm md:text-base font-light leading-relaxed mb-6 opacity-90">
-            O <strong className="text-[#D4AF37]">Closet Dellas</strong> nasceu para vestir mulheres reais com elegância e sofisticação. Nossa curadoria realça a beleza única que existe em você.
+            O <strong className="text-[#D4AF37]">Closet Dellas</strong> nasceu para vestir mulheres reais com elegância e sofisticação.
           </p>
           <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto"></div>
         </div>
@@ -167,10 +162,9 @@ export default function Home() {
               <span className="text-[10px] uppercase font-bold text-zinc-400">Total</span>
               <span className="font-serif italic text-3xl text-[#611F3A]">R$ {total.toFixed(2)}</span>
             </div>
-            {/* BOTÃO QUE ABRE O WHATSAPP CONFIGURADO */}
             <button 
               onClick={finalizarPedidoWhatsApp}
-              className="w-full bg-[#611F3A] text-white py-5 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl active:bg-[#D4AF37] transition-all"
+              className="w-full bg-[#611F3A] text-white py-5 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl transition-all active:scale-95"
             >
               Finalizar no WhatsApp
             </button>
