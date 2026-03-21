@@ -64,7 +64,12 @@ export default function Home() {
     { id: 3, nome: "Blazer Linho Premium", preco: 320.00, imagens: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000", "https://images.unsplash.com/photo-1601924582970-9238bcb495d9?q=80&w=1000", "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1000"] },
   ];
 
-  const elogiosGosto = ["Escolha impecável! ✨", "Que bom gosto! Você tem um olhar incrível. ✨", "Essa peça vai realçar sua essência! ✨"];
+  const elogiosGosto = [
+    "Escolha impecável! ✨", 
+    "Que bom gosto! Você tem um olhar incrível. ✨", 
+    "Essa peça vai realçar sua essência! ✨",
+    "Sofisticação pura na sua escolha! ✨"
+  ];
 
   const adicionarAoCarrinho = (produto: any) => {
     setCarrinho([...carrinho, { ...produto, image: produto.imagens[0] }]);
@@ -73,6 +78,21 @@ export default function Home() {
   };
 
   const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+
+  // FUNÇÃO DE FINALIZAÇÃO ATUALIZADA COM SEU NÚMERO
+  const finalizarPedidoWhatsApp = () => {
+    const foneWhatsApp = "5524971366354"; 
+    let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
+    
+    carrinho.forEach((item, index) => {
+      mensagem += `${index + 1}. *${item.nome}* - R$ ${item.preco.toFixed(2)}\n`;
+    });
+    
+    mensagem += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno para combinarmos os detalhes!_`;
+
+    const url = `https://api.whatsapp.com/send?phone=${foneWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  };
 
   return (
     <main className="min-h-screen bg-[#E2AFC1] text-[#611F3A] font-sans relative overflow-x-hidden">
@@ -93,12 +113,6 @@ export default function Home() {
         </button>
       </nav>
 
-      {/* Hero */}
-      <section className="bg-white px-6 py-12 text-center border-b border-[#611F3A]/5">
-        <span className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block underline underline-offset-8">Curadoria Exclusiva</span>
-        <h2 className="text-4xl md:text-6xl font-extralight text-[#611F3A] mb-8 leading-tight italic font-serif">A moda que traduz você.</h2>
-      </section>
-
       {/* Vitrine */}
       <section className="max-w-7xl mx-auto py-16 px-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
@@ -109,7 +123,7 @@ export default function Home() {
                 <h4 className="text-[11px] uppercase tracking-widest mb-2 font-semibold text-[#611F3A]/60">{produto.nome}</h4>
                 <p className="text-[#611F3A] font-serif italic text-2xl mb-4">R$ {produto.preco.toFixed(2)}</p>
                 <div className="flex flex-col gap-3">
-                  <button onClick={() => adicionarAoCarrinho(produto)} className="bg-[#611F3A] text-[#D4AF37] py-3 rounded-lg text-[10px] uppercase tracking-[0.2em] font-bold shadow-md active:scale-95 transition-all">Adicionar à Sacola</button>
+                  <button onClick={() => adicionarAoCarrinho(produto)} className="bg-[#611F3A] text-[#D4AF37] py-3 rounded-lg text-[10px] uppercase tracking-[0.2em] font-bold shadow-md">Adicionar à Sacola</button>
                   <button onClick={() => setGuiaAberto(true)} className="text-[9px] uppercase tracking-widest text-[#611F3A]/40 font-bold underline underline-offset-4">Guia de Medidas</button>
                 </div>
               </div>
@@ -118,16 +132,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION QUEM SOMOS - NOVIDADE */}
-      <section className="bg-[#611F3A] py-24 px-6 text-center text-white">
+      {/* Quem Somos */}
+      <section className="bg-[#611F3A] py-24 px-6 text-center text-white mt-12">
         <div className="max-w-2xl mx-auto">
-          <span className="text-[#D4AF37] text-2xl mb-6 block font-serif">✨</span>
-          <h3 className="text-3xl md:text-4xl font-serif italic mb-8">Nossa Essência</h3>
-          <p className="text-sm md:text-base font-light leading-relaxed mb-10 opacity-90">
-            O <strong className="text-[#D4AF37] font-bold uppercase tracking-widest">Closet Dellas</strong> nasceu da paixão por vestir mulheres reais com elegância e sofisticação. Nossa curadoria é feita a dedo para que cada peça conte uma história e realce a beleza única que existe em você. Mais que moda, entregamos autoestima e confiança em forma de estilo.
+          <h3 className="text-3xl font-serif italic mb-8">Nossa Essência</h3>
+          <p className="text-sm md:text-base font-light leading-relaxed mb-6 opacity-90">
+            O <strong className="text-[#D4AF37]">Closet Dellas</strong> nasceu para vestir mulheres reais com elegância e sofisticação. Nossa curadoria realça a beleza única que existe em você.
           </p>
-          <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto mb-6"></div>
-          <p className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold">Com carinho, Closet Dellas</p>
+          <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto"></div>
         </div>
       </section>
 
@@ -155,7 +167,13 @@ export default function Home() {
               <span className="text-[10px] uppercase font-bold text-zinc-400">Total</span>
               <span className="font-serif italic text-3xl text-[#611F3A]">R$ {total.toFixed(2)}</span>
             </div>
-            <button className="w-full bg-[#611F3A] text-white py-5 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl">Finalizar no WhatsApp</button>
+            {/* BOTÃO QUE ABRE O WHATSAPP CONFIGURADO */}
+            <button 
+              onClick={finalizarPedidoWhatsApp}
+              className="w-full bg-[#611F3A] text-white py-5 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl active:bg-[#D4AF37] transition-all"
+            >
+              Finalizar no WhatsApp
+            </button>
           </div>
         )}
       </div>
