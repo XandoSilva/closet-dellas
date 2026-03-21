@@ -129,7 +129,7 @@ export default function Home() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
-  const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos'); // Categoria inicial
+  const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos');
 
   // Dados dos produtos simulados (Usando links ilustrativos da internet)
   const categorias = ['vestidos', 'saia', 'conjuntos', 'blusas', 'cropped'];
@@ -142,7 +142,6 @@ export default function Home() {
           nome: `${categoria.charAt(0).toUpperCase() + categoria.slice(1)} Elegance ${i}`,
           categoria: categoria,
           preco: 250 + i * 15,
-          // FOTOS ILUSTRATIVAS DO UNSPLASH
           imagens: [
             `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-1`,
             `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-2`,
@@ -155,7 +154,28 @@ export default function Home() {
   };
   const todosProdutos = gerarProdutos();
 
-  const elogiosGosto = ["Escolha impecável! ✨", "Que bom gosto! ✨", "Essa peça vai realçar sua essência! ✨"];
+  const elogiosGosto = [
+    "Escolha impecável! Essa peça exala sofisticação.",
+    "Que bom gosto! Você acaba de escolher um ícone de elegância.",
+    "Combinação perfeita: o Closet Dellas e o seu estilo único.",
+    "Essa peça foi feita para quem não abre mão da classe.",
+    "Pura elegância! Seu olhar para a moda é surpreendente.",
+    "Um toque de luxo para o seu closet. Escolha maravilhosa!",
+    "Você tem um faro incrível para tendências atemporais.",
+    "Essa peça vai realçar ainda mais a sua essência.",
+    "Simplesmente deslumbrante! Uma escolha digna de elogios.",
+    "Estilo é saber quem você é, e sua escolha diz tudo!",
+    "Seu senso estético é absolutamente inspirador.",
+    "Uma peça que traduz perfeitamente a sua elegância nata.",
+    "Curadoria pessoal nota dez! Essa peça é indispensável.",
+    "Sofisticação em cada detalhe. Parabéns pela escolha!",
+    "Você acaba de elevar o nível do seu closet. Incrível!",
+    "Beleza e classe em uma única escolha. Perfeito!",
+    "O equilíbrio ideal entre modernidade e tradição. Lindo!",
+    "Seu bom gosto é a marca registrada da sua personalidade.",
+    "Uma escolha que reflete confiança e atitude feminina.",
+    "Luxo é ter personalidade, e sua escolha prova isso!"
+  ];
 
   const adicionarAoCarrinho = (produto: any) => {
     setCarrinho([...carrinho, { ...produto, image: produto.imagens[0] }]);
@@ -177,28 +197,54 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#E2AFC1] text-[#611F3A] font-sans relative overflow-x-hidden">
+    <main className="min-h-screen bg-[#E2AFC1]/50 text-[#611F3A] font-sans relative overflow-x-hidden">
       
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
-      <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalPedidoWhatsApp} />
+      
+      {/* CORREÇÃO AQUI: Passando 'finalizarPedidoWhatsApp' em vez de 'finalPedidoWhatsApp' */}
+      <SacolaLateral 
+        aberto={carrinhoAberto} 
+        fechar={() => setCarrinhoAberto(false)} 
+        carrinho={carrinho} 
+        remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} 
+        finalizar={finalizarPedidoWhatsApp} 
+      />
 
       {/* Navegação Principal */}
-      <nav className="flex justify-between items-center p-6 md:px-12 bg-white/95 sticky top-0 z-[100] border-b border-[#611F3A]/10 shadow-sm">
-        <div className="flex flex-col">
-          <h1 className="text-2xl md:text-4xl font-serif font-extrabold leading-none">Closet <span className="text-[#D4AF37] italic font-light">Dellas</span></h1>
-          <span className="text-[8px] tracking-[0.4em] uppercase font-bold text-[#611F3A]/60">Sua moda, seu estilo</span>
+      <nav className="p-6 md:p-8 bg-white sticky top-0 z-[100] border-b border-[#611F3A]/10 shadow-sm">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Botão Guia de Medidas Destacado */}
+          <button onClick={() => setGuiaAberto(true)} className="hidden md:block text-[10px] bg-[#611F3A] text-[#D4AF37] px-6 py-3 rounded-full uppercase tracking-widest font-bold shadow-lg hover:bg-[#D4AF37] hover:text-[#611F3A] transition-all">
+            Guia de Medidas
+          </button>
+
+          {/* Logo Centralizada */}
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-3xl md:text-5xl font-serif font-extrabold leading-none">
+              Closet <span className="text-[#D4AF37] italic font-light">Dellas</span>
+            </h1>
+            <span className="text-[9px] tracking-[0.5em] uppercase font-bold text-[#611F3A]/60 mt-2">Sua moda, seu estilo</span>
+          </div>
+
+          {/* Sacola Destacada - CORREÇÃO AQUI: Espaço adicionado no active:scale-95 */}
+          <button onClick={() => setCarrinhoAberto(true)} className="relative p-4 bg-[#D4AF37] rounded-full shadow-lg active:scale-95 transition-all">
+            <span className="text-2xl">👜</span>
+            <span className="absolute -top-1 -right-1 bg-[#611F3A] text-[#D4AF37] text-[10px] w-6 h-6 rounded-full flex items-center justify-center font-bold border-2 border-white shadow-md">
+              {carrinho.length}
+            </span>
+          </button>
         </div>
-        <button onClick={() => setCarrinhoAberto(true)} className="relative p-2 bg-[#611F3A]/5 rounded-fullactive:scale-95">
-          <span className="text-2xl">👜</span>
-          <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{carrinho.length}</span>
-        </button>
       </nav>
 
       {/* Hero */}
-      <section className="bg-white px-6 py-12 text-center border-b border-[#611F3A]/5">
-        <span className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block underline underline-offset-8 decoration-[#611F3A]/20">Curadoria Exclusiva</span>
-        <h2 className="text-4xl md:text-6xl font-extralight text-[#611F3A] mb-8 leading-tight italic font-serif">Sua essência, <span className="text-[#D4AF37]">seu estilo.</span></h2>
+      <section className="px-6 py-24 md:py-32 text-center text-white border-b border-[#611F3A]/10 bg-cover bg-center relative" style={{ backgroundImage: "url('/images/hero-sophisticated.jpg')" }}>
+        <div className="absolute inset-0 bg-[#611F3A]/70 backdrop-blur-[1px]"></div>
+        <div className="relative z-10">
+          <span className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block underline underline-offset-8">Coleção Exclusiva 2026</span>
+          <h2 className="text-4xl md:text-7xl font-extralight mb-10 leading-tight italic font-serif">A elegância que <br /> <span className="text-[#D4AF37]">você merece.</span></h2>
+          <button className="bg-[#D4AF37] text-[#611F3A] px-10 py-5 rounded-full text-xs uppercase tracking-[0.3em] font-bold hover:bg-white transition-all shadow-2xl">Conferir Lançamentos</button>
+        </div>
       </section>
 
       {/* Vitrine */}
