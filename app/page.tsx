@@ -2,193 +2,255 @@
 
 import { useState } from 'react';
 
-// --- DADOS DOS PRODUTOS (Para mimetizar a foto) ---
-// Adicionei 3 fotos por produto para quando fizermos o carrossel depois
-const produtos = [
-  { id: 1, nome: "Vestido Midi Satin", preco: 289.90, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000" },
-  { id: 2, nome: "Conjunto Alfaiataria Off-White", preco: 450.00, image: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000" },
-  { id: 3, nome: "Blazer Linho Premium", preco: 320.00, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000" },
-  { id: 4, nome: "Macacão Pantalona Noite", preco: 389.90, image: "https://images.unsplash.com/photo-1581044777550-4cfa60707c03?q=80&w=1000" },
-];
+// --- COMPONENTES AUXILIARES ---
+
+// 1. Guia de Medidas (Modal)
+function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void }) {
+  if (!aberto) return null;
+  return (
+    <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4" onClick={fechar}>
+      <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+        <button onClick={fechar} className="absolute top-4 right-4 text-[#611F3A]/40 hover:text-[#611F3A] text-xl">✕</button>
+        <h2 className="text-2xl font-serif italic text-[#611F3A] mb-6 text-center">Guia de Medidas</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-[10px] md:text-xs uppercase tracking-widest border-collapse">
+            <thead>
+              <tr className="border-b border-[#D4AF37]/30 text-[#D4AF37]">
+                <th className="py-3">Tamanho</th>
+                <th className="py-3">Busto</th>
+                <th className="py-3">Cintura</th>
+                <th className="py-3">Quadril</th>
+              </tr>
+            </thead>
+            <tbody className="text-[#611F3A]">
+              <tr className="border-b border-zinc-50"><td className="py-4 font-bold">P (36/38)</td><td>84-88cm</td><td>66-70cm</td><td>94-98cm</td></tr>
+              <tr className="border-b border-zinc-50"><td className="py-4 font-bold">M (40/42)</td><td>92-96cm</td><td>74-78cm</td><td>102-106cm</td></tr>
+              <tr className="border-b border-zinc-50"><td className="py-4 font-bold">G (44)</td><td>100-104cm</td><td>82-86cm</td><td>110-114cm</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-6 text-[9px] text-zinc-400 text-center italic">* Medidas aproximadas para auxiliar sua escolha.</p>
+      </div>
+    </div>
+  );
+}
+
+// 2. Carrossel de Fotos do Produto (Usando Imagens Ilustrativas da Internet)
+function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }) {
+  const [fotoAtual, setFotoAtual] = useState(0);
+  const proximaFoto = () => setFotoAtual((prev) => (prev + 1 === imagens.length ? 0 : prev + 1));
+  const fotoAnterior = () => setFotoAtual((prev) => (prev === 0 ? imagens.length - 1 : prev - 1));
+
+  return (
+    <div className="relative aspect-[3/4] w-full overflow-hidden bg-white mb-6 border border-[#611F3A]/10 shadow-sm rounded-sm group/carrossel">
+      <div className="flex h-full w-full transition-transform duration-500 ease-in-out" style={{ transform: `translateX(-${fotoAtual * 100}%)` }}>
+        {imagens.map((img, index) => (
+          <img key={index} src={img} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0" />
+        ))}
+      </div>
+      {imagens.length > 1 && (
+        <>
+          <button onClick={fotoAnterior} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] p-3 rounded-full text-xs font-bold md:opacity-0 md:group-hover/carrossel:opacity-100 transition-opacity active:scale-90">
+            ❮
+          </button>
+          <button onClick={proximaFoto} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] p-3 rounded-full text-xs font-bold md:opacity-0 md:group-hover/carrossel:opacity-100 transition-opacity active:scale-90">
+            ❯
+          </button>
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/10 rounded-full backdrop-blur-sm">
+            {imagens.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setFotoAtual(index)}
+                className={`w-2 h-2 rounded-full transition-all ${index === fotoAtual ? 'bg-[#D4AF37] scale-125' : 'bg-white/60'}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// 3. Notificação (Toast)
+function Notificacao({ mensagem }: { mensagem: string }) {
+  if (!mensagem) return null;
+  return (
+    <div className="fixed top-24 left-1/2 -translate-x-1/2 w-[85%] md:w-auto bg-white/95 backdrop-blur-md text-[#D4AF37] px-8 py-5 rounded-2xl shadow-2xl z-[9999] transform transition-all duration-500 border border-[#D4AF37]/30 animate-in fade-in slide-in-from-top-4">
+      <p className="text-xs md:text-sm uppercase tracking-widest font-bold text-center italic font-serif leading-tight">✨ {mensagem}</p>
+    </div>
+  );
+}
+
+// 4. Sacola Lateral
+function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: { aberto: boolean, fechar: () => void, carrinho: any[], remover: (idx: number) => void, finalizar: () => void }) {
+  const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+
+  return (
+    <>
+      <div className={`fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl z-[1000] transform transition-transform duration-500 p-8 border-l border-[#611F3A]/10 ${aberto ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex justify-between items-center mb-10 border-b border-[#611F3A]/10 pb-6">
+          <h2 className="text-2xl font-serif italic text-[#611F3A]">Sua Sacola</h2>
+          <button onClick={fechar} className="text-[10px] bg-[#E2AFC1]/20 px-4 py-2 rounded-full uppercase font-bold text-[#611F3A]">Fechar</button>
+        </div>
+        <div className="space-y-6 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
+          {carrinho.map((item, index) => (
+            <div key={index} className="flex gap-4 border-b border-[#611F3A]/5 pb-4 items-center animate-in fade-in slide-in-from-right-4">
+              <img src={item.image} className="w-16 h-20 object-cover rounded-md" />
+              <div className="flex-1">
+                <h4 className="text-[10px] uppercase font-bold text-[#611F3A]">{item.nome}</h4>
+                <p className="text-sm font-serif italic text-[#D4AF37]">R$ {item.preco.toFixed(2)}</p>
+              </div>
+              <button onClick={() => remover(index)} className="p-2 text-[#611F3A]/20 hover:text-[#611F3A] transition-colors">✕</button>
+            </div>
+          ))}
+          {carrinho.length === 0 && <p className="text-center text-xs text-zinc-300 py-20 uppercase tracking-widest">Sua sacola está vazia</p>}
+        </div>
+        {carrinho.length > 0 && (
+          <div className="absolute bottom-8 left-8 right-8 bg-white pt-6 border-t border-[#D4AF37]/20">
+            <div className="flex justify-between mb-6">
+              <span className="text-[10px] uppercase font-bold text-zinc-400">Total</span>
+              <span className="font-serif italic text-3xl text-[#611F3A]">R$ {total.toFixed(2)}</span>
+            </div>
+            <button onClick={finalizar} className="w-full bg-[#611F3A] text-white py-5 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-xl active:scale-95 transition-all">
+              Finalizar no WhatsApp
+            </button>
+          </div>
+        )}
+      </div>
+      {aberto && <div onClick={fechar} className="fixed inset-0 bg-[#611F3A]/60 z-[900] backdrop-blur-[2px]" />}
+    </>
+  );
+}
+
+// --- COMPONENTE PRINCIPAL ---
 
 export default function Home() {
   const [carrinho, setCarrinho] = useState<any[]>([]);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
+  const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
+  const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos'); // Categoria inicial
+
+  // Dados dos produtos simulados (Usando links ilustrativos da internet)
+  const categorias = ['vestidos', 'saia', 'conjuntos', 'blusas', 'cropped'];
+  const gerarProdutos = () => {
+    const listaProdutos: any[] = [];
+    categorias.forEach((categoria, catIndex) => {
+      for (let i = 1; i <= 6; i++) {
+        listaProdutos.push({
+          id: catIndex * 6 + i,
+          nome: `${categoria.charAt(0).toUpperCase() + categoria.slice(1)} Elegance ${i}`,
+          categoria: categoria,
+          preco: 250 + i * 15,
+          // FOTOS ILUSTRATIVAS DO UNSPLASH
+          imagens: [
+            `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-1`,
+            `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-2`,
+            `https://images.unsplash.com/photo-1562183241-b937e95585b6?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-3`,
+          ],
+        });
+      }
+    });
+    return listaProdutos;
+  };
+  const todosProdutos = gerarProdutos();
+
+  const elogiosGosto = ["Escolha impecável! ✨", "Que bom gosto! ✨", "Essa peça vai realçar sua essência! ✨"];
 
   const adicionarAoCarrinho = (produto: any) => {
-    setCarrinho([...carrinho, produto]);
-    setNotificacao(`✨ ${produto.nome} foi adicionado à sacola.`);
-    setTimeout(() => setNotificacao(""), 3000);
+    setCarrinho([...carrinho, { ...produto, image: produto.imagens[0] }]);
+    setNotificacao(elogiosGosto[Math.floor(Math.random() * elogiosGosto.length)]);
+    setTimeout(() => setNotificacao(""), 4000);
   };
 
-  const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+  const totalCarrinho = carrinho.reduce((acc, item) => acc + item.preco, 0);
+
+  const finalizarPedidoWhatsApp = () => {
+    const foneWhatsApp = "5521971366354"; 
+    let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
+    carrinho.forEach((item, index) => {
+      mensagem += `${index + 1}. *${item.nome}* - R$ ${item.preco.toFixed(2)}\n`;
+    });
+    mensagem += `\n*Total: R$ ${totalCarrinho.toFixed(2)}*\n\n_Aguardo seu retorno para combinarmos os detalhes!_`;
+    const url = `https://api.whatsapp.com/send?phone=${foneWhatsApp}&text=${encodeURIComponent(mensagem)}`;
+    window.open(url, '_blank');
+  };
 
   return (
-    // Layout Base (Fonte sans-serif limpa como na foto)
-    <main className="min-h-screen bg-white text-zinc-800 font-sans relative overflow-x-hidden">
+    <main className="min-h-screen bg-[#E2AFC1] text-[#611F3A] font-sans relative overflow-x-hidden">
       
-      {/* NOTIFICAÇÃO (Toast) */}
-      <div className={`fixed top-10 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm px-8 py-4 rounded-full shadow-2xl z-[120] transform transition-all duration-500 ease-in-out ${notificacao ? 'translate-y-0 opacity-100' : '-translate-y-20 opacity-0'}`}>
-        <p className="text-sm uppercase tracking-widest font-bold text-[#611F3A]">
-          {notificacao}
-        </p>
-      </div>
+      <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
+      <Notificacao mensagem={notificacao} />
+      <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalPedidoWhatsApp} />
 
-      {/* 5. Carrinho Lateral (Sacola) - Abre sobre a página */}
-      <div className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl z-[100] transform transition-transform duration-500 ease-in-out p-8 border-l border-zinc-100 ${carrinhoAberto ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex justify-between items-center mb-10 border-b border-zinc-50 pb-6">
-          <h2 className="text-2xl font-serif italic text-zinc-900">Sua Sacola</h2>
-          <button onClick={() => setCarrinhoAberto(false)} className="text-xs bg-zinc-100 px-4 py-2 rounded-full uppercase tracking-widest text-zinc-500 hover:text-zinc-900 transition-all">Fechar</button>
+      {/* Navegação Principal */}
+      <nav className="flex justify-between items-center p-6 md:px-12 bg-white/95 sticky top-0 z-[100] border-b border-[#611F3A]/10 shadow-sm">
+        <div className="flex flex-col">
+          <h1 className="text-2xl md:text-4xl font-serif font-extrabold leading-none">Closet <span className="text-[#D4AF37] italic font-light">Dellas</span></h1>
+          <span className="text-[8px] tracking-[0.4em] uppercase font-bold text-[#611F3A]/60">Sua moda, seu estilo</span>
         </div>
-
-        {carrinho.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[50vh]">
-             <p className="text-xs text-zinc-300 uppercase tracking-[0.3em]">Sacola vazia</p>
-          </div>
-        ) : (
-          <>
-            <div className="space-y-6 overflow-y-auto max-h-[55vh] pr-2">
-              {carrinho.map((item, index) => (
-                <div key={index} className="flex gap-4 border-b border-zinc-50 pb-6 items-center">
-                  <img src={item.image} className="w-20 h-24 object-cover bg-zinc-50 shadow-sm" />
-                  <div className="flex-1">
-                    <h4 className="text-[10px] uppercase font-bold tracking-[0.1em] text-zinc-800">{item.nome}</h4>
-                    <p className="text-sm font-serif italic text-[#D4AF37]">R$ {item.preco.toFixed(2)}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="absolute bottom-8 left-8 right-8 bg-white pt-6">
-              <div className="flex justify-between mb-8">
-                <span className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-400">Total</span>
-                <span className="font-serif italic text-2xl text-zinc-900">R$ {total.toFixed(2)}</span>
-              </div>
-              <button className="w-full bg-zinc-900 text-white py-5 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-zinc-700 transition-all shadow-xl active:scale-95">
-                Finalizar Compra
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Overlay do Carrinho */}
-      {carrinhoAberto && <div onClick={() => setCarrinhoAberto(false)} className="fixed inset-0 bg-black/60 z-[90] backdrop-blur-[2px]" />}
-
-
-      {/* 1. NAVEGAÇÃO EXPANDIDA (Fundo Branco como na foto) */}
-      <nav className="flex justify-between items-center px-6 md:px-16 py-6 bg-white sticky top-0 z-50 border-b border-zinc-50 shadow-sm">
-        {/* LOGO (Vinho Marsala da logo original) */}
-        <h1 className="text-2xl md:text-3xl font-serif font-extrabold text-[#611F3A]">
-          Closet <span className="text-[#611F3A]/80 font-light italic">Dellas</span>
-        </h1>
-        
-        <div className="flex items-center gap-6">
-          {/* BOTÃO GUIA DE MEDIDAS (Novidade da Foto) */}
-          <button className="hidden md:block text-[10px] bg-zinc-50 px-5 py-2.5 rounded-full uppercase tracking-[0.2em] font-semibold text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 transition-all border border-zinc-100">
-            Guia de Medidas
-          </button>
-          
-          {/* SACOLA (Ao clicar, abre o carrinho lateral) */}
-          <button onClick={() => setCarrinhoAberto(true)} className="relative p-2 text-zinc-900 hover:text-[#D4AF37] transition-colors active:scale-90">
-            <span className="text-2xl">👜</span>
-            <span className="absolute -top-1 -right-1 bg-zinc-900 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">
-              {carrinho.length}
-            </span>
-          </button>
-        </div>
+        <button onClick={() => setCarrinhoAberto(true)} className="relative p-2 bg-[#611F3A]/5 rounded-fullactive:scale-95">
+          <span className="text-2xl">👜</span>
+          <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{carrinho.length}</span>
+        </button>
       </nav>
 
-      {/* 2. SEÇÃO HERO (Banner Sofisticado) */}
-      <header className="px-6 md:px-16 py-24 bg-white border-b border-zinc-50 shadow-sm flex flex-col items-center">
-        {/* Usando uma imagem sophisticated do Unsplash que mimetiza o estilo */}
-        <div className="w-full max-w-7xl relative aspect-[21/9] bg-zinc-50 rounded-lg overflow-hidden border border-zinc-100">
-            <img 
-                src="https://images.unsplash.com/photo-1618220179428-22790b461013?q=80&w=1500" 
-                alt="Sofistication Closet Dellas" 
-                className="w-full h-full object-cover"
-            />
-            {/* Texto e Botão sobre a foto */}
-            <div className="absolute inset-y-0 left-0 flex flex-col justify-center items-start p-10 md:p-20 bg-gradient-to-r from-black/80 to-transparent">
-                <span className="text-[10px] uppercase tracking-[0.8em] text-[#D4AF37] mb-6 block font-bold">Nova Coleção</span>
-                <h2 className="text-4xl md:text-6xl font-extralight text-white leading-tight mb-10">
-                    A elegância <br /> que você <span className="italic font-serif">merece.</span>
-                </h2>
-                <button className="bg-white text-zinc-900 px-10 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-bold hover:bg-[#D4AF37] hover:text-white transition-all shadow-xl active:scale-95">
-                    Conferir Lançamentos
-                </button>
-            </div>
-        </div>
-      </header>
-
-      {/* 3. BARRA DE BENEFÍCIOS (Ícones da Foto) */}
-      <section className="bg-zinc-50 py-10 px-6 md:px-16 border-b border-zinc-100">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="flex flex-col items-center gap-2"><span className="text-lg">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Frete Grátis acima de R$399</p></div>
-            <div className="flex flex-col items-center gap-2"><span className="text-lg">💳</span><p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Parcelamento em até 6x</p></div>
-            <div className="flex flex-col items-center gap-2"><span className="text-lg">✨</span><p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Curadoria Exclusiva</p></div>
-            <div className="flex flex-col items-center gap-2"><span className="text-lg">🔒</span><p className="text-[10px] uppercase font-bold tracking-widest text-zinc-600">Compra Segura</p></div>
-        </div>
+      {/* Hero */}
+      <section className="bg-white px-6 py-12 text-center border-b border-[#611F3A]/5">
+        <span className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block underline underline-offset-8 decoration-[#611F3A]/20">Curadoria Exclusiva</span>
+        <h2 className="text-4xl md:text-6xl font-extralight text-[#611F3A] mb-8 leading-tight italic font-serif">Sua essência, <span className="text-[#D4AF37]">seu estilo.</span></h2>
       </section>
 
-      {/* 4. VITRINE DE PRODUTOS ("Nossos Destaques") */}
-      <section className="max-w-7xl mx-auto py-20 px-8">
-        {/* Título da Seção como na foto (serif e Vinho) */}
-        <h3 className="text-3xl font-serif italic text-[#611F3A] mb-12 border-b border-zinc-50 pb-4">
-            Nossos Destaques
-        </h3>
+      {/* Vitrine */}
+      <section className="max-w-7xl mx-auto py-16 px-6">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-12 border-b border-[#611F3A]/10 pb-6 gap-6">
+          <h3 className="text-3xl font-serif italic text-[#611F3A]">Destaques</h3>
+          {/* Menu de Categorias */}
+          <div className="flex gap-4 text-[10px] uppercase tracking-widest font-bold overflow-x-auto pb-2 w-full md:w-auto justify-center">
+            {categorias.map(cat => (
+              <button 
+                key={cat} 
+                onClick={() => setCategoriaAtiva(cat)}
+                className={`pb-1 whitespace-nowrap ${categoriaAtiva === cat ? 'text-[#611F3A] border-b-2 border-[#D4AF37]' : 'text-[#611F3A]/40'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        {/* Grade de 4 colunas (Novidade da Foto) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
-          {produtos.map((produto) => (
-            <div key={produto.id} className="group flex flex-col bg-white border border-zinc-50 shadow-sm rounded-lg overflow-hidden transition-all hover:shadow-2xl">
-              {/* Imagem do Produto */}
-              <div className="aspect-[3/4] w-full bg-zinc-50 overflow-hidden relative">
-                <img src={produto.image} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-[1s]" />
-                {/* Etiqueta de Novidade (Dourado da Logo) */}
-                <span className="absolute top-4 left-4 text-[9px] bg-[#D4AF37] text-white px-3 py-1.5 rounded-full uppercase tracking-widest font-bold">
-                    Novidade
-                </span>
-              </div>
-              
-              {/* Detalhes do Produto */}
-              <div className="p-6 text-center flex-1 flex flex-col">
-                <h4 className="text-[10px] uppercase tracking-[0.3em] mb-4 font-semibold text-zinc-400 group-hover:text-zinc-900 transition-colors flex-1">{produto.nome}</h4>
-                <p className="text-zinc-900 font-serif italic text-2xl mb-6">R$ {produto.preco.toFixed(2)}</p>
-                {/* Botão Vinho Marsala da Logo */}
-                <button 
-                  onClick={() => adicionarAoCarrinho(produto)}
-                  className="w-full bg-[#611F3A] text-white py-3.5 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#D4AF37] hover:text-white transition-all shadow-md active:scale-95"
-                >
-                  Adicionar à Sacola
-                </button>
+        {/* Grid de Produtos filtrados por categoria */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 md:gap-16">
+          {todosProdutos.filter(p => p.categoria === categoriaAtiva).map((produto) => (
+            <div key={produto.id} className="flex flex-col group animate-in fade-in duration-500">
+              <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+              <div className="text-center group-hover:-translate-y-2 transition-transform duration-500">
+                <h4 className="text-[11px] uppercase tracking-widest mb-2 font-semibold text-[#611F3A]/60">{produto.nome}</h4>
+                <div className="w-8 h-[2px] bg-[#D4AF37] mx-auto mb-4 group-hover:w-12 transition-all"></div>
+                <p className="text-[#611F3A] font-serif italic text-3xl mb-6">R$ {produto.preco.toFixed(2)}</p>
+                <div className="flex flex-col gap-3">
+                  <button onClick={() => adicionarAoCarrinho(produto)} className="w-full bg-[#611F3A] text-[#D4AF37] py-4 rounded-xl text-[10px] uppercase tracking-[0.3em] font-bold shadow-lg md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-[#D4AF37] hover:text-[#611F3A]">
+                    Adicionar à Sacola
+                  </button>
+                  <button onClick={() => setGuiaAberto(true)} className="text-[9px] uppercase tracking-widest text-[#611F3A]/40 font-bold underline underline-offset-4 hover:text-[#611F3A] transition-colors">
+                    Guia de Medidas
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* 6. SEÇÃO "NOSSA ESSÊNCIA" (Rodapé Informativo da Foto) */}
-      <section className="bg-zinc-50 py-20 px-8 text-center border-t border-zinc-100 mt-20">
-        <div className="max-w-xl mx-auto">
-            <h3 className="text-2xl font-serif italic text-zinc-900 mb-6">Nossa Essência</h3>
-            <p className="text-sm font-light text-zinc-500 leading-relaxed mb-6">
-                O Closet Dellas nasceu da paixão por vestir mulheres reais com elegância e sofisticação. Nossa curadoria é feita a dedo para que cada peça conte uma história e realce a beleza única que existe em você.
-            </p>
-            <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto opacity-30"></div>
-        </div>
-      </section>
-
-      {/* RODAPÉ FINAL */}
-      <footer className="py-20 text-center bg-white border-t border-zinc-100">
-        <p className="text-[10px] uppercase tracking-[0.6em] text-zinc-300 font-bold italic">
-          © 2026 Closet Dellas • Boutique de Luxo
-        </p>
-        <div className="flex gap-4 justify-center mt-6 text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-400">
-            <a href="#" className="hover:text-zinc-900">Termos</a>
-            <a href="#" className="hover:text-zinc-900">Política</a>
-            <a href="#" className="hover:text-zinc-900">FAQ</a>
+      {/* Footer / Quem Somos */}
+      <footer className="bg-[#611F3A] py-24 px-6 text-center text-white border-t-2 border-[#D4AF37]/30">
+        <div className="max-w-2xl mx-auto">
+          <h3 className="text-3xl font-serif italic mb-8">Nossa Essência</h3>
+          <p className="text-sm md:text-base font-light leading-relaxed mb-10 opacity-90 leading-relaxed">
+            O <strong className="text-[#D4AF37] uppercase tracking-widest">Closet Dellas</strong> nasceu para vestir mulheres reais com elegância e sofisticação. Nossa curadoria realça a beleza única que existe em você.
+          </p>
+          <div className="w-12 h-[1px] bg-[#D4AF37] mx-auto mb-6 opacity-50"></div>
+          <p className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold">© 2026 Closet Dellas • Boutique de Luxo</p>
         </div>
       </footer>
     </main>
