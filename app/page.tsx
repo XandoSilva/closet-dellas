@@ -2,19 +2,115 @@
 
 import { useState } from 'react';
 
+// Componente para carrossel de fotos do produto (Reutilizável)
+function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }) {
+  const [fotoAtual, setFotoAtual] = useState(0);
+
+  const proximaFoto = () => {
+    setFotoAtual((prev) => (prev + 1 === imagens.length ? 0 : prev + 1));
+  };
+
+  const fotoAnterior = () => {
+    setFotoAtual((prev) => (prev === 0 ? imagens.length - 1 : prev - 1));
+  };
+
+  return (
+    <div className="relative aspect-[3/4] w-full overflow-hidden bg-white mb-6 border border-[#611F3A]/10 shadow-sm rounded-sm group/carrossel">
+      {/* Imagens (Slider) */}
+      <div 
+        className="flex h-full w-full transition-transform duration-500 ease-in-out" 
+        style={{ transform: `translateX(-${fotoAtual * 100}%)` }}
+      >
+        {imagens.map((img, index) => (
+          <img 
+            key={index} 
+            src={img} 
+            alt={`${nome} - Foto ${index + 1}`} 
+            className="w-full h-full object-cover flex-shrink-0"
+          />
+        ))}
+      </div>
+
+      {/* Setas de Navegação (Visíveis apenas no hover em desktop) */}
+      {imagens.length > 1 && (
+        <>
+          <button 
+            onClick={fotoAnterior}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] p-3 rounded-full text-xs font-bold md:opacity-0 md:group-hover/carrossel:opacity-100 transition-opacity active:scale-90"
+            aria-label="Foto anterior"
+          >
+            ❮
+          </button>
+          <button 
+            onClick={proximaFoto}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] p-3 rounded-full text-xs font-bold md:opacity-0 md:group-hover/carrossel:opacity-100 transition-opacity active:scale-90"
+            aria-label="Próxima foto"
+          >
+            ❯
+          </button>
+        </>
+      )}
+
+      {/* Indicadores (Dots) */}
+      {imagens.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 p-2 bg-black/10 rounded-full backdrop-blur-sm">
+          {imagens.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setFotoAtual(index)}
+              className={`w-2 h-2 rounded-full transition-all ${index === fotoAtual ? 'bg-[#D4AF37] scale-125' : 'bg-white/60'}`}
+              aria-label={`Ver foto ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Home() {
   const [carrinho, setCarrinho] = useState<any[]>([]);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
 
+  // LISTA DE PRODUTOS ATUALIZADA COM 3 FOTOS CADA (Usando Links Exemplo)
   const produtos = [
-    { id: 1, nome: "Vestido Midi Satin", preco: 289.90, image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000" },
-    { id: 2, nome: "Conjunto Alfaiataria Off-White", preco: 450.00, image: "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000" },
-    { id: 3, nome: "Blazer Linho Premium", preco: 320.00, image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000" },
+    { 
+      id: 1, 
+      nome: "Vestido Midi Satin", 
+      preco: 289.90, 
+      imagens: [
+        "https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1000",
+        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000",
+        "https://images.unsplash.com/photo-1562183241-b937e95585b6?q=80&w=1000"
+      ] 
+    },
+    { 
+      id: 2, 
+      nome: "Conjunto Alfaiataria Off-White", 
+      preco: 450.00, 
+      imagens: [
+        "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=1000",
+        "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?q=80&w=1000"
+      ] 
+    },
+    { 
+      id: 3, 
+      nome: "Blazer Linho Premium", 
+      preco: 320.00, 
+      imagens: [
+        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000",
+        "https://images.unsplash.com/photo-1601924582970-9238bcb495d9?q=80&w=1000",
+        "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1000"
+      ] 
+    },
   ];
 
   const adicionarAoCarrinho = (produto: any) => {
-    setCarrinho([...carrinho, produto]);
+    // Para o carrinho, usamos apenas a primeira foto como capa
+    const produtoSimplificado = { ...produto, image: produto.imagens[0] };
+    setCarrinho([...carrinho, produtoSimplificado]);
     setNotificacao("Sua escolha reflete pura sofisticação!");
     setTimeout(() => setNotificacao(""), 3500);
   };
@@ -52,7 +148,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* SECTION HERO - NOVIDADE */}
+      {/* SECTION HERO */}
       <section className="bg-white px-6 py-16 md:py-24 text-center border-b border-[#611F3A]/5">
         <span className="text-[10px] uppercase tracking-[0.5em] text-[#D4AF37] font-bold mb-4 block underline underline-offset-8">Nova Coleção 2026</span>
         <h2 className="text-4xl md:text-7xl font-extralight text-[#611F3A] mb-8 leading-tight">
@@ -63,7 +159,7 @@ export default function Home() {
         </button>
       </section>
 
-      {/* BARRA DE BENEFÍCIOS - NOVIDADE */}
+      {/* BARRA DE BENEFÍCIOS */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-0 bg-white/50 py-8 border-b border-[#611F3A]/10 text-center">
         <div className="flex flex-col items-center">
           <span className="text-lg mb-1">💳</span>
@@ -79,7 +175,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* VITRINE DE PRODUTOS */}
+      {/* VITRINE DE PRODUTOS COM CARROSSEL */}
       <section className="max-w-7xl mx-auto py-16 px-6">
         <div className="flex justify-between items-end mb-12">
           <h3 className="text-2xl font-serif italic text-[#611F3A]">Destaques</h3>
@@ -90,18 +186,18 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {produtos.map((produto) => (
             <div key={produto.id} className="flex flex-col group">
-              <div className="relative aspect-[3/4] w-full overflow-hidden bg-white mb-6 border border-[#611F3A]/10 shadow-sm rounded-sm">
-                <img src={produto.image} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+              {/* COMPONENTE DO CARROSSEL DE FOTOS */}
+              <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+
+              <div className="text-center">
+                <h4 className="text-[11px] uppercase tracking-widest mb-2 font-semibold text-[#611F3A]/60">{produto.nome}</h4>
+                <p className="text-[#611F3A] font-serif italic text-3xl mb-4">R$ {produto.preco.toFixed(2)}</p>
                 <button 
                   onClick={() => adicionarAoCarrinho(produto)}
-                  className="absolute bottom-4 left-4 right-4 bg-[#611F3A] text-[#D4AF37] py-4 rounded-lg text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl active:scale-95 transition-all md:opacity-0 md:translate-y-4 md:group-hover:opacity-100 md:group-hover:translate-y-0"
+                  className="bg-[#611F3A] text-[#D4AF37] px-6 py-3 rounded-lg text-[10px] uppercase tracking-[0.2em] font-bold shadow-md active:scale-95 transition-all w-full md:w-auto"
                 >
                   Adicionar à Sacola
                 </button>
-              </div>
-              <div className="text-center">
-                <h4 className="text-[11px] uppercase tracking-widest mb-2 font-semibold text-[#611F3A]/60">{produto.nome}</h4>
-                <p className="text-[#611F3A] font-serif italic text-3xl">R$ {produto.preco.toFixed(2)}</p>
               </div>
             </div>
           ))}
