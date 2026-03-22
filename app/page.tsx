@@ -243,6 +243,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
 
 export default function Home() {
   const [todosProdutos, setTodosProdutos] = useState([]);
+  const [bannersAPI, setBannersAPI] = useState([]); // NOVO ESTADO DOS BANNERS
   const [carregando, setCarregando] = useState(true);
   const [carrinho, setCarrinho] = useState([]);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
@@ -258,13 +259,20 @@ export default function Home() {
   const [bannerAtual, setBannerAtual] = useState(0);
 
   const foneWhatsAppRaw = "5521971366354";
+  
+  // URL DO ESTOQUE
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
+  
+  // ⚠️ SUA NOVA URL DOS BANNERS VEM AQUI EMBAIXO:
+  const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
 
-  const banners = [
-    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria Brás de Luxo", titulo: "A elegância que <br/> <span class='not-italic font-light'>você merece.</span>" },
-    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", titulo: "Nova coleção <br/> <span class='not-italic font-light'>direto do Brás.</span>" },
-    { imagem: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1600&h=800&fit=crop", tag: "Benefício Exclusivo", titulo: "Frete Grátis <br/> <span class='not-italic font-light text-2xl md:text-4xl block mt-4'>Acima de R$399 para o Sudeste</span>" }
+  // Banners de segurança (caso a planilha falhe ou esteja vazia)
+  const bannersFallback = [
+    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria Brás de Luxo", tituloPrincipal: "A elegância que", tituloDestaque: "você merece." },
+    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", tituloPrincipal: "Nova coleção", tituloDestaque: "direto do Brás." }
   ];
+
+  const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
@@ -279,10 +287,10 @@ export default function Home() {
 
   useEffect(() => {
     const intervalo = setInterval(() => {
-      setBannerAtual((prev) => (prev + 1 === banners.length ? 0 : prev + 1));
+      setBannerAtual((prev) => (prev + 1 === bannersExibicao.length ? 0 : prev + 1));
     }, 4000);
     return () => clearInterval(intervalo);
-  }, [banners.length]);
+  }, [bannersExibicao.length]);
 
   useEffect(() => {
     const handleScroll = () => setMostrarTopo(window.scrollY > 400);
@@ -298,9 +306,24 @@ export default function Home() {
     return null;
   };
 
+  // FETCH DA PLANILHA (AGORA PUXA OS DOIS: ESTOQUE E BANNERS)
   useEffect(() => {
-    const fetchEstoque = async () => {
+    const fetchDados = async () => {
       try {
+        // Puxando Banners
+        if(SHEET_BANNERS_URL && SHEET_BANNERS_URL !== "COLE_O_LINK_DO_CSV_DOS_BANNERS_AQUI") {
+            const resBanners = await fetch(SHEET_BANNERS_URL);
+            const textBanners = await resBanners.text();
+            const rowsBanners = textBanners.split('\n').slice(1);
+            const parsedBanners = rowsBanners.map(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c ? c.replace(/(^"|"$)/g, '').trim() : '');
+                if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
+                return null;
+            }).filter(Boolean);
+            if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
+        }
+
+        // Puxando Estoque
         const res = await fetch(SHEET_CSV_URL);
         const text = await res.text();
         const rows = text.split('\n').slice(1);
@@ -330,7 +353,7 @@ export default function Home() {
         setCarregando(false);
       } catch (e) { setCarregando(false); }
     };
-    fetchEstoque();
+    fetchDados();
   }, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
@@ -402,20 +425,23 @@ export default function Home() {
       </div>
 
       <section className="relative w-full aspect-[21/9] min-h-[400px] bg-zinc-900 overflow-hidden">
-        {banners.map((banner, index) => (
+        {bannersExibicao.map((banner, index) => (
             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
                 <img src={banner.imagem} className="absolute inset-0 w-full h-full object-cover scale-105" alt="Banner" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
                 <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 h-full flex flex-col justify-center text-left text-white">
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <span className="text-[10px] uppercase tracking-[0.5em] font-bold mb-6 block text-[#D4AF37]">{banner.tag}</span>
-                        <h2 className="text-4xl md:text-7xl font-serif italic mb-8 leading-[1.1] max-w-2xl drop-shadow-2xl" dangerouslySetInnerHTML={{ __html: banner.titulo }}></h2>
+                        <h2 className="text-4xl md:text-7xl font-serif italic mb-8 leading-[1.1] max-w-2xl drop-shadow-2xl">
+                          {banner.tituloPrincipal} <br/>
+                          <span className="not-italic font-light">{banner.tituloDestaque}</span>
+                        </h2>
                     </div>
                 </div>
             </div>
         ))}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-30">
-            {banners.map((_, i) => (
+            {bannersExibicao.map((_, i) => (
                 <div key={i} onClick={() => setBannerAtual(i)} className={`cursor-pointer rounded-full transition-all ${i === bannerAtual ? 'w-8 h-1.5 bg-[#D4AF37]' : 'w-1.5 h-1.5 bg-white/50'}`} />
             ))}
         </div>
