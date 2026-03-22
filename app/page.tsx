@@ -157,10 +157,9 @@ export default function Home() {
     "Sofisticação em cada detalhe. Parabéns pela escolha!",
     "Você acaba de elevar o nível do seu closet. Incrível!",
     "Beleza e classe em uma única escolha. Perfeito!",
-    "O equilíbrio ideal entre modernidade e tradição. Lindo!",
+    "O equilíbrio ideal entre modernidade e tradição. Adorei!",
     "Seu bom gosto é a marca registrada da sua personalidade.",
     "Uma escolha que reflete confiança e atitude feminina.",
-    "Luxo é ter personalidade, e sua escolha prova isso!"
   ];
 
   const adicionarAoCarrinho = (produto: any) => {
