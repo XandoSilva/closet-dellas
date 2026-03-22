@@ -156,10 +156,14 @@ export default function Home() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
-  const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos');
+  
+  // Inicia mostrando todas as categorias
+  const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
   const [busca, setBusca] = useState('');
   
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
+  // Estado para controlar o sub-menu aberto no celular (efeito cascata touch)
+  const [subMenuAberto, setSubMenuAberto] = useState<string | null>(null);
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
@@ -234,6 +238,7 @@ export default function Home() {
     if (busca.trim() !== '') {
       return p.nome.toLowerCase().includes(busca.toLowerCase());
     }
+    if (categoriaAtiva === 'todas') return true;
     return p.categoria === categoriaAtiva;
   });
 
@@ -247,7 +252,7 @@ export default function Home() {
       {/* NAVEGAÇÃO */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-5 bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
         
-        {/* NOVO CAMPO DE PESQUISA (Desktop) */}
+        {/* CAMPO DE PESQUISA ESTILIZADO (Desktop) */}
         <div className="hidden md:block w-80 relative">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-500">
@@ -259,7 +264,7 @@ export default function Home() {
             placeholder="O que você está procurando?"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-[#F9F6F7] border-none rounded-full text-xs text-zinc-800 focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 transition-all shadow-inner"
+            className="w-full pl-12 pr-4 py-3 bg-[#F9F6F7] border border-zinc-200 rounded-full text-xs text-zinc-800 focus:border-[#611F3A] focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 placeholder:italic transition-all shadow-inner"
           />
         </div>
         
@@ -315,7 +320,7 @@ export default function Home() {
             {busca ? 'Resultados da Busca' : 'Nossos Destaques'}
           </h3>
 
-          {/* NOVO CAMPO DE PESQUISA (Mobile) */}
+          {/* CAMPO DE PESQUISA ESTILIZADO (Mobile) */}
           <div className="w-full md:hidden relative mb-2 mt-4">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-500">
@@ -327,13 +332,82 @@ export default function Home() {
               placeholder="O que você está procurando?"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 bg-[#F9F6F7] border-none rounded-full text-xs text-zinc-800 focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 transition-all shadow-inner"
+              className="w-full pl-12 pr-4 py-3 bg-[#F9F6F7] border border-zinc-200 rounded-full text-xs text-zinc-800 focus:border-[#611F3A] focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 placeholder:italic transition-all shadow-inner"
             />
           </div>
         </div>
         
         {!busca && (
-          <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6">
+          <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6 relative z-40">
+            
+            {/* NOVO: CATEGORIA PAI "TODAS AS CATEGORIAS" (Efeito Cascata Mobile/Desktop) */}
+            <div className="relative group/todas">
+              <button 
+                onClick={() => {
+                  setCategoriaAtiva('todas');
+                  setMenuAbertoCat(menuAbertoCat === 'todas' ? null : 'todas');
+                  setSubMenuAberto(null);
+                }}
+                className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
+                  categoriaAtiva === 'todas' 
+                    ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
+                    : 'bg-white border border-zinc-200 text-[#611F3A] hover:border-[#611F3A]'
+                }`}
+              >
+                Todas as Categorias
+              </button>
+              
+              {/* Menu 1º Nível (Lista das Categorias) */}
+              <div className={`absolute left-0 top-full mt-2 w-56 bg-white border border-zinc-100 shadow-xl rounded-lg z-[60] transition-all duration-300 md:opacity-0 md:invisible md:group-hover/todas:opacity-100 md:group-hover/todas:visible ${menuAbertoCat === 'todas' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                {categoriasBase.map(cat => (
+                  <div key={cat.id} className="relative group/sub">
+                    <button 
+                      className="w-full flex items-center justify-between px-5 py-3 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        // Se clicar no nome, seleciona a categoria
+                        setCategoriaAtiva(cat.id);
+                        setMenuAbertoCat(null);
+                        setSubMenuAberto(null);
+                      }}
+                    >
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:text-[#611F3A]">{cat.label}</span>
+                      
+                      {/* Setinha para abrir sub-menu no mobile ou apenas visual no desktop */}
+                      <span 
+                        className="text-zinc-300 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSubMenuAberto(subMenuAberto === cat.id ? null : cat.id);
+                        }}
+                      >
+                        ❯
+                      </span>
+                    </button>
+                    
+                    {/* Menu 2º Nível (Efeito Cascata com Subcategorias) */}
+                    <div className={`absolute left-full top-0 ml-1 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-[70] overflow-hidden transition-all duration-200 md:opacity-0 md:invisible md:group-hover/sub:opacity-100 md:group-hover/sub:visible ${subMenuAberto === cat.id ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                      {cat.subs.map(sub => (
+                        <button 
+                          key={sub}
+                          className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCategoriaAtiva(cat.id);
+                            setMenuAbertoCat(null); 
+                            setSubMenuAberto(null);
+                          }}
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Categorias Normais (Lado a Lado) */}
             {categoriasBase.map(cat => (
               <div key={cat.id} className="relative group">
                 <button 
@@ -398,7 +472,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* QUEM SOMOS / SEÇÃO ESCURA (UNIFICADA) */}
+      {/* QUEM SOMOS / SEÇÃO ESCURA */}
       <section className="bg-[#611F3A] py-20 px-6 text-white mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
@@ -426,18 +500,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RODAPÉ DE INFORMAÇÕES (FOOTER BRANCO) */}
+      {/* RODAPÉ DE INFORMAÇÕES */}
       <footer className="bg-zinc-50 py-16 px-6 border-t border-zinc-200">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 text-center">
           
-          {/* INFORMAÇÕES ÚTEIS */}
           <div className="flex flex-col items-center">
             <h4 className="text-xs uppercase font-bold tracking-[0.2em] text-[#611F3A] mb-6">Informações Úteis</h4>
             <a href="#" className="text-xs text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">Política de Entrega e Retirada em Loja</a>
             <a href="#" className="text-xs text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">Trocas e Devoluções</a>
           </div>
 
-          {/* ATENDIMENTO */}
           <div className="flex flex-col items-center">
             <h4 className="text-xs uppercase font-bold tracking-[0.2em] text-[#611F3A] mb-6">Atendimento</h4>
             <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">
@@ -448,7 +520,6 @@ export default function Home() {
 
         </div>
 
-        {/* COPYRIGHT */}
         <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-zinc-200 text-center">
           <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">
             © 2026 Closet Dellas • Todos os direitos reservados
