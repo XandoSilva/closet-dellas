@@ -188,9 +188,10 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
-// --- SACOLA LATERAL RESTAURADA ---
+// --- SACOLA LATERAL RESTAURADA E CORRIGIDA ---
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
-  const total = carrinho.reduce((acc: number, item: any) => acc + item.preco, 0);
+  // Correção: Garante que o valor sempre será somado como número, evitando erros
+  const total = carrinho.reduce((acc: number, item: any) => acc + (Number(item.preco) || 0), 0);
 
   return (
     <>
@@ -207,7 +208,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
               <div className="flex-1">
                 <h4 className="text-[10px] uppercase font-bold text-zinc-800 leading-tight">{item.nome}</h4>
                 <p className="text-[10px] text-[#D4AF37] mt-0.5 font-bold uppercase">Tam: {item.tamanhoSelecionado}</p>
-                <p className="text-sm font-serif italic text-[#611F3A] mt-1">R$ {item.preco.toFixed(2)}</p>
+                <p className="text-sm font-serif italic text-[#611F3A] mt-1">R$ {Number(item.preco).toFixed(2)}</p>
               </div>
               <button onClick={() => remover(index)} className="p-2 text-zinc-300 hover:text-[#611F3A] transition-colors">✕</button>
             </div>
@@ -221,8 +222,9 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
               <span className="text-[11px] uppercase font-bold text-white/70 tracking-widest">Total</span>
               <span className="font-serif italic text-2xl">R$ {total.toFixed(2)}</span>
             </div>
+            {/* Correção do "FIM DO WHATSAPP" */}
             <button onClick={finalizar} className="w-full bg-white text-[#611F3A] py-4 rounded text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] hover:text-white transition-colors">
-              Finalizar no WhatsApp
+              FINALIZAR PEDIDO
             </button>
           </div>
         )}
@@ -249,7 +251,6 @@ export default function Home() {
   const foneWhatsAppRaw = "5521971366354";
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
 
-  // Categorias originais completas restauradas
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
@@ -261,7 +262,6 @@ export default function Home() {
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
   ];
 
-  // Controle do scroll para o botão voltar ao topo
   useEffect(() => {
     const handleScroll = () => setMostrarTopo(window.scrollY > 400);
     window.addEventListener('scroll', handleScroll);
@@ -274,18 +274,23 @@ export default function Home() {
         const res = await fetch(SHEET_CSV_URL);
         const text = await res.text();
         const rows = text.split('\n').slice(1);
+        
         const rawData = rows.map(row => {
-          const cols = row.split(',');
+          // Expressão regular que divide o CSV ignorando as vírgulas que estiverem dentro das descrições ou preços (Blindagem do sistema)
+          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+          const cleanCol = (col: string) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
+
           return {
-            ref: cols[0]?.trim(),
-            nome: cols[1]?.trim(),
-            categoria: cols[2]?.trim().toLowerCase(),
-            subcategoria: cols[3]?.trim(),
-            tamanho: cols[4]?.trim(),
-            estoque: parseInt(cols[5]) || 0,
-            preco: parseFloat(cols[6]) || 0,
-            descricao: cols[7]?.trim(),
-            imagem: cols[8]?.trim()
+            ref: cleanCol(cols[0]),
+            nome: cleanCol(cols[1]),
+            categoria: cleanCol(cols[2]).toLowerCase(),
+            subcategoria: cleanCol(cols[3]),
+            tamanho: cleanCol(cols[4]),
+            estoque: parseInt(cleanCol(cols[5])) || 0,
+            // O replace garante que a planilha possa ter "189,90" ou "189.90" e o código some perfeitamente
+            preco: parseFloat(cleanCol(cols[6]).replace(/\./g, '').replace(',', '.')) || 0,
+            descricao: cleanCol(cols[7]),
+            imagem: cleanCol(cols[8])
           };
         }).filter(r => r.ref && r.nome);
 
@@ -336,9 +341,9 @@ export default function Home() {
   const finalizarPedidoWhatsApp = () => {
     let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
     carrinho.forEach((item, index) => {
-      mensagem += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${item.preco.toFixed(2)}\n`;
+      mensagem += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`;
     });
-    const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+    const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
     mensagem += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno para combinarmos os detalhes!_`;
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(mensagem)}`, '_blank');
   };
@@ -348,7 +353,6 @@ export default function Home() {
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
       
-      {/* SACOLA LATERAL RESTAURADA E FUNCIONAL */}
       <SacolaLateral 
         aberto={carrinhoAberto} 
         fechar={() => setCarrinhoAberto(false)} 
@@ -357,7 +361,6 @@ export default function Home() {
         finalizar={finalizarPedidoWhatsApp} 
       />
 
-      {/* BOTÕES FLUTUANTES RESTAURADOS */}
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[90px] right-6 w-10 h-10 bg-white text-[#611F3A] border border-zinc-200 rounded-full shadow-lg flex items-center justify-center z-[8900] hover:bg-[#611F3A] hover:text-white transition-all">
           <span className="font-bold text-lg">↑</span>
@@ -368,7 +371,6 @@ export default function Home() {
         <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
       </a>
 
-      {/* NAVEGAÇÃO */}
       <nav className="bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-serif font-extrabold text-[#611F3A]">Closet <span className="italic font-light">Dellas</span></h1>
@@ -386,14 +388,13 @@ export default function Home() {
 
           <div className="flex gap-4">
             <button onClick={() => setGuiaAberto(true)} className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-[#611F3A] hover:text-[#D4AF37]">Guia de Medidas</button>
-            <button onClick={() => setCarrinhoAberto(true)} className="bg-[#611F3A] text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-[#D4AF37] transition-all">
+            <button onClick={() => setCarrinhoAberto(true)} className="bg-[#611F3A] text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-[#D4AF37] transition-all relative">
               👜 Sacola <span className="bg-[#D4AF37] text-white text-[10px] px-1.5 rounded-full">{carrinho.length}</span>
             </button>
           </div>
         </div>
       </nav>
 
-      {/* HERO SECTION */}
       <section className="relative w-full aspect-[21/9] min-h-[350px] bg-zinc-200 flex items-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=700&fit=crop" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
@@ -405,7 +406,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FILTROS DE CATEGORIAS PÍLULAS (IGUAL À IMAGEM) E COM AS 8 CATEGORIAS */}
       <section className="max-w-7xl mx-auto pt-10 px-6">
         <div className="flex flex-wrap gap-2.5 mb-12 justify-center md:justify-start">
            <button 
@@ -423,8 +423,6 @@ export default function Home() {
                 >
                   {cat.label}
                 </button>
-                
-                {/* SUBMENU DESKTOP HOVER */}
                 <div className="absolute top-full left-0 mt-1 bg-white shadow-2xl rounded-lg border border-zinc-100 z-50 w-44 overflow-hidden hidden group-hover/menu:block animate-in fade-in duration-300">
                    {cat.subs.map(sub => (
                      <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub);}} className={`w-full text-left px-5 py-3 text-[10px] font-bold uppercase hover:bg-zinc-50 hover:text-[#D4AF37] border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : ''}`}>{sub}</button>
@@ -447,25 +445,19 @@ export default function Home() {
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
 
-      {/* RODAPÉ SOFISTICADO RESTAURADO INTEGRALMENTE */}
       <footer className="bg-[#611F3A] pt-16 pb-8 px-6 md:px-12 text-white border-t border-zinc-100 mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start text-center md:text-left">
-          
-          {/* Coluna 1: Essência */}
           <div>
             <h3 className="text-3xl font-serif font-extrabold mb-4">Closet <span className="font-light italic">Dellas</span></h3>
             <p className="text-sm font-light leading-relaxed opacity-80 mb-6 text-balance">
               Nascemos para vestir mulheres reais com elegância e sofisticação. Curadoria feita a dedo.
             </p>
             <div className="flex justify-center md:justify-start gap-4">
-               {/* Ícones simplificados */}
                <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37]">Instagram</span>
                <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37]">TikTok</span>
                <span className="text-[10px] uppercase font-bold tracking-widest text-[#D4AF37]">WhatsApp</span>
             </div>
           </div>
-
-          {/* Coluna 2: Políticas */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Políticas</h4>
             <ul className="flex flex-col gap-3 text-sm font-light opacity-80">
@@ -475,8 +467,6 @@ export default function Home() {
               <li>Termos e Condições</li>
             </ul>
           </div>
-
-          {/* Coluna 3: Atendimento */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Atendimento</h4>
             <div className="flex flex-col gap-3 text-sm font-light opacity-80">
@@ -486,8 +476,6 @@ export default function Home() {
               <p><span className="font-bold">WhatsApp:</span> (21) 97136-6354</p>
             </div>
           </div>
-
-          {/* Coluna 4: Segurança */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Pagamento Seguro</h4>
             <p className="text-sm font-light opacity-80 mb-4">Compre com segurança. Aceitamos PIX e cartões de crédito.</p>
@@ -497,10 +485,7 @@ export default function Home() {
                <span className="bg-white/10 px-3 py-1.5 rounded text-[10px] font-bold">MASTERCARD</span>
             </div>
           </div>
-
         </div>
-
-        {/* Linha de Copyright */}
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 text-center flex flex-col items-center justify-center gap-2">
           <p className="text-[10px] uppercase tracking-widest text-white/50">© 2026 Closet Dellas. Todos os direitos reservados. Miguel Pereira - RJ</p>
         </div>
