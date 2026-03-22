@@ -76,7 +76,6 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: { abert
   return (
     <>
       <div className={`fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl z-[1000] transform transition-transform duration-500 flex flex-col ${aberto ? 'translate-x-0' : 'translate-x-full'}`}>
-        {/* Header do Carrinho Escuro como na foto */}
         <div className="flex justify-between items-center p-6 bg-[#611F3A] text-white">
           <h2 className="text-xl font-serif italic">Sua Sacola</h2>
           <button onClick={fechar} className="text-white/60 hover:text-white text-lg">✕</button>
@@ -122,20 +121,32 @@ export default function Home() {
   const [notificacao, setNotificacao] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos');
 
-  const categorias = ['vestidos', 'saia', 'conjuntos', 'blusas', 'cropped'];
+  // Categorias baseadas nas fotos de referência + subcategorias
+  const categoriasBase = [
+    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
+    { id: 'saia', label: 'SAIA', subs: ['Midi', 'Curta', 'Plissada'] },
+    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Linho', 'Moletom'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Tricô'] },
+    { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
+    { id: 'macacoes', label: 'MACACÕES', subs: ['Longo', 'Pantacourt'] },
+    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Couro'] },
+  ];
+
   const gerarProdutos = () => {
     const listaProdutos: any[] = [];
-    categorias.forEach((categoria, catIndex) => {
-      for (let i = 1; i <= 6; i++) {
+    categoriasBase.forEach((cat, catIndex) => {
+      // Gerando 4 produtos por categoria para preencher a grade do layout
+      for (let i = 1; i <= 4; i++) {
         listaProdutos.push({
-          id: catIndex * 6 + i,
-          nome: `${categoria.charAt(0).toUpperCase() + categoria.slice(1)} Elegance ${i}`,
-          categoria: categoria,
+          id: `${cat.id}-${i}`,
+          nome: `${cat.label.charAt(0) + cat.label.slice(1).toLowerCase()} Exclusivo ${i}`,
+          categoria: cat.id,
           preco: 250 + i * 15,
           imagens: [
-            `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-1`,
-            `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-2`,
-            `https://images.unsplash.com/photo-1562183241-b937e95585b6?q=80&w=600&h=800&fit=crop&sig=${catIndex * 6 + i}-3`,
+            `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-1`,
+            `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-2`,
+            `https://images.unsplash.com/photo-1562183241-b937e95585b6?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-3`,
           ],
         });
       }
@@ -144,6 +155,7 @@ export default function Home() {
   };
   const todosProdutos = gerarProdutos();
 
+  // Exatamente o trecho solicitado sem a palavra "elegância"
   const elogiosGosto = [
     "Escolha impecável! Essa peça exala sofisticação.",
     "Combinação perfeita: o Closet Dellas e o seu estilo único.",
@@ -157,9 +169,10 @@ export default function Home() {
     "Sofisticação em cada detalhe. Parabéns pela escolha!",
     "Você acaba de elevar o nível do seu closet. Incrível!",
     "Beleza e classe em uma única escolha. Perfeito!",
-    "O equilíbrio ideal entre modernidade e tradição. Adorei!",
+    "O equilíbrio ideal entre modernidade e tradição. Lindo!",
     "Seu bom gosto é a marca registrada da sua personalidade.",
     "Uma escolha que reflete confiança e atitude feminina.",
+    "Luxo é ter personalidade, e sua escolha prova isso!"
   ];
 
   const adicionarAoCarrinho = (produto: any) => {
@@ -186,19 +199,14 @@ export default function Home() {
       <Notificacao mensagem={notificacao} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
 
-      {/* 1. NAVEGAÇÃO (Exatamente como a foto) */}
+      {/* NAVEGAÇÃO */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-5 bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
-        {/* Espaçador invisível para garantir centralização perfeita no desktop */}
         <div className="hidden md:block w-48"></div>
-        
-        {/* Logo Centralizada */}
         <div className="flex flex-col items-center flex-1 md:flex-none">
           <h1 className="text-3xl md:text-4xl font-serif font-extrabold text-[#611F3A]">
             Closet <span className="text-[#611F3A]/80 font-light italic">Dellas</span>
           </h1>
         </div>
-
-        {/* Botões à Direita agrupados */}
         <div className="flex items-center gap-3">
           <button onClick={() => setCarrinhoAberto(true)} className="relative flex items-center justify-center bg-[#611F3A] text-white w-10 h-10 rounded-lg hover:bg-[#D4AF37] transition-colors shadow-sm">
             <span className="text-lg">👜</span>
@@ -214,14 +222,10 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* 2. HERO SECTION (Texto à esquerda como na foto) */}
+      {/* HERO SECTION */}
       <section className="relative w-full aspect-[21/9] min-h-[450px] bg-zinc-200 flex items-center overflow-hidden">
-        {/* Imagem de Fundo */}
         <img src="/images/hero-sophisticated.jpg" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
-        {/* Gradiente sutil escurecendo apenas a lateral esquerda para o texto aparecer */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
-        
-        {/* Container do Texto Alinhado à Esquerda */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 text-left text-white">
           <span className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 block text-[#D4AF37]">Nova Coleção 2026</span>
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-light mb-8 leading-tight">
@@ -233,7 +237,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. BARRA DE BENEFÍCIOS (Ícone + Texto lado a lado) */}
+      {/* BARRA DE BENEFÍCIOS */}
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 6x</p></div>
@@ -242,34 +246,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 4. VITRINE DE PRODUTOS (Layout 4 colunas) */}
+      {/* VITRINE DE PRODUTOS */}
       <section className="max-w-7xl mx-auto py-20 px-6 md:px-12">
-        {/* Título e Botões de Filtro */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 border-b border-zinc-100 pb-4 gap-4">
-          <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A]">Nossos Destaques</h3>
-          
-          <div className="flex flex-wrap gap-2">
-            {categorias.map(cat => (
+        <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-8">Nossos Destaques</h3>
+        
+        {/* Container de Categorias com Pílulas e Menus Suspensos */}
+        <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6">
+          {categoriasBase.map(cat => (
+            <div key={cat.id} className="relative group">
               <button 
-                key={cat} 
-                onClick={() => setCategoriaAtiva(cat)}
-                className={`px-4 py-2 rounded-full text-[9px] uppercase tracking-widest font-bold border transition-colors ${categoriaAtiva === cat ? 'border-[#611F3A] bg-[#611F3A] text-white' : 'border-zinc-200 text-zinc-500 hover:border-[#611F3A] hover:text-[#611F3A]'}`}
+                onClick={() => setCategoriaAtiva(cat.id)}
+                className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
+                  categoriaAtiva === cat.id 
+                    ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
+                    : 'bg-white border border-zinc-200 text-[#611F3A] hover:border-[#611F3A]'
+                }`}
               >
-                {cat}
+                {cat.label}
               </button>
-            ))}
-          </div>
+              
+              {/* Menu Dropdown de Subcategorias (Exibido no Hover) */}
+              <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                {cat.subs.map(sub => (
+                  <button 
+                    key={sub}
+                    className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
+                    onClick={() => setCategoriaAtiva(cat.id)}
+                  >
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Grid de Produtos (Exatamente como a foto: 4 itens por linha no desktop) */}
+        {/* Grid de Produtos (4 colunas) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {todosProdutos.filter(p => p.categoria === categoriaAtiva).map((produto) => (
             <div key={produto.id} className="flex flex-col group animate-in fade-in duration-500">
               <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
               <div className="text-left mt-2">
-                <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">{produto.categoria}</p>
+                <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
+                  {categoriasBase.find(c => c.id === produto.categoria)?.label}
+                </p>
                 <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
-                <p className="text-sm font-bold text-zinc-900 mt-2 mb-4">R$ {produto.preco.toFixed(2)}</p>
+                <p className="text-sm font-bold text-[#611F3A] mt-2 mb-4">R$ {produto.preco.toFixed(2)}</p>
                 
                 <button 
                   onClick={() => adicionarAoCarrinho(produto)} 
@@ -283,7 +305,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 5. QUEM SOMOS / FOOTER ESCURO */}
+      {/* QUEM SOMOS / FOOTER ESCURO */}
       <section className="bg-[#611F3A] py-20 px-6 text-white mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
