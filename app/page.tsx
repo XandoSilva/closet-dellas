@@ -2,6 +2,33 @@
 
 import { useState, useRef, useEffect } from 'react';
 
+// --- COMPONENTES DE UI/UX (SKELETON E EMPTY STATES) ---
+
+function SkeletonCard() {
+  return (
+    <div className="flex flex-col bg-white p-3 rounded-2xl border border-zinc-100 animate-pulse">
+      <div className="aspect-[3/4] rounded-xl bg-zinc-100 mb-4" />
+      <div className="h-3 w-1/3 bg-zinc-200 rounded mb-2" />
+      <div className="h-4 w-3/4 bg-zinc-200 rounded mb-2" />
+      <div className="h-4 w-1/4 bg-zinc-200 rounded mb-4" />
+      <div className="flex gap-2 mt-auto">
+        <div className="h-10 flex-1 bg-zinc-200 rounded-md" />
+        <div className="h-10 flex-1 bg-zinc-200 rounded-md" />
+      </div>
+    </div>
+  );
+}
+
+function NoResults({ mensagem }: { mensagem: string }) {
+  return (
+    <div className="col-span-full py-20 px-6 text-center bg-zinc-50 rounded-2xl border-2 border-dashed border-zinc-200">
+      <span className="text-5xl mb-6 block">✨</span>
+      <h3 className="text-xl font-serif italic text-[#611F3A] mb-2">Quase lá, Della!</h3>
+      <p className="text-sm text-zinc-500 max-w-md mx-auto leading-relaxed">{mensagem}</p>
+    </div>
+  );
+}
+
 // --- COMPONENTES AUXILIARES ---
 
 function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void }) {
@@ -59,21 +86,19 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   };
 
   const proximaFoto = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation(); // Evita clicar no card por baixo da seta
+    e.preventDefault(); e.stopPropagation();
     const next = fotoAtual + 1 >= fotosExibir.length ? 0 : fotoAtual + 1;
     scrollTo(next);
   };
 
   const fotoAnterior = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     const prev = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1;
     scrollTo(prev);
   };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos">
+    <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-xl">
       <div ref={scrollRef} onScroll={handleScroll} className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {fotosExibir.map((img, index) => (
           <img key={index} src={img} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center" />
@@ -82,14 +107,11 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
       
       {fotosExibir.length > 1 && (
         <>
-          {/* Setas Desktop */}
-          <button onClick={fotoAnterior} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm z-20">❮</button>
-          <button onClick={proximaFoto} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm z-20">❯</button>
-          
-          {/* Pontinhos */}
+          <button onClick={fotoAnterior} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-[#611F3A] w-7 h-7 rounded-full items-center justify-center text-xs opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow z-20">❮</button>
+          <button onClick={proximaFoto} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-[#611F3A] w-7 h-7 rounded-full items-center justify-center text-xs opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow z-20">❯</button>
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 rounded-full backdrop-blur-sm z-20 pointer-events-none">
             {fotosExibir.map((_, index) => (
-              <div key={index} className={`w-1.5 h-1.5 rounded-full transition-all ${index === fotoAtual ? 'bg-white scale-125' : 'bg-white/50'}`} />
+              <div key={index} className={`w-1.5 h-1.5 rounded-full transition-all ${index === fotoAtual ? 'bg-white scale-110' : 'bg-white/40'}`} />
             ))}
           </div>
         </>
@@ -121,7 +143,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col">
           <p className="text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-2">
-            {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
+            {categoriasBase.find((c:any) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}
           </p>
           <h2 className="text-2xl md:text-3xl font-serif italic text-[#611F3A] mb-2">{produto.nome}</h2>
           <p className="text-xl font-bold text-[#D4AF37] mb-6">R$ {Number(produto.preco).toFixed(2)}</p>
@@ -167,34 +189,40 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   };
 
   return (
-    <div className="flex flex-col group relative animate-in fade-in duration-500">
-      {esgotado && (
-        <span className="absolute top-3 left-3 bg-zinc-500 text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md">Esgotado</span>
-      )}
-      {!esgotado && produto.estoqueTotal === 1 && (
-        <span className="absolute top-3 left-3 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md animate-pulse">Última Peça</span>
+    <div className="group flex flex-col bg-white p-3 rounded-2xl border border-transparent transition-all hover:border-zinc-100 hover:shadow-[0_20px_50px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-500">
+      
+      {/* BADGE DE NOVIDADE */}
+      {produto.ehNovidade && !esgotado && (
+        <span className="absolute top-5 right-5 bg-[#D4AF37] text-white text-[9px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-30 shadow-md">Novidade</span>
       )}
 
-      <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem shadow-sm cursor-pointer" onClick={() => abrirDetalhe(produto)}>
+      {esgotado && (
+        <span className="absolute top-5 left-5 bg-zinc-500 text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md">Esgotado</span>
+      )}
+      {!esgotado && produto.estoqueTotal === 1 && (
+        <span className="absolute top-5 left-5 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md animate-pulse">Última Peça</span>
+      )}
+
+      <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 shadow-sm cursor-pointer" onClick={() => abrirDetalhe(produto)}>
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/imagem:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
+        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <button 
             onClick={(e) => { e.stopPropagation(); abrirDetalhe(produto); }}
-            className="bg-white/95 text-[#611F3A] px-6 py-3 rounded text-[10px] uppercase tracking-widest font-bold shadow-xl pointer-events-auto hover:bg-[#611F3A] hover:text-white transition-all transform translate-y-4 group-hover/imagem:translate-y-0"
+            className="bg-white/95 text-[#611F3A] px-6 py-3 rounded text-[10px] uppercase tracking-widest font-bold shadow-xl pointer-events-auto hover:bg-[#611F3A] hover:text-white transition-all transform translate-y-4 group-hover:translate-y-0"
           >
             Ver Detalhes
           </button>
         </div>
       </div>
 
-      <div className="text-left mt-3">
+      <div className="text-left mt-1 flex-1 flex flex-col">
         <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-bold mb-1">
-          {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
+          {categoriasBase.find((c:any) => c.id === produto.categoria)?.label || 'Diversos'} • {produto.subcategoria}
         </p>
-        <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8 overflow-hidden">{produto.nome}</h4>
-        <p className="text-sm font-bold text-[#611F3A] mt-1">R$ {Number(produto.preco).toFixed(2)}</p>
+        <h4 className="text-xs font-bold text-zinc-800 leading-tight mb-1 flex-1">{produto.nome}</h4>
+        <p className="text-sm font-bold text-[#611F3A] mt-auto">R$ {Number(produto.preco).toFixed(2)}</p>
 
-        <div className="flex gap-1.5 my-3">
+        <div className="flex gap-1.5 my-3 flex-wrap">
           {produto.grade.map((item: any) => (
             <button 
               key={item.tam}
@@ -203,7 +231,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
               title={item.qtd <= 0 ? 'Esgotado' : `${item.qtd} unidades`}
               className={`w-7 h-7 rounded-full text-[9px] font-bold border flex items-center justify-center transition-all ${
                 item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' :
-                tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
+                tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
               }`}
             >
               {item.tam}
@@ -211,7 +239,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           ))}
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 mt-auto">
           <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-3 rounded-md text-[9px] uppercase font-bold shadow-md hover:bg-black transition-colors">Detalhes</button>
           <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-3 rounded-md text-[9px] uppercase font-bold shadow-md hover:bg-[#D4AF37] transition-colors active:scale-95 disabled:bg-zinc-300">Add Sacola</button>
         </div>
@@ -234,7 +262,6 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {carrinho.map((item: any, index: number) => {
             const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
-            
             return (
               <div key={index} className="flex gap-4 border-b border-zinc-100 pb-4 items-center animate-in fade-in slide-in-from-right-4">
                 <img src={imgCart} className="w-16 h-20 object-cover rounded shadow-sm bg-zinc-100" />
@@ -247,7 +274,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
               </div>
             );
           })}
-          {carrinho.length === 0 && <p className="text-center text-xs text-zinc-400 py-10 uppercase tracking-widest">Sacola vazia</p>}
+          {carrinho.length === 0 && <p className="text-center text-xs text-zinc-400 py-10 uppercase tracking-widest leading-relaxed">Sua sacola está vazia, Della!<br/>Que tal dar uma olhadinha nas novidades?</p>}
         </div>
 
         {carrinho.length > 0 && (
@@ -257,7 +284,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
               <span className="font-serif italic text-2xl">R$ {total.toFixed(2)}</span>
             </div>
             <button onClick={finalizar} className="w-full bg-white text-[#611F3A] py-4 rounded text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] hover:text-white transition-colors">
-              FINALIZAR PEDIDO
+              FINALIZAR PEDIDO NO WHATSAPP
             </button>
           </div>
         )}
@@ -276,7 +303,7 @@ export default function Home() {
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
   const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); 
-  const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
+  const [categoriaAtiva, setCategoriaAtiva] = useState('novidades'); // Começa em Novidades
   const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
@@ -285,6 +312,7 @@ export default function Home() {
   const foneWhatsAppRaw = "5521971366354";
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
 
+  // Categorias base com subcategorias
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
@@ -296,11 +324,32 @@ export default function Home() {
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
   ];
 
+  // Menu completo incluindo Novidades e Todas (Com tipagem estrita via subs: undefined)
+  const menuCategorias = [
+    { id: 'novidades', label: '⭐ NOVIDADES', subs: undefined },
+    ...categoriasBase,
+    { id: 'todas', label: 'VER TODAS', subs: undefined }
+  ];
+
   useEffect(() => {
     const handleScroll = () => setMostrarTopo(window.scrollY > 400);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Leitor de Data (DD/MM/YYYY ou YYYY-MM-DD)
+  const parseDate = (dateStr: string) => {
+    if (!dateStr) return null;
+    let parts: string[] = [];
+    if (dateStr.includes('/')) {
+      parts = dateStr.split('/');
+      if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
+    } else if (dateStr.includes('-')) {
+      parts = dateStr.split('-');
+      if (parts.length === 3) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+    }
+    return null;
+  };
 
   useEffect(() => {
     const fetchEstoque = async () => {
@@ -309,9 +358,22 @@ export default function Home() {
         const text = await res.text();
         const rows = text.split('\n').slice(1);
         
+        const hoje = new Date();
+        const limiteNovidadeDias = 20;
+
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const cleanCol = (col: string) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
+
+          // Lógica de Novidades baseada na Coluna J (índice 9)
+          const dataCadastro = parseDate(cleanCol(cols[9]));
+          let ehNovidade = false;
+          if (dataCadastro) {
+            const diffTempo = Math.abs(hoje.getTime() - dataCadastro.getTime());
+            const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
+            ehNovidade = diffDias <= limiteNovidadeDias;
+          }
+
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
 
           return {
@@ -323,7 +385,8 @@ export default function Home() {
             estoque: parseInt(cleanCol(cols[5])) || 0,
             preco: parseFloat(cleanCol(cols[6]).replace(/\./g, '').replace(',', '.')) || 0,
             descricao: cleanCol(cols[7]),
-            imagens: imagensArray
+            imagens: imagensArray,
+            ehNovidade: ehNovidade
           };
         }).filter(r => r.ref && r.nome);
 
@@ -342,6 +405,7 @@ export default function Home() {
               descricao: item.descricao,
               imagens: item.imagens,
               estoqueTotal: item.estoque,
+              ehNovidade: item.ehNovidade,
               grade: [{ tam: item.tamanho, qtd: item.estoque }]
             });
           }
@@ -354,18 +418,29 @@ export default function Home() {
     fetchEstoque();
   }, []);
 
+  // Filtragem Inteligente
   const produtosFiltrados = todosProdutos.filter(p => {
-    const matchBusca = busca === '' || p.nome.toLowerCase().includes(busca.toLowerCase()) || p.id.toLowerCase().includes(busca.toLowerCase());
-    if (!matchBusca) return false;
+    const termoBusca = busca.trim().toLowerCase();
+    
+    // 1. Prioriza Busca Textual (Nome ou ID)
+    if (termoBusca !== '') {
+      const matchNome = p.nome.toLowerCase().includes(termoBusca);
+      const matchID = p.id.toLowerCase().includes(termoBusca);
+      return matchNome || matchID;
+    }
+
+    // 2. Filtros de Categoria Especial
+    if (categoriaAtiva === 'novidades') return p.ehNovidade;
     if (categoriaAtiva === 'todas') return true;
-    if (p.categoria !== categoriaAtiva) return false;
-    if (subCategoriaAtiva && p.subcategoria !== subCategoriaAtiva) return false;
-    return true;
+
+    // 3. Filtros Regulares (Categoria + Subcategoria)
+    const matchCategoria = p.categoria === categoriaAtiva;
+    const matchSubcategoria = !subCategoriaAtiva || p.subcategoria === subCategoriaAtiva;
+    return matchCategoria && matchSubcategoria;
   });
 
-  const elogiosGosto = ["Escolha impecável! Essa peça exala sofisticação.", "Combinação perfeita com o seu estilo único.", "Sofisticação em cada detalhe. Parabéns!"];
-
   const adicionarAoCarrinho = (item: any) => {
+    const elogiosGosto = ["Escolha impecável! Essa peça exala sofisticação.", "Combinação perfeita com o seu estilo único.", "Sofisticação em cada detalhe. Parabéns!"];
     setCarrinho(prev => [...prev, item]);
     setNotificacao(elogiosGosto[Math.floor(Math.random() * elogiosGosto.length)]);
     setTimeout(() => setNotificacao(""), 4000);
@@ -394,6 +469,7 @@ export default function Home() {
         finalizar={finalizarPedidoWhatsApp} 
       />
 
+      {/* BOTÕES FLUTUANTES RESTAURADOS */}
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[90px] right-6 w-10 h-10 bg-white text-[#611F3A] border border-zinc-200 rounded-full shadow-lg flex items-center justify-center z-[8900] hover:bg-[#611F3A] hover:text-white transition-all">
           <span className="font-bold text-lg">↑</span>
@@ -404,6 +480,7 @@ export default function Home() {
         <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
       </a>
 
+      {/* NAVEGAÇÃO COM BUSCA APRIMORADA */}
       <nav className="bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-serif font-extrabold text-[#611F3A]">Closet <span className="italic font-light">Dellas</span></h1>
@@ -411,12 +488,15 @@ export default function Home() {
           <div className="relative w-full md:w-96">
             <input 
               type="text" 
-              placeholder="Buscar por nome ou bipar código..." 
+              placeholder="O que você procura hoje, Della? ✨" 
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full bg-zinc-50 border border-zinc-200 rounded-full px-10 py-2.5 text-xs focus:ring-1 focus:ring-[#611F3A] outline-none"
+              className="w-full bg-zinc-50 border border-zinc-200 rounded-full px-10 py-2.5 text-xs focus:ring-1 focus:ring-[#611F3A] outline-none transition-all"
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30">🔍</span>
+            {busca && (
+              <button onClick={() => setBusca('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-[#611F3A] animate-in fade-in">✕</button>
+            )}
           </div>
 
           <div className="flex gap-4">
@@ -428,6 +508,7 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* HERO SECTION */}
       <section className="relative w-full aspect-[21/9] min-h-[350px] bg-zinc-200 flex items-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=700&fit=crop" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
@@ -439,6 +520,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* BARRA DE BENEFÍCIOS */}
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 6x</p></div>
@@ -447,16 +529,10 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FILTROS DE CATEGORIAS (MENU SANFONA COM TIPAGEM CORRETA) */}
       <section className="max-w-7xl mx-auto pt-10 px-6">
         <div className="flex flex-wrap gap-2.5 mb-12 justify-center md:justify-start">
-           <button 
-             onClick={() => {setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); setMenuAbertoCat(null);}} 
-             className={`px-6 py-2 rounded-full text-[11px] font-bold uppercase border transition-all ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-200 text-zinc-600 hover:border-[#611F3A]'}`}
-           >
-             TODAS
-           </button>
-           
-           {categoriasBase.map(cat => (
+           {menuCategorias.map((cat: any) => (
              <div key={cat.id} className="relative group/menu">
                 <button 
                   onClick={() => {
@@ -464,28 +540,48 @@ export default function Home() {
                     setSubCategoriaAtiva(null);
                     setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id);
                   }} 
-                  className={`px-6 py-2 rounded-full text-[11px] font-bold uppercase border transition-all flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-200 text-zinc-600 hover:border-[#611F3A]'}`}
+                  className={`px-6 py-2 rounded-full text-[11px] font-bold uppercase border transition-all flex items-center gap-2 ${
+                    categoriaAtiva === cat.id 
+                    ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md scale-105' 
+                    : 'bg-white border-zinc-200 text-zinc-600 hover:border-[#611F3A] hover:text-[#611F3A]'
+                  }`}
                 >
-                  {cat.label} <span className="md:hidden text-lg leading-none">{menuAbertoCat === cat.id ? '▾' : '▸'}</span>
+                  {cat.label} 
+                  {/* Seta do sanfona só aparece para as que têm subcategoria */}
+                  {cat.subs && <span className="md:hidden text-lg leading-none">{menuAbertoCat === cat.id ? '▾' : '▸'}</span>}
                 </button>
                 
-                <div className={`absolute top-full left-0 mt-1 bg-white shadow-2xl rounded-lg border border-zinc-100 z-50 w-44 overflow-hidden transition-all ${menuAbertoCat === cat.id ? 'block' : 'hidden md:group-hover/menu:block'} animate-in fade-in duration-300`}>
-                   {cat.subs.map(sub => (
-                     <button 
-                       key={sub} 
-                       onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
-                       className={`w-full text-left px-5 py-3 text-[10px] font-bold uppercase hover:bg-zinc-50 hover:text-[#D4AF37] border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : ''}`}
-                     >
-                       {sub}
-                     </button>
-                   ))}
-                </div>
+                {/* SUBMENU SANFONA */}
+                {cat.subs && (
+                  <div className={`absolute top-full left-0 mt-1 bg-white shadow-2xl rounded-lg border border-zinc-100 z-50 w-44 overflow-hidden transition-all ${menuAbertoCat === cat.id ? 'block' : 'hidden md:group-hover/menu:block'} animate-in fade-in duration-300`}>
+                     {cat.subs?.map((sub: string) => (
+                       <button 
+                         key={sub} 
+                         onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
+                         className={`w-full text-left px-5 py-3 text-[10px] font-bold uppercase hover:bg-zinc-50 hover:text-[#D4AF37] border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : ''}`}
+                       >
+                         {sub}
+                       </button>
+                     ))}
+                  </div>
+                )}
              </div>
            ))}
         </div>
 
+        {/* VITRINE COM SKELETON LOADERS E EMPTY STATE */}
         {carregando ? (
-          <div className="py-20 text-center animate-pulse text-[#611F3A] font-serif italic">Sincronizando estoque real...</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
+            {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : produtosFiltrados.length === 0 ? (
+          <NoResults 
+            mensagem={
+              busca 
+              ? `Não encontramos nada para "${busca}". Que tal tentar um termo mais genérico ou navegar pelas categorias?` 
+              : `A categoria de ${menuCategorias.find(c=>c.id === categoriaAtiva)?.label.replace('⭐ ', '') || 'produtos'} está sendo reabastecida. Volte em breve para conferir as novidades que trouxemos do Brás!`
+            } 
+          />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
             {produtosFiltrados.map(p => (
@@ -495,8 +591,10 @@ export default function Home() {
         )}
       </section>
 
+      {/* MODAL DE DETALHES RESTAURADO */}
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
 
+      {/* RODAPÉ COMPLETO COM REDES SOCIAIS RESTAURADO */}
       <footer className="bg-[#611F3A] pt-16 pb-8 px-6 md:px-12 text-white border-t border-zinc-100 mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start text-center md:text-left">
           
@@ -517,6 +615,7 @@ export default function Home() {
               </a>
             </div>
           </div>
+
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Políticas</h4>
             <ul className="flex flex-col gap-3 text-sm font-light opacity-80">
