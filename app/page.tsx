@@ -120,14 +120,15 @@ export default function Home() {
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
   const [categoriaAtiva, setCategoriaAtiva] = useState('vestidos');
+  const [busca, setBusca] = useState(''); // Novo estado para o campo de pesquisa
 
-  // Categorias baseadas nas fotos de referência + subcategorias
+  // Categorias atualizadas conforme a foto de referência (sem Plus Size)
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
-    { id: 'saia', label: 'SAIA', subs: ['Midi', 'Curta', 'Plissada'] },
+    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Linho', 'Moletom'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Corset'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
+    { id: 'cropeds', label: 'CROPEDS', subs: ['Renda', 'Manga Longa', 'Básico'] },
     { id: 'macacoes', label: 'MACACÕES', subs: ['Longo', 'Pantacourt'] },
     { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Couro'] },
@@ -136,7 +137,6 @@ export default function Home() {
   const gerarProdutos = () => {
     const listaProdutos: any[] = [];
     categoriasBase.forEach((cat, catIndex) => {
-      // Gerando 4 produtos por categoria para preencher a grade do layout
       for (let i = 1; i <= 4; i++) {
         listaProdutos.push({
           id: `${cat.id}-${i}`,
@@ -155,7 +155,6 @@ export default function Home() {
   };
   const todosProdutos = gerarProdutos();
 
-  // Exatamente o trecho solicitado sem a palavra "elegância"
   const elogiosGosto = [
     "Escolha impecável! Essa peça exala sofisticação.",
     "Combinação perfeita: o Closet Dellas e o seu estilo único.",
@@ -192,6 +191,14 @@ export default function Home() {
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsApp}&text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
+  // Lógica de Filtro: Prioriza a busca se houver texto, caso contrário usa a categoria ativa
+  const produtosFiltrados = todosProdutos.filter(p => {
+    if (busca.trim() !== '') {
+      return p.nome.toLowerCase().includes(busca.toLowerCase());
+    }
+    return p.categoria === categoriaAtiva;
+  });
+
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden">
       
@@ -201,12 +208,24 @@ export default function Home() {
 
       {/* NAVEGAÇÃO */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-5 bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
-        <div className="hidden md:block w-48"></div>
+        {/* Campo de pesquisa na barra superior (Desktop) */}
+        <div className="hidden md:block w-64 relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">🔍</span>
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 bg-zinc-50 border border-zinc-200 rounded-full text-xs focus:ring-1 focus:ring-[#611F3A] outline-none transition-all"
+          />
+        </div>
+        
         <div className="flex flex-col items-center flex-1 md:flex-none">
           <h1 className="text-3xl md:text-4xl font-serif font-extrabold text-[#611F3A]">
             Closet <span className="text-[#611F3A]/80 font-light italic">Dellas</span>
           </h1>
         </div>
+
         <div className="flex items-center gap-3">
           <button onClick={() => setCarrinhoAberto(true)} className="relative flex items-center justify-center bg-[#611F3A] text-white w-10 h-10 rounded-lg hover:bg-[#D4AF37] transition-colors shadow-sm">
             <span className="text-lg">👜</span>
@@ -248,61 +267,85 @@ export default function Home() {
 
       {/* VITRINE DE PRODUTOS */}
       <section className="max-w-7xl mx-auto py-20 px-6 md:px-12">
-        <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-8">Nossos Destaques</h3>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-zinc-100 pb-4 gap-4">
+          <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A]">
+            {busca ? 'Resultados da Busca' : 'Nossos Destaques'}
+          </h3>
+
+          {/* Campo de pesquisa Mobile (só aparece em telas menores) */}
+          <div className="w-full md:hidden relative mb-2">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-full text-xs focus:ring-1 focus:ring-[#611F3A] outline-none"
+            />
+          </div>
+        </div>
         
         {/* Container de Categorias com Pílulas e Menus Suspensos */}
-        <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6">
-          {categoriasBase.map(cat => (
-            <div key={cat.id} className="relative group">
-              <button 
-                onClick={() => setCategoriaAtiva(cat.id)}
-                className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
-                  categoriaAtiva === cat.id 
-                    ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
-                    : 'bg-white border border-zinc-200 text-[#611F3A] hover:border-[#611F3A]'
-                }`}
-              >
-                {cat.label}
-              </button>
-              
-              {/* Menu Dropdown de Subcategorias (Exibido no Hover) */}
-              <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
-                {cat.subs.map(sub => (
-                  <button 
-                    key={sub}
-                    className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
-                    onClick={() => setCategoriaAtiva(cat.id)}
-                  >
-                    {sub}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Grid de Produtos (4 colunas) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {todosProdutos.filter(p => p.categoria === categoriaAtiva).map((produto) => (
-            <div key={produto.id} className="flex flex-col group animate-in fade-in duration-500">
-              <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-              <div className="text-left mt-2">
-                <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
-                  {categoriasBase.find(c => c.id === produto.categoria)?.label}
-                </p>
-                <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
-                <p className="text-sm font-bold text-[#611F3A] mt-2 mb-4">R$ {produto.preco.toFixed(2)}</p>
-                
+        {!busca && (
+          <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6">
+            {categoriasBase.map(cat => (
+              <div key={cat.id} className="relative group">
                 <button 
-                  onClick={() => adicionarAoCarrinho(produto)} 
-                  className="w-full bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.2em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
+                  onClick={() => setCategoriaAtiva(cat.id)}
+                  className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
+                    categoriaAtiva === cat.id 
+                      ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
+                      : 'bg-white border border-zinc-200 text-[#611F3A] hover:border-[#611F3A]'
+                  }`}
                 >
-                  Adicionar à Sacola
+                  {cat.label}
                 </button>
+                
+                {/* Menu Dropdown de Subcategorias (Exibido no Hover) */}
+                <div className="absolute left-0 top-full mt-2 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                  {cat.subs.map(sub => (
+                    <button 
+                      key={sub}
+                      className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
+                      onClick={() => setCategoriaAtiva(cat.id)}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* Grid de Produtos */}
+        {produtosFiltrados.length === 0 ? (
+          <div className="py-20 text-center">
+            <p className="text-zinc-400 uppercase tracking-widest font-bold">Nenhum produto encontrado.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {produtosFiltrados.map((produto) => (
+              <div key={produto.id} className="flex flex-col group animate-in fade-in duration-500">
+                <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+                <div className="text-left mt-2">
+                  <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
+                    {categoriasBase.find(c => c.id === produto.categoria)?.label}
+                  </p>
+                  <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
+                  <p className="text-sm font-bold text-[#611F3A] mt-2 mb-4">R$ {produto.preco.toFixed(2)}</p>
+                  
+                  <button 
+                    onClick={() => adicionarAoCarrinho(produto)} 
+                    className="w-full bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.2em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
+                  >
+                    Adicionar à Sacola
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* QUEM SOMOS / FOOTER ESCURO */}
