@@ -34,7 +34,6 @@ function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void 
   );
 }
 
-// NOVO: Modal de "Ver Detalhes" (Quick View)
 function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, setNotificacao, categoriasBase }: any) {
   if (!aberto || !produto) return null;
   
@@ -56,12 +55,10 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
       <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden rounded-2xl shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
         <button onClick={fechar} className="absolute top-4 right-4 bg-white/50 w-8 h-8 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-100 text-xl z-50 shadow-sm">✕</button>
         
-        {/* Imagem */}
         <div className="w-full md:w-1/2 aspect-[3/4] md:aspect-auto md:h-[600px] bg-zinc-100">
           <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         </div>
 
-        {/* Informações */}
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col">
           <p className="text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-2">
             {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
@@ -180,7 +177,6 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   );
 }
 
-// Card de Produto com Escassez e botão "Ver Detalhes"
 function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }: any) {
   const [tamanho, setTamanho] = useState<string | null>(null);
   const ehUltimaPeca = produto.tamanhosDisponiveis.length === 1 && produto.tamanhosDisponiveis[0] !== 'U';
@@ -198,7 +194,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   return (
     <div className="flex flex-col group animate-in fade-in duration-500 relative">
       
-      {/* Escassez */}
       {ehUltimaPeca && (
         <span className="absolute top-3 left-3 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md animate-pulse">
           Última Peça
@@ -208,7 +203,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem">
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         
-        {/* Quick View Button */}
+        {/* Quick View Button (Desktop) */}
         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/imagem:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <button 
             onClick={(e) => { e.stopPropagation(); abrirDetalhe(produto); }}
@@ -217,13 +212,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
             Ver Detalhes
           </button>
         </div>
-        {/* Mobile Quick View (Ícone pequeno de olho no canto inferior) */}
-        <button 
-          onClick={() => abrirDetalhe(produto)}
-          className="md:hidden absolute bottom-3 right-3 bg-white/90 w-8 h-8 rounded-full flex items-center justify-center shadow-md text-[#611F3A] z-20"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-        </button>
       </div>
 
       <div className="text-left mt-3">
@@ -233,7 +221,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
         <p className="text-sm font-bold text-[#611F3A] mt-1">R$ {produto.preco.toFixed(2)}</p>
 
-        {/* Seleção de Tamanho */}
         <div className="flex gap-2 my-3">
           {['P', 'M', 'G', 'U'].map(t => {
             const temEstoque = produto.tamanhosDisponiveis.includes(t);
@@ -243,7 +230,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
                 onClick={() => temEstoque && setTamanho(t)}
                 disabled={!temEstoque}
                 title={temEstoque ? `Tamanho ${t}` : 'Esgotado'}
-                className={`w-7 h-7 rounded-full text-[10px] font-bold transition-colors border ${
+                className={`w-7 h-7 rounded-full text-[10px] font-bold transition-colors border flex items-center justify-center ${
                   !temEstoque
                     ? 'bg-zinc-50 text-zinc-300 border-zinc-100 cursor-not-allowed opacity-50'
                     : tamanho === t 
@@ -257,17 +244,26 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           })}
         </div>
         
-        <button 
-          onClick={handleAddCart} 
-          className="w-full bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.2em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
-        >
-          Adicionar à Sacola
-        </button>
+        {/* BOTÕES LADO A LADO PARA MOBILE */}
+        <div className="flex gap-2">
+          <button 
+            onClick={() => abrirDetalhe(produto)}
+            className="md:hidden flex-1 bg-white border border-[#611F3A] text-[#611F3A] py-3 rounded-md text-[10px] uppercase tracking-[0.1em] font-bold shadow-sm active:scale-95"
+          >
+            Detalhes
+          </button>
+          <button 
+            onClick={handleAddCart} 
+            className="flex-1 bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.1em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
+          >
+            <span className="md:hidden">Add Sacola</span>
+            <span className="hidden md:inline">Adicionar à Sacola</span>
+          </button>
+        </div>
       </div>
     </div>
   );
 }
-
 
 function Notificacao({ mensagem }: { mensagem: string }) {
   if (!mensagem) return null;
@@ -328,17 +324,31 @@ export default function Home() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
-  const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); // Estado do Quick View
+  const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); 
   
   const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
   const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
-  const [ordenacao, setOrdenacao] = useState('recentes'); // Estado da Ordenação
+  const [ordenacao, setOrdenacao] = useState('recentes'); 
   
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
   const [subMenuAberto, setSubMenuAberto] = useState<string | null>(null);
+  const [mostrarTopo, setMostrarTopo] = useState(false); // Estado para o botão de Topo
 
   const vitrineRef = useRef<HTMLElement>(null);
+
+  // Monitora a rolagem da página para mostrar o botão de Topo
+  useEffect(() => {
+    const handleScroll = () => {
+      setMostrarTopo(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const irParaTopo = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
@@ -368,7 +378,7 @@ export default function Home() {
           subcategoria: cat.subs[i % cat.subs.length], 
           dataCadastro: dataCadastroFake,
           tamanhosDisponiveis: gradesEstoque[(catIndex + i) % gradesEstoque.length],
-          preco: 180 + (catIndex * i * 7) + (i * 15), // Preços variados para testar o filtro
+          preco: 180 + (catIndex * i * 7) + (i * 15),
           descricao: `Esta peça incrível da categoria ${cat.label} foi desenvolvida com tecidos nobres para garantir conforto e durabilidade. O corte valoriza a silhueta, tornando-se um item indispensável no seu closet. Combine com acessórios dourados para um look impecável.`,
           imagens: [
             `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-1`,
@@ -408,7 +418,6 @@ export default function Home() {
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
-  // LÓGICA DE FILTRO E ORDENAÇÃO
   let produtosFiltrados = todosProdutos.filter(p => {
     if (busca.trim() !== '') {
       return p.nome.toLowerCase().includes(busca.toLowerCase());
@@ -446,6 +455,17 @@ export default function Home() {
       <Notificacao mensagem={notificacao} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} produto={produtoDetalheAberto} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
+
+      {/* BOTÃO VOLTAR AO TOPO */}
+      {mostrarTopo && (
+        <button 
+          onClick={irParaTopo}
+          className="fixed bottom-[90px] right-6 w-10 h-10 bg-white text-[#611F3A] border border-zinc-200 rounded-full shadow-lg flex items-center justify-center z-[8900] hover:bg-[#611F3A] hover:text-white transition-all opacity-80 hover:opacity-100"
+          title="Voltar ao topo"
+        >
+          <span className="text-xl font-bold mb-1">↑</span>
+        </button>
+      )}
 
       {/* BOTÃO FLUTUANTE WHATSAPP */}
       <a 
@@ -558,7 +578,7 @@ export default function Home() {
         {/* BARRA DE ORDENAÇÃO E CATEGORIAS */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 relative z-40">
           
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 w-full md:w-auto">
             <button 
               onClick={irParaLancamentos}
               className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
@@ -587,11 +607,15 @@ export default function Home() {
                 Todas as Categorias
               </button>
               
-              <div className={`absolute left-0 top-full mt-2 w-56 bg-white border border-zinc-100 shadow-xl rounded-lg z-[60] transition-all duration-300 md:opacity-0 md:invisible md:group-hover/todas:opacity-100 md:group-hover/todas:visible ${menuAbertoCat === 'todas' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+              <div className={`
+                relative md:absolute md:left-full md:top-0 md:ml-1 w-full md:w-48 bg-zinc-50 md:bg-white border-l-2 border-[#611F3A] md:border-l-0 md:border md:border-zinc-100 shadow-inner md:shadow-xl md:rounded-lg z-[70] overflow-hidden transition-all duration-200 
+                md:opacity-0 md:invisible md:group-hover/todas:opacity-100 md:group-hover/todas:visible
+                ${menuAbertoCat === 'todas' ? 'block mt-2' : 'hidden md:block'}
+              `}>
                 {categoriasBase.map(cat => (
                   <div key={cat.id} className="relative group/sub">
                     <button 
-                      className="w-full flex items-center justify-between px-5 py-3 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors"
+                      className="w-full flex items-center justify-between px-5 py-3 border-b border-zinc-200 md:border-zinc-50 last:border-0 hover:bg-zinc-100 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
                         setCategoriaAtiva(cat.id);
@@ -600,15 +624,19 @@ export default function Home() {
                         setSubMenuAberto(null);
                       }}
                     >
-                      <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:text-[#611F3A]">{cat.label}</span>
-                      <span className="text-zinc-300 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold" onClick={(e) => { e.stopPropagation(); setSubMenuAberto(subMenuAberto === cat.id ? null : cat.id); }}>❯</span>
+                      <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-600 hover:text-[#611F3A]">{cat.label}</span>
+                      <span className="text-zinc-400 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold" onClick={(e) => { e.stopPropagation(); setSubMenuAberto(subMenuAberto === cat.id ? null : cat.id); }}>❯</span>
                     </button>
                     
-                    <div className={`absolute left-full top-0 ml-1 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-[70] overflow-hidden transition-all duration-200 md:opacity-0 md:invisible md:group-hover/sub:opacity-100 md:group-hover/sub:visible ${subMenuAberto === cat.id ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                    <div className={`
+                      relative md:absolute md:left-full md:top-0 md:ml-1 w-full md:w-48 bg-zinc-100 md:bg-white border-l-2 border-[#D4AF37] md:border-l-0 md:border md:border-zinc-100 shadow-inner md:shadow-xl md:rounded-lg z-[80] overflow-hidden transition-all duration-200 
+                      md:opacity-0 md:invisible md:group-hover/sub:opacity-100 md:group-hover/sub:visible
+                      ${subMenuAberto === cat.id ? 'block' : 'hidden md:block'}
+                    `}>
                       {cat.subs.map(sub => (
                         <button 
                           key={sub}
-                          className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
+                          className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-200 hover:text-[#611F3A] border-b border-zinc-200 md:border-zinc-50 last:border-0 transition-colors"
                           onClick={(e) => { e.stopPropagation(); setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null); setSubMenuAberto(null); }}
                         >
                           {sub}
@@ -621,7 +649,7 @@ export default function Home() {
             </div>
 
             {categoriasBase.map(cat => (
-              <div key={cat.id} className="relative group">
+              <div key={cat.id} className="relative group hidden md:block">
                 <button 
                   onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id); }}
                   className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
@@ -633,7 +661,7 @@ export default function Home() {
                   {cat.label}
                 </button>
                 
-                <div className={`absolute left-0 top-full mt-2 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-50 overflow-hidden transition-all duration-300 md:opacity-0 md:invisible md:group-hover:opacity-100 md:group-hover:visible ${menuAbertoCat === cat.id ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                <div className={`absolute left-0 top-full mt-2 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-50 overflow-hidden transition-all duration-300 opacity-0 invisible group-hover:opacity-100 group-hover:visible`}>
                   {cat.subs.map(sub => (
                     <button 
                       key={sub}
@@ -648,13 +676,12 @@ export default function Home() {
             ))}
           </div>
 
-          {/* NOVO: SELECT DE ORDENAÇÃO */}
-          <div className="w-full md:w-auto flex items-center justify-end gap-2 border-t md:border-none pt-4 md:pt-0 border-zinc-100">
+          <div className="w-full md:w-auto flex items-center md:justify-end gap-2 border-t md:border-none pt-4 md:pt-0 border-zinc-100">
             <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">Ordenar:</span>
             <select
               value={ordenacao}
               onChange={(e) => setOrdenacao(e.target.value)}
-              className="bg-transparent border border-zinc-200 text-[#611F3A] text-[10px] uppercase font-bold tracking-widest rounded-full px-4 py-2.5 focus:ring-1 focus:ring-[#611F3A] outline-none cursor-pointer"
+              className="bg-transparent border border-zinc-200 text-[#611F3A] text-[10px] uppercase font-bold tracking-widest rounded-full px-4 py-2.5 focus:ring-1 focus:ring-[#611F3A] outline-none cursor-pointer flex-1 md:flex-none"
             >
               <option value="recentes">Mais Recentes</option>
               <option value="menor_preco">Menor Preço</option>
@@ -676,14 +703,14 @@ export default function Home() {
                 categoriasBase={categoriasBase} 
                 adicionarAoCarrinho={adicionarAoCarrinho} 
                 setNotificacao={setNotificacao}
-                abrirDetalhe={setProdutoDetalheAberto} // Prop para abrir Quick View
+                abrirDetalhe={setProdutoDetalheAberto}
               />
             ))}
           </div>
         )}
       </section>
 
-      {/* NOVO: PROVA SOCIAL - ELAS USAM */}
+      {/* PROVA SOCIAL - ELAS USAM */}
       <section className="py-16 px-6 md:px-12 bg-zinc-50 border-t border-zinc-200">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -729,54 +756,5 @@ export default function Home() {
             </p>
 
             <div className="flex gap-4 mb-8">
-              {/* Instagram */}
               <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" /></svg>
-              </a>
-              {/* TikTok */}
-              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
-              </a>
-              {/* WhatsApp (Restaurado) */}
-              <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
-              </a>
-            </div>
-          </div>
-          
-          <div className="hidden md:flex justify-end opacity-20">
-             <span className="text-9xl font-serif italic">CD</span>
-          </div>
-        </div>
-      </section>
-
-      {/* RODAPÉ DE INFORMAÇÕES */}
-      <footer className="bg-zinc-50 py-16 px-6 border-t border-zinc-200">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 text-center">
-          
-          <div className="flex flex-col items-center">
-            <h4 className="text-xs uppercase font-bold tracking-[0.2em] text-[#611F3A] mb-6">Informações Úteis</h4>
-            <a href="#" className="text-xs text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">Política de Entrega e Retirada em Loja</a>
-            <a href="#" className="text-xs text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">Trocas e Devoluções</a>
-          </div>
-
-          <div className="flex flex-col items-center">
-            <h4 className="text-xs uppercase font-bold tracking-[0.2em] text-[#611F3A] mb-6">Atendimento</h4>
-            <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-zinc-600 hover:text-[#D4AF37] transition-colors mb-3">
-              Whatsapp: (21) 97136-6354
-            </a>
-            <p className="text-xs text-zinc-500">Das 09 às 18h, de Segunda à Sábado.</p>
-          </div>
-
-        </div>
-
-        <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-zinc-200 text-center">
-          <p className="text-[10px] uppercase tracking-[0.4em] text-zinc-400 font-bold">
-            © 2026 Closet Dellas • Todos os direitos reservados
-          </p>
-        </div>
-      </footer>
-
-    </main>
-  );
-}
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153
