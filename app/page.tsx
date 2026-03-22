@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 
-// --- COMPONENTES AUXILIARES RESTAURADOS E CORRIGIDOS ---
+// --- COMPONENTES AUXILIARES ---
 
 function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void }) {
   if (!aberto) return null;
@@ -26,6 +26,15 @@ function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void 
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+
+function Notificacao({ mensagem }: { mensagem: string }) {
+  if (!mensagem) return null;
+  return (
+    <div className="fixed top-24 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md text-[#D4AF37] px-8 py-4 rounded-full shadow-[0_10px_40px_rgba(97,31,58,0.2)] z-[9999] border border-[#D4AF37]/30 animate-in fade-in slide-in-from-top-4 text-xs font-serif italic font-bold">
+      ✨ {mensagem}
     </div>
   );
 }
@@ -79,7 +88,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col">
-          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold mb-2">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-2">
             {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
           </p>
           <h2 className="text-2xl md:text-3xl font-serif italic text-[#611F3A] mb-2">{produto.nome}</h2>
@@ -95,7 +104,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
                   onClick={() => setTamanho(item.tam)}
                   className={`w-10 h-10 rounded-full text-xs font-bold transition-all border ${
                     item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' :
-                    tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
+                    tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
                   }`}
                 >
                   {item.tam}
@@ -112,7 +121,6 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   );
 }
 
-// --- CARD DE PRODUTO INTEGRADO COM PLANILHA E VISUAL ANTERIOR ---
 function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }: any) {
   const [tamanho, setTamanho] = useState<string | null>(null);
   const esgotado = produto.estoqueTotal <= 0;
@@ -128,7 +136,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
   return (
     <div className="flex flex-col group relative animate-in fade-in duration-500">
-      
       {esgotado && (
         <span className="absolute top-3 left-3 bg-zinc-500 text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md">Esgotado</span>
       )}
@@ -138,8 +145,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
       <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem shadow-sm">
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-        
-        {/* Quick View Button (Desktop) */}
         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/imagem:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <button 
             onClick={(e) => { e.stopPropagation(); abrirDetalhe(produto); }}
@@ -174,7 +179,6 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           ))}
         </div>
         
-        {/* BOTÕES MOBILE */}
         <div className="flex gap-2">
           <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-3 rounded-md text-[9px] uppercase font-bold shadow-md hover:bg-black transition-colors">Detalhes</button>
           <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-3 rounded-md text-[9px] uppercase font-bold shadow-md hover:bg-[#D4AF37] transition-colors active:scale-95 disabled:bg-zinc-300">Add Sacola</button>
@@ -184,13 +188,47 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
-// --- NOTIFICAÇÃO RESTAURADA ---
-function Notificacao({ mensagem }: { mensagem: string }) {
-  if (!mensagem) return null;
+// --- SACOLA LATERAL RESTAURADA ---
+function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
+  const total = carrinho.reduce((acc: number, item: any) => acc + item.preco, 0);
+
   return (
-    <div className="fixed top-24 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md text-[#D4AF37] px-8 py-4 rounded-full shadow-[0_10px_40px_rgba(97,31,58,0.2)] z-[9999] border border-[#D4AF37]/30 animate-bounce text-xs font-serif italic">
-      ✨ {mensagem}
-    </div>
+    <>
+      <div className={`fixed top-0 right-0 h-full w-full md:w-96 bg-white shadow-2xl z-[10000] transform transition-transform duration-500 flex flex-col ${aberto ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="flex justify-between items-center p-6 bg-[#611F3A] text-white">
+          <h2 className="text-xl font-serif italic">Sua Sacola</h2>
+          <button onClick={fechar} className="text-white/60 hover:text-white text-lg">✕</button>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {carrinho.map((item: any, index: number) => (
+            <div key={index} className="flex gap-4 border-b border-zinc-100 pb-4 items-center animate-in fade-in slide-in-from-right-4">
+              <img src={item.imagens[0]} className="w-16 h-20 object-cover rounded shadow-sm bg-zinc-100" />
+              <div className="flex-1">
+                <h4 className="text-[10px] uppercase font-bold text-zinc-800 leading-tight">{item.nome}</h4>
+                <p className="text-[10px] text-[#D4AF37] mt-0.5 font-bold uppercase">Tam: {item.tamanhoSelecionado}</p>
+                <p className="text-sm font-serif italic text-[#611F3A] mt-1">R$ {item.preco.toFixed(2)}</p>
+              </div>
+              <button onClick={() => remover(index)} className="p-2 text-zinc-300 hover:text-[#611F3A] transition-colors">✕</button>
+            </div>
+          ))}
+          {carrinho.length === 0 && <p className="text-center text-xs text-zinc-400 py-10 uppercase tracking-widest">Sacola vazia</p>}
+        </div>
+
+        {carrinho.length > 0 && (
+          <div className="p-6 bg-[#611F3A] text-white">
+            <div className="flex justify-between mb-6 items-center">
+              <span className="text-[11px] uppercase font-bold text-white/70 tracking-widest">Total</span>
+              <span className="font-serif italic text-2xl">R$ {total.toFixed(2)}</span>
+            </div>
+            <button onClick={finalizar} className="w-full bg-white text-[#611F3A] py-4 rounded text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] hover:text-white transition-colors">
+              Finalizar no WhatsApp
+            </button>
+          </div>
+        )}
+      </div>
+      {aberto && <div onClick={fechar} className="fixed inset-0 bg-black/50 z-[9000] backdrop-blur-[2px] transition-opacity" />}
+    </>
   );
 }
 
@@ -208,7 +246,27 @@ export default function Home() {
   const [busca, setBusca] = useState('');
   const [mostrarTopo, setMostrarTopo] = useState(false);
 
+  const foneWhatsAppRaw = "5521971366354";
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
+
+  // Categorias originais completas restauradas
+  const categoriasBase = [
+    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
+    { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
+    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
+    { id: 'macacao', label: 'MACACÃO', subs: ['Longo', 'Pantacourt'] },
+    { id: 'casacos', label: 'CASACOS E JAQUETAS', subs: ['Blazer', 'Jaqueta', 'Sobretudo'] },
+    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
+  ];
+
+  // Controle do scroll para o botão voltar ao topo
+  useEffect(() => {
+    const handleScroll = () => setMostrarTopo(window.scrollY > 400);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const fetchEstoque = async () => {
@@ -231,7 +289,6 @@ export default function Home() {
           };
         }).filter(r => r.ref && r.nome);
 
-        // Agrupamento por Referência (Grade)
         const grouped = rawData.reduce((acc: any[], item) => {
           const exist = acc.find(p => p.id === item.ref);
           if (exist) {
@@ -259,14 +316,6 @@ export default function Home() {
     fetchEstoque();
   }, []);
 
-  const categoriasBase = [
-    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Básico'] },
-    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Jeans'] },
-    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta'] },
-  ];
-
   const produtosFiltrados = todosProdutos.filter(p => {
     const matchBusca = busca === '' || p.nome.toLowerCase().includes(busca.toLowerCase()) || p.id.toLowerCase().includes(busca.toLowerCase());
     if (!matchBusca) return false;
@@ -276,11 +325,7 @@ export default function Home() {
     return true;
   });
 
-  const elogiosGosto = [
-    "Escolha impecável! Essa peça exala sofisticação.",
-    "Combinação perfeita com o seu estilo único.",
-    "Sofisticação em cada detalhe. Parabéns!"
-  ];
+  const elogiosGosto = ["Escolha impecável! Essa peça exala sofisticação.", "Combinação perfeita com o seu estilo único.", "Sofisticação em cada detalhe. Parabéns!"];
 
   const adicionarAoCarrinho = (item: any) => {
     setCarrinho(prev => [...prev, item]);
@@ -288,12 +333,42 @@ export default function Home() {
     setTimeout(() => setNotificacao(""), 4000);
   };
 
+  const finalizarPedidoWhatsApp = () => {
+    let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
+    carrinho.forEach((item, index) => {
+      mensagem += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${item.preco.toFixed(2)}\n`;
+    });
+    const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+    mensagem += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno para combinarmos os detalhes!_`;
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(mensagem)}`, '_blank');
+  };
+
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden">
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
+      
+      {/* SACOLA LATERAL RESTAURADA E FUNCIONAL */}
+      <SacolaLateral 
+        aberto={carrinhoAberto} 
+        fechar={() => setCarrinhoAberto(false)} 
+        carrinho={carrinho} 
+        remover={(idx: number) => setCarrinho(carrinho.filter((_, i) => i !== idx))} 
+        finalizar={finalizarPedidoWhatsApp} 
+      />
 
-      {/* NAV RESTAURADA E INTEGRADA COM BUSCA */}
+      {/* BOTÕES FLUTUANTES RESTAURADOS */}
+      {mostrarTopo && (
+        <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[90px] right-6 w-10 h-10 bg-white text-[#611F3A] border border-zinc-200 rounded-full shadow-lg flex items-center justify-center z-[8900] hover:bg-[#611F3A] hover:text-white transition-all">
+          <span className="font-bold text-lg">↑</span>
+        </button>
+      )}
+
+      <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] text-white rounded-full shadow-[0_4px_14px_rgba(37,211,102,0.4)] flex items-center justify-center z-[9000] hover:scale-110 transition-transform animate-bounce" style={{ animationDuration: '3s' }}>
+        <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
+      </a>
+
+      {/* NAVEGAÇÃO */}
       <nav className="bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
           <h1 className="text-2xl md:text-3xl font-serif font-extrabold text-[#611F3A]">Closet <span className="italic font-light">Dellas</span></h1>
@@ -311,14 +386,14 @@ export default function Home() {
 
           <div className="flex gap-4">
             <button onClick={() => setGuiaAberto(true)} className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-[#611F3A] hover:text-[#D4AF37]">Guia de Medidas</button>
-            <button className="bg-[#611F3A] text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-[#D4AF37] transition-all relative">
+            <button onClick={() => setCarrinhoAberto(true)} className="bg-[#611F3A] text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 hover:bg-[#D4AF37] transition-all">
               👜 Sacola <span className="bg-[#D4AF37] text-white text-[10px] px-1.5 rounded-full">{carrinho.length}</span>
             </button>
           </div>
         </div>
       </nav>
 
-      {/* HERO SECTION RESTAURADA */}
+      {/* HERO SECTION */}
       <section className="relative w-full aspect-[21/9] min-h-[350px] bg-zinc-200 flex items-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=700&fit=crop" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
@@ -330,7 +405,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FILTROS TIPO PÍLULA RESTAURADOS E CORRIGIDOS (Vide Imagem) */}
+      {/* FILTROS DE CATEGORIAS PÍLULAS (IGUAL À IMAGEM) E COM AS 8 CATEGORIAS */}
       <section className="max-w-7xl mx-auto pt-10 px-6">
         <div className="flex flex-wrap gap-2.5 mb-12 justify-center md:justify-start">
            <button 
@@ -380,7 +455,7 @@ export default function Home() {
           <div>
             <h3 className="text-3xl font-serif font-extrabold mb-4">Closet <span className="font-light italic">Dellas</span></h3>
             <p className="text-sm font-light leading-relaxed opacity-80 mb-6 text-balance">
-              Nascemos para vestir mulheres reais com elegância e sofisticação. Curadoriafeita a dedo.
+              Nascemos para vestir mulheres reais com elegância e sofisticação. Curadoria feita a dedo.
             </p>
             <div className="flex justify-center md:justify-start gap-4">
                {/* Ícones simplificados */}
@@ -390,7 +465,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Coluna 2: Políticas RESTAURADAS */}
+          {/* Coluna 2: Políticas */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Políticas</h4>
             <ul className="flex flex-col gap-3 text-sm font-light opacity-80">
@@ -401,7 +476,7 @@ export default function Home() {
             </ul>
           </div>
 
-          {/* Coluna 3: Atendimento RESTAURADO */}
+          {/* Coluna 3: Atendimento */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Atendimento</h4>
             <div className="flex flex-col gap-3 text-sm font-light opacity-80">
@@ -412,7 +487,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Coluna 4: Segurança RESTAURADA */}
+          {/* Coluna 4: Segurança */}
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Pagamento Seguro</h4>
             <p className="text-sm font-light opacity-80 mb-4">Compre com segurança. Aceitamos PIX e cartões de crédito.</p>
