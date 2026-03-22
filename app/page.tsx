@@ -145,16 +145,22 @@ export default function Home() {
   const todosProdutos = gerarProdutos();
 
   const elogiosGosto = [
-    "Escolha impecável! Essa peça exala sofisticação.", "Que bom gosto! Você acaba de escolher um ícone de elegância.",
-    "Combinação perfeita: o Closet Dellas e o seu estilo único.", "Essa peça foi feita para quem não abre mão da classe.",
-    "Pura elegância! Seu olhar para a moda é surpreendente.", "Um toque de luxo para o seu closet. Escolha maravilhosa!",
-    "Você tem um faro incrível para tendências atemporais.", "Essa peça vai realçar ainda mais a sua essência.",
-    "Simplesmente deslumbrante! Uma escolha digna de elogios.", "Estilo é saber quem você é, e sua escolha diz tudo!",
-    "Seu senso estético é absolutamente inspirador.", "Uma peça que traduz perfeitamente a sua elegância nata.",
-    "Curadoria pessoal nota dez! Essa peça é indispensável.", "Sofisticação em cada detalhe. Parabéns pela escolha!",
-    "Você acaba de elevar o nível do seu closet. Incrível!", "Beleza e classe em uma única escolha. Perfeito!",
-    "O equilíbrio ideal entre modernidade e tradição. Lindo!", "Seu bom gosto é a marca registrada da sua personalidade.",
-    "Uma escolha que reflete confiança e atitude feminina.", "Luxo é ter personalidade, e sua escolha prova isso!"
+    "Escolha impecável! Essa peça exala sofisticação.",
+    "Combinação perfeita: o Closet Dellas e o seu estilo único.",
+    "Essa peça foi feita para quem não abre mão da classe.",
+    "Um toque de luxo para o seu closet. Escolha maravilhosa!",
+    "Essa peça vai realçar ainda mais a sua essência.",
+    "Simplesmente deslumbrante! Uma escolha digna de elogios.",
+    "Estilo é saber quem você é, e sua escolha diz tudo!",
+    "Seu senso estético é absolutamente inspirador.",
+    "Curadoria pessoal nota dez! Essa peça é indispensável.",
+    "Sofisticação em cada detalhe. Parabéns pela escolha!",
+    "Você acaba de elevar o nível do seu closet. Incrível!",
+    "Beleza e classe em uma única escolha. Perfeito!",
+    "O equilíbrio ideal entre modernidade e tradição. Lindo!",
+    "Seu bom gosto é a marca registrada da sua personalidade.",
+    "Uma escolha que reflete confiança e atitude feminina.",
+    "Luxo é ter personalidade, e sua escolha prova isso!"
   ];
 
   const adicionarAoCarrinho = (produto: any) => {
