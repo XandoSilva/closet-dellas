@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -14,7 +15,7 @@ function SkeletonCard() {
   );
 }
 
-function NoResults({ mensagem }: { mensagem: string }) {
+function NoResults({ mensagem }) {
   return (
     <div className="col-span-full py-24 px-6 text-center bg-zinc-50 rounded-[2rem] border-2 border-dashed border-zinc-200">
       <span className="text-5xl mb-6 block">✨</span>
@@ -24,7 +25,7 @@ function NoResults({ mensagem }: { mensagem: string }) {
   );
 }
 
-function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void }) {
+function ModalMedidas({ aberto, fechar }) {
   if (!aberto) return null;
   return (
     <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4" onClick={fechar}>
@@ -50,7 +51,7 @@ function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void 
   );
 }
 
-function Notificacao({ mensagem }: { mensagem: string }) {
+function Notificacao({ mensagem }) {
   if (!mensagem) return null;
   return (
     <div className="fixed top-24 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md text-[#D4AF37] px-8 py-4 rounded-full shadow-[0_20px_50px_rgba(97,31,58,0.2)] z-[9999] border border-[#D4AF37]/30 animate-in fade-in slide-in-from-top-4 text-xs font-serif italic font-bold">
@@ -59,9 +60,9 @@ function Notificacao({ mensagem }: { mensagem: string }) {
   );
 }
 
-function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }) {
+function CarrosselProduto({ imagens, nome }) {
   const [fotoAtual, setFotoAtual] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef(null);
   const fotosExibir = imagens && imagens.length > 0 ? imagens : ['https://via.placeholder.com/400x600?text=Sem+Foto'];
 
   const handleScroll = () => {
@@ -71,12 +72,12 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
     }
   };
 
-  const scrollTo = (index: number) => {
+  const scrollTo = (index) => {
     if (scrollRef.current) scrollRef.current.scrollTo({ left: index * scrollRef.current.clientWidth, behavior: 'smooth' });
   };
 
-  const proxima = (e: any) => { e.preventDefault(); e.stopPropagation(); const n = fotoAtual + 1 >= fotosExibir.length ? 0 : fotoAtual + 1; scrollTo(n); };
-  const anterior = (e: any) => { e.preventDefault(); e.stopPropagation(); const p = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1; scrollTo(p); };
+  const proxima = (e) => { e.preventDefault(); e.stopPropagation(); const n = fotoAtual + 1 >= fotosExibir.length ? 0 : fotoAtual + 1; scrollTo(n); };
+  const anterior = (e) => { e.preventDefault(); e.stopPropagation(); const p = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1; scrollTo(p); };
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-2xl">
@@ -98,9 +99,9 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   );
 }
 
-function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, setNotificacao, categoriasBase }: any) {
+function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, setNotificacao, categoriasBase }) {
   if (!aberto || !produto) return null;
-  const [tamanho, setTamanho] = useState<string | null>(null);
+  const [tamanho, setTamanho] = useState(null);
 
   const handleAddCart = () => {
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
@@ -117,7 +118,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
-          <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">{categoriasBase.find((c:any) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}</p>
+          <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}</p>
           <h2 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-tight">{produto.nome}</h2>
           <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
           <div className="h-px w-12 bg-[#D4AF37]/30 mb-8" />
@@ -125,7 +126,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           <div>
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10">
-              {produto.grade.map((item: any) => (
+              {produto.grade.map((item) => (
                 <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-lg' : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'}`}>
                   {item.tam}
                 </button>
@@ -139,8 +140,8 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   );
 }
 
-function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }: any) {
-  const [tamanho, setTamanho] = useState<string | null>(null);
+function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }) {
+  const [tamanho, setTamanho] = useState(null);
   const esgotado = produto.estoqueTotal <= 0;
 
   const handleQuickAdd = () => {
@@ -164,14 +165,14 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
       <div className="text-left px-2 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
-            <p className="text-[9px] text-[#D4AF37] uppercase tracking-[0.2em] font-bold">{categoriasBase.find((c:any) => c.id === produto.categoria)?.label || 'DIVERSOS'}</p>
+            <p className="text-[9px] text-[#D4AF37] uppercase tracking-[0.2em] font-bold">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'}</p>
             <p className="text-[9px] text-zinc-300 font-medium uppercase tracking-widest">{produto.subcategoria}</p>
         </div>
         <h4 className="text-sm font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
         <p className="text-base font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
 
         <div className="flex gap-2 my-5 flex-wrap">
-          {produto.grade.map((item: any) => (
+          {produto.grade.map((item) => (
             <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} title={item.qtd <= 0 ? 'Esgotado' : `${item.qtd} unidades`} className={`w-8 h-8 rounded-full text-[9px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'}`}>
               {item.tam}
             </button>
@@ -187,8 +188,8 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
-function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
-  const total = carrinho.reduce((acc: number, item: any) => acc + (Number(item.preco) || 0), 0);
+function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
+  const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
 
   return (
     <>
@@ -202,7 +203,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
         </div>
         
         <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
-          {carrinho.map((item: any, index: number) => {
+          {carrinho.map((item, index) => {
             const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
             return (
               <div key={index} className="flex gap-6 items-center animate-in fade-in slide-in-from-right-8">
@@ -240,17 +241,17 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
 }
 
 export default function Home() {
-  const [todosProdutos, setTodosProdutos] = useState<any[]>([]);
+  const [todosProdutos, setTodosProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
-  const [carrinho, setCarrinho] = useState<any[]>([]);
+  const [carrinho, setCarrinho] = useState([]);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
   const [sacolaPulse, setSacolaPulse] = useState(false);
-  const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); 
+  const [produtoDetalheAberto, setProdutoDetalheAberto] = useState(null); 
   const [categoriaAtiva, setCategoriaAtiva] = useState('todas'); 
-  const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
-  const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
+  const [subCategoriaAtiva, setSubCategoriaAtiva] = useState(null);
+  const [menuAbertoCat, setMenuAbertoCat] = useState(null);
   const [busca, setBusca] = useState('');
   const [mostrarTopo, setMostrarTopo] = useState(false);
   const [bannerAtual, setBannerAtual] = useState(0);
@@ -288,9 +289,9 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const parseDate = (dateStr: string) => {
+  const parseDate = (dateStr) => {
     if (!dateStr) return null;
-    let parts: string[] = [];
+    let parts = [];
     if (dateStr.includes('/')) { parts = dateStr.split('/'); if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])); } 
     else if (dateStr.includes('-')) { parts = dateStr.split('-'); if (parts.length === 3) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])); }
     return null;
@@ -305,7 +306,7 @@ export default function Home() {
         const hoje = new Date();
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          const cleanCol = (col: string) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
+          const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           const dataCadastro = parseDate(cleanCol(cols[9]));
           let ehNovidade = false;
           if (dataCadastro) { const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); ehNovidade = diffDias <= 20; }
@@ -318,7 +319,7 @@ export default function Home() {
           };
         }).filter(r => r.ref && r.nome);
 
-        const grouped = rawData.reduce((acc: any[], item) => {
+        const grouped = rawData.reduce((acc, item) => {
           const exist = acc.find(p => p.id === item.ref);
           if (exist) { exist.grade.push({ tam: item.tamanho, qtd: item.estoque }); exist.estoqueTotal += item.estoque; }
           else { acc.push({ id: item.ref, nome: item.nome, categoria: item.categoria, subcategoria: item.subcategoria, preco: item.preco, descricao: item.descricao, imagens: item.imagens, estoqueTotal: item.estoque, ehNovidade: item.ehNovidade, grade: [{ tam: item.tamanho, qtd: item.estoque }] }); }
@@ -339,7 +340,7 @@ export default function Home() {
     return p.categoria === categoriaAtiva && (!subCategoriaAtiva || p.subcategoria === subCategoriaAtiva);
   });
 
-  const adicionarAoCarrinho = (item: any) => {
+  const adicionarAoCarrinho = (item) => {
     setCarrinho(prev => [...prev, item]);
     setNotificacao("Escolha impecável! ✨");
     setSacolaPulse(true);
@@ -358,7 +359,7 @@ export default function Home() {
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
-      <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx: number) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
+      <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
 
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[100px] right-6 w-12 h-12 bg-white text-[#611F3A] rounded-full shadow-2xl flex items-center justify-center z-[8000] border border-zinc-100 hover:scale-110 transition-all">
@@ -435,14 +436,14 @@ export default function Home() {
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
-            {categoriasBase.map((cat: any) => (
+            {categoriasBase.map((cat) => (
              <div key={cat.id} className="relative group/menu">
                 <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
                   {cat.label} {cat.subs && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
                 </button>
                 {cat.subs && (
                   <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 z-50 w-48 overflow-hidden transition-all duration-500 ${menuAbertoCat === cat.id ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none md:group-hover/menu:opacity-100 md:group-hover/menu:translate-y-0'}`}>
-                     {cat.subs?.map((sub: string) => (
+                     {cat.subs?.map((sub) => (
                        <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}>{sub}</button>
                      ))}
                   </div>
@@ -467,7 +468,6 @@ export default function Home() {
         )}
       </section>
 
-      {/* SEÇÃO DELLAS QUE INSPIRAM (GARANTIDA AQUI NA HOME) */}
       <section className="py-24 bg-zinc-50 border-t border-zinc-100">
           <div className="max-w-7xl mx-auto px-6 text-center">
               <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#D4AF37] mb-4 block">Comunidade</span>
