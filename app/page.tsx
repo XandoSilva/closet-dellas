@@ -333,11 +333,10 @@ export default function Home() {
   
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
   const [subMenuAberto, setSubMenuAberto] = useState<string | null>(null);
-  const [mostrarTopo, setMostrarTopo] = useState(false); // Estado para o botão de Topo
+  const [mostrarTopo, setMostrarTopo] = useState(false);
 
   const vitrineRef = useRef<HTMLElement>(null);
 
-  // Monitora a rolagem da página para mostrar o botão de Topo
   useEffect(() => {
     const handleScroll = () => {
       setMostrarTopo(window.scrollY > 400);
@@ -747,35 +746,73 @@ export default function Home() {
         </div>
       </section>
 
-      {/* QUEM SOMOS / SEÇÃO ESCURA */}
-      <section className="bg-[#611F3A] py-20 px-6 text-white">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+     {/* RODAPÉ COMPLETO (FOOTER) */}
+      <footer className="bg-[#611F3A] pt-16 pb-8 px-6 md:px-12 text-white border-t border-zinc-200 mt-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
+          
+          {/* Coluna 1: Nossa Essência e Redes Sociais */}
           <div>
-            <h3 className="text-3xl md:text-4xl font-serif italic mb-6">Nossa Essência</h3>
-            <p className="text-sm font-light leading-relaxed opacity-90 mb-8 max-w-md">
-              O Closet Dellas nasceu para vestir mulheres reais com elegância e sofisticação. Nossa curadoria é feita a dedo para que cada peça realce a beleza única que existe em você.
+            <h3 className="text-3xl font-serif font-extrabold mb-4">Closet <span className="font-light italic">Dellas</span></h3>
+            <p className="text-sm font-light leading-relaxed opacity-90 mb-6">
+              Nascemos para vestir mulheres reais com elegância e sofisticação. Curadoria feita a dedo para realçar a beleza única que existe em você.
             </p>
-
-            <div className="flex gap-4 mb-8">
-              <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
+            
+            {/* Redes Sociais */}
+            <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-3 text-[10px]">Siga-nos</h4>
+            <div className="flex gap-3">
+              <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors" title="Instagram">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
                   <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.46 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" />
                 </svg>
               </a>
+              <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors" title="WhatsApp">
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                  <path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/>
+                </svg>
+              </a>
             </div>
           </div>
-          <div className="flex flex-col gap-4 text-sm font-light">
-            <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-2">Atendimento</h4>
-            <p>Segunda a Sexta: 09h às 18h</p>
-            <p>Sábado: 09h às 13h</p>
-            <p className="mt-4"><span className="font-bold">E-mail:</span> contato@closetdellas.com.br</p>
-            <p><span className="font-bold">WhatsApp:</span> (21) 97136-6354</p>
+
+          {/* Coluna 2: Políticas */}
+          <div>
+            <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Políticas</h4>
+            <ul className="flex flex-col gap-3 text-sm font-light opacity-90">
+              <li><a href="#" className="hover:text-[#D4AF37] transition-colors">Trocas e Devoluções</a></li>
+              <li><a href="#" className="hover:text-[#D4AF37] transition-colors">Prazos e Entregas</a></li>
+              <li><a href="#" className="hover:text-[#D4AF37] transition-colors">Política de Privacidade</a></li>
+              <li><a href="#" className="hover:text-[#D4AF37] transition-colors">Termos e Condições</a></li>
+            </ul>
           </div>
+
+          {/* Coluna 3: Atendimento */}
+          <div>
+            <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Atendimento</h4>
+            <div className="flex flex-col gap-3 text-sm font-light opacity-90">
+              <p>Segunda a Sexta: 09h às 18h</p>
+              <p>Sábado: 09h às 13h</p>
+              <p className="mt-2"><span className="font-bold">E-mail:</span> contato@closetdellas.com.br</p>
+              <p><span className="font-bold">WhatsApp:</span> (21) 97136-6354</p>
+            </div>
+          </div>
+
+          {/* Coluna 4: Pagamento Seguro */}
+          <div>
+            <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Pagamento Seguro</h4>
+            <p className="text-sm font-light opacity-90 mb-4">Compre com segurança. Aceitamos PIX e cartões de crédito.</p>
+            <div className="flex gap-2 flex-wrap">
+              <span className="bg-white/10 px-3 py-1.5 rounded text-[10px] font-bold tracking-wider">PIX</span>
+              <span className="bg-white/10 px-3 py-1.5 rounded text-[10px] font-bold tracking-wider">VISA</span>
+              <span className="bg-white/10 px-3 py-1.5 rounded text-[10px] font-bold tracking-wider">MASTERCARD</span>
+            </div>
+          </div>
+
         </div>
-        <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/10 text-center text-[10px] uppercase tracking-widest text-white/50">
-          <p>© 2026 Closet Dellas. Todos os direitos reservados.</p>
+
+        {/* Linha de Copyright */}
+        <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/10 text-center flex flex-col items-center justify-center gap-2">
+          <p className="text-[10px] uppercase tracking-widest text-white/50">© 2026 Closet Dellas. Todos os direitos reservados.</p>
         </div>
-      </section>
+      </footer>
     </main>
   );
 }
