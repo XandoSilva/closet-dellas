@@ -50,8 +50,27 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
     }
   };
 
-  // Fallback caso não tenha imagem
   const fotosExibir = imagens && imagens.length > 0 ? imagens : ['https://via.placeholder.com/400x600?text=Sem+Foto'];
+
+  const scrollTo = (index: number) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ left: index * scrollRef.current.clientWidth, behavior: 'smooth' });
+    }
+  };
+
+  const proximaFoto = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Evita clicar no card por baixo da seta
+    const next = fotoAtual + 1 >= fotosExibir.length ? 0 : fotoAtual + 1;
+    scrollTo(next);
+  };
+
+  const fotoAnterior = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const prev = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1;
+    scrollTo(prev);
+  };
 
   return (
     <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos">
@@ -60,12 +79,20 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
           <img key={index} src={img} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center" />
         ))}
       </div>
+      
       {fotosExibir.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 rounded-full backdrop-blur-sm">
-          {fotosExibir.map((_, index) => (
-            <div key={index} className={`w-1.5 h-1.5 rounded-full transition-all ${index === fotoAtual ? 'bg-white scale-125' : 'bg-white/50'}`} />
-          ))}
-        </div>
+        <>
+          {/* Setas Desktop */}
+          <button onClick={fotoAnterior} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm z-20">❮</button>
+          <button onClick={proximaFoto} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm z-20">❯</button>
+          
+          {/* Pontinhos */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 rounded-full backdrop-blur-sm z-20 pointer-events-none">
+            {fotosExibir.map((_, index) => (
+              <div key={index} className={`w-1.5 h-1.5 rounded-full transition-all ${index === fotoAtual ? 'bg-white scale-125' : 'bg-white/50'}`} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
@@ -148,7 +175,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <span className="absolute top-3 left-3 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md animate-pulse">Última Peça</span>
       )}
 
-      <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem shadow-sm">
+      <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem shadow-sm cursor-pointer" onClick={() => abrirDetalhe(produto)}>
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/imagem:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <button 
@@ -206,7 +233,6 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: any) {
         
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {carrinho.map((item: any, index: number) => {
-            // Garante que haja pelo menos uma imagem válida para mostrar na sacola
             const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
             
             return (
@@ -286,8 +312,6 @@ export default function Home() {
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const cleanCol = (col: string) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-
-          // Lógica pura e simples para separar as imagens por ponto e vírgula (sem hack do Drive)
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
 
           return {
@@ -370,7 +394,6 @@ export default function Home() {
         finalizar={finalizarPedidoWhatsApp} 
       />
 
-      {/* BOTÕES FLUTUANTES */}
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[90px] right-6 w-10 h-10 bg-white text-[#611F3A] border border-zinc-200 rounded-full shadow-lg flex items-center justify-center z-[8900] hover:bg-[#611F3A] hover:text-white transition-all">
           <span className="font-bold text-lg">↑</span>
@@ -405,7 +428,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* HERO SECTION */}
       <section className="relative w-full aspect-[21/9] min-h-[350px] bg-zinc-200 flex items-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=700&fit=crop" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent"></div>
@@ -417,7 +439,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BARRA DE BENEFÍCIOS RESTAURADA */}
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 6x</p></div>
@@ -426,7 +447,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FILTROS DE CATEGORIAS (COM MENU SANFONA MOBILE RESTAURADO) */}
       <section className="max-w-7xl mx-auto pt-10 px-6">
         <div className="flex flex-wrap gap-2.5 mb-12 justify-center md:justify-start">
            <button 
@@ -477,7 +497,6 @@ export default function Home() {
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
 
-      {/* RODAPÉ COM LINKS ATIVOS DE REDES SOCIAIS RESTAURADOS */}
       <footer className="bg-[#611F3A] pt-16 pb-8 px-6 md:px-12 text-white border-t border-zinc-100 mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 items-start text-center md:text-left">
           
@@ -498,7 +517,6 @@ export default function Home() {
               </a>
             </div>
           </div>
-
           <div>
             <h4 className="font-bold uppercase tracking-widest text-[#D4AF37] mb-6 text-xs">Políticas</h4>
             <ul className="flex flex-col gap-3 text-sm font-light opacity-80">
