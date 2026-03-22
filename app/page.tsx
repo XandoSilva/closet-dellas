@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 // --- COMPONENTES AUXILIARES ---
 
@@ -98,6 +98,66 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   );
 }
 
+// Card de Produto modificado para suportar bloqueio de tamanhos sem estoque
+function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao }: any) {
+  const [tamanho, setTamanho] = useState<string | null>(null);
+
+  const handleAddCart = () => {
+    if (!tamanho) {
+      setNotificacao("Por favor, selecione um tamanho antes de adicionar à sacola! 📏");
+      setTimeout(() => setNotificacao(""), 4000);
+      return;
+    }
+    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho });
+    setTamanho(null); // Reseta a seleção após adicionar
+  };
+
+  return (
+    <div className="flex flex-col group animate-in fade-in duration-500">
+      <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+      <div className="text-left mt-3">
+        <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
+          {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
+        </p>
+        <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
+        <p className="text-sm font-bold text-[#611F3A] mt-1">R$ {produto.preco.toFixed(2)}</p>
+
+        {/* Seleção de Tamanho com Lógica de Estoque */}
+        <div className="flex gap-2 my-3">
+          {['P', 'M', 'G', 'U'].map(t => {
+            const temEstoque = produto.tamanhosDisponiveis.includes(t);
+            return (
+              <button 
+                key={t}
+                onClick={() => temEstoque && setTamanho(t)}
+                disabled={!temEstoque}
+                title={temEstoque ? `Tamanho ${t}` : 'Esgotado'}
+                className={`w-7 h-7 rounded-full text-[10px] font-bold transition-colors border ${
+                  !temEstoque
+                    ? 'bg-zinc-100 text-zinc-300 border-zinc-100 cursor-not-allowed opacity-50' // Design para sem estoque
+                    : tamanho === t 
+                      ? 'bg-[#611F3A] text-white border-[#611F3A]' 
+                      : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
+                }`}
+              >
+                {t}
+              </button>
+            )
+          })}
+        </div>
+        
+        <button 
+          onClick={handleAddCart} 
+          className="w-full bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.2em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
+        >
+          Adicionar à Sacola
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
 function Notificacao({ mensagem }: { mensagem: string }) {
   if (!mensagem) return null;
   return (
@@ -124,6 +184,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }: { abert
               <img src={item.image} className="w-16 h-20 object-cover rounded shadow-sm" />
               <div className="flex-1">
                 <h4 className="text-[10px] uppercase font-bold text-zinc-800">{item.nome}</h4>
+                <p className="text-[10px] text-zinc-500 mt-0.5 font-bold uppercase">Tamanho: {item.tamanhoSelecionado}</p>
                 <p className="text-sm font-serif italic text-[#611F3A] mt-1">R$ {item.preco.toFixed(2)}</p>
               </div>
               <button onClick={() => remover(index)} className="p-2 text-zinc-300 hover:text-[#611F3A]">✕</button>
@@ -157,13 +218,14 @@ export default function Home() {
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
   
-  // Inicia mostrando todas as categorias
   const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
+  const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
   
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
-  // Estado para controlar o sub-menu aberto no celular (efeito cascata touch)
   const [subMenuAberto, setSubMenuAberto] = useState<string | null>(null);
+
+  const vitrineRef = useRef<HTMLElement>(null);
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
@@ -176,14 +238,32 @@ export default function Home() {
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
   ];
 
+  // Simulação do Banco de Dados com Datas e Tamanhos
   const gerarProdutos = () => {
     const listaProdutos: any[] = [];
+    
+    // Simulação de combinações de estoque
+    const gradesEstoque = [
+      ['P', 'M', 'G'], // Estoque completo
+      ['M', 'G'],      // Sem o P
+      ['U'],           // Apenas Tamanho Único
+      ['P', 'M'],      // Sem o G
+      ['P']            // Última peça P
+    ];
+
     categoriasBase.forEach((cat, catIndex) => {
       for (let i = 1; i <= 4; i++) {
+        const dataCadastroFake = (i % 2 === 0) 
+          ? new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() 
+          : new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(); 
+          
         listaProdutos.push({
           id: `${cat.id}-${i}`,
           nome: `${cat.label.charAt(0) + cat.label.slice(1).toLowerCase()} Exclusivo ${i}`,
           categoria: cat.id,
+          subcategoria: cat.subs[i % cat.subs.length], 
+          dataCadastro: dataCadastroFake,
+          tamanhosDisponiveis: gradesEstoque[(catIndex + i) % gradesEstoque.length], // Distribui grades diferentes pros produtos
           preco: 250 + i * 15,
           imagens: [
             `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-1`,
@@ -199,21 +279,10 @@ export default function Home() {
 
   const elogiosGosto = [
     "Escolha impecável! Essa peça exala sofisticação.",
-    "Combinação perfeita: o Closet Dellas e o seu estilo único.",
-    "Essa peça foi feita para quem não abre mão da classe.",
+    "Combinação perfeita com o seu estilo único.",
     "Um toque de luxo para o seu closet. Escolha maravilhosa!",
     "Essa peça vai realçar ainda mais a sua essência.",
-    "Simplesmente deslumbrante! Uma escolha digna de elogios.",
-    "Estilo é saber quem você é, e sua escolha diz tudo!",
-    "Seu senso estético é absolutamente inspirador.",
-    "Curadoria pessoal nota dez! Essa peça é indispensável.",
-    "Sofisticação em cada detalhe. Parabéns pela escolha!",
-    "Você acaba de elevar o nível do seu closet. Incrível!",
-    "Beleza e classe em uma única escolha. Perfeito!",
-    "O equilíbrio ideal entre modernidade e tradição. Lindo!",
-    "Seu bom gosto é a marca registrada da sua personalidade.",
-    "Uma escolha que reflete confiança e atitude feminina.",
-    "Luxo é ter personalidade, e sua escolha prova isso!"
+    "Sofisticação em cada detalhe. Parabéns pela escolha!"
   ];
 
   const adicionarAoCarrinho = (produto: any) => {
@@ -227,7 +296,7 @@ export default function Home() {
   const finalizarPedidoWhatsApp = () => {
     let mensagem = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
     carrinho.forEach((item, index) => {
-      mensagem += `${index + 1}. *${item.nome}* - R$ ${item.preco.toFixed(2)}\n`;
+      mensagem += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${item.preco.toFixed(2)}\n`;
     });
     const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
     mensagem += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno para combinarmos os detalhes!_`;
@@ -238,9 +307,29 @@ export default function Home() {
     if (busca.trim() !== '') {
       return p.nome.toLowerCase().includes(busca.toLowerCase());
     }
-    if (categoriaAtiva === 'todas') return true;
-    return p.categoria === categoriaAtiva;
+    
+    if (categoriaAtiva === 'lancamentos') {
+      const dataProduto = new Date(p.dataCadastro);
+      const diffTime = Math.abs(Date.now() - dataProduto.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      return diffDays <= 20;
+    }
+
+    if (categoriaAtiva !== 'todas') {
+      if (p.categoria !== categoriaAtiva) return false;
+      if (subCategoriaAtiva && p.subcategoria !== subCategoriaAtiva) return false;
+    }
+
+    return true;
   });
+
+  const irParaLancamentos = () => {
+    setCategoriaAtiva('lancamentos');
+    setSubCategoriaAtiva(null);
+    if (vitrineRef.current) {
+      vitrineRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden">
@@ -249,10 +338,21 @@ export default function Home() {
       <Notificacao mensagem={notificacao} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
 
+      {/* BOTÃO FLUTUANTE WHATSAPP */}
+      <a 
+        href={`https://wa.me/${foneWhatsAppRaw}`} 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] text-white rounded-full shadow-[0_4px_14px_rgba(37,211,102,0.4)] flex items-center justify-center z-[9000] hover:scale-110 transition-transform animate-bounce"
+        style={{ animationDuration: '3s' }}
+        title="Fale conosco no WhatsApp"
+      >
+        <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
+      </a>
+
       {/* NAVEGAÇÃO */}
       <nav className="flex justify-between items-center px-6 md:px-12 py-5 bg-white sticky top-0 z-[100] border-b border-zinc-100 shadow-sm">
         
-        {/* CAMPO DE PESQUISA ESTILIZADO (Desktop) */}
         <div className="hidden md:block w-80 relative">
           <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-500">
@@ -294,11 +394,14 @@ export default function Home() {
         <img src="/images/hero-sophisticated.jpg" className="absolute inset-0 w-full h-full object-cover" alt="Closet Dellas Collection" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent"></div>
         <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 text-left text-white">
-          <span className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 block text-[#D4AF37]">Nova Coleção 2026</span>
+          <span className="text-[10px] uppercase tracking-[0.4em] font-bold mb-4 block text-[#D4AF37]">Nova Coleção</span>
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-light mb-8 leading-tight">
             A elegância que <br /> <span className="italic font-serif">você merece.</span>
           </h2>
-          <button className="bg-[#611F3A] text-white px-8 py-4 rounded-md text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#D4AF37] transition-colors shadow-lg active:scale-95">
+          <button 
+            onClick={irParaLancamentos} 
+            className="bg-[#611F3A] text-white px-8 py-4 rounded-md text-[11px] uppercase tracking-[0.2em] font-bold hover:bg-[#D4AF37] transition-colors shadow-lg active:scale-95"
+          >
             Conferir Lançamentos
           </button>
         </div>
@@ -314,13 +417,19 @@ export default function Home() {
       </section>
 
       {/* VITRINE DE PRODUTOS */}
-      <section className="max-w-7xl mx-auto py-20 px-6 md:px-12">
+      <section ref={vitrineRef} className="max-w-7xl mx-auto py-20 px-6 md:px-12 scroll-mt-24">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-zinc-100 pb-4 gap-4">
           <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A]">
-            {busca ? 'Resultados da Busca' : 'Nossos Destaques'}
+            {busca 
+              ? 'Resultados da Busca' 
+              : categoriaAtiva === 'lancamentos' 
+                ? 'Novidades & Lançamentos' 
+                : subCategoriaAtiva 
+                  ? `Nossos Destaques: ${subCategoriaAtiva}`
+                  : 'Nossos Destaques'
+            }
           </h3>
 
-          {/* CAMPO DE PESQUISA ESTILIZADO (Mobile) */}
           <div className="w-full md:hidden relative mb-2 mt-4">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-zinc-500">
@@ -332,7 +441,7 @@ export default function Home() {
               placeholder="O que você está procurando?"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#F9F6F7] border border-zinc-200 rounded-full text-xs text-zinc-800 focus:border-[#611F3A] focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 placeholder:italic transition-all shadow-inner"
+              className="w-full pl-12 pr-4 py-3.5 bg-[#F9F6F7] border border-zinc-200 rounded-full text-xs text-zinc-800 focus:border-[#611F3A] focus:ring-1 focus:ring-[#611F3A] outline-none placeholder:text-zinc-600 placeholder:italic transition-all shadow-inner"
             />
           </div>
         </div>
@@ -340,11 +449,22 @@ export default function Home() {
         {!busca && (
           <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6 relative z-40">
             
-            {/* NOVO: CATEGORIA PAI "TODAS AS CATEGORIAS" (Efeito Cascata Mobile/Desktop) */}
+            <button 
+              onClick={irParaLancamentos}
+              className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
+                categoriaAtiva === 'lancamentos' 
+                  ? 'bg-[#D4AF37] text-white shadow-md' 
+                  : 'bg-white border border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-white'
+              }`}
+            >
+              Lançamentos ✨
+            </button>
+
             <div className="relative group/todas">
               <button 
                 onClick={() => {
                   setCategoriaAtiva('todas');
+                  setSubCategoriaAtiva(null);
                   setMenuAbertoCat(menuAbertoCat === 'todas' ? null : 'todas');
                   setSubMenuAberto(null);
                 }}
@@ -357,7 +477,6 @@ export default function Home() {
                 Todas as Categorias
               </button>
               
-              {/* Menu 1º Nível (Lista das Categorias) */}
               <div className={`absolute left-0 top-full mt-2 w-56 bg-white border border-zinc-100 shadow-xl rounded-lg z-[60] transition-all duration-300 md:opacity-0 md:invisible md:group-hover/todas:opacity-100 md:group-hover/todas:visible ${menuAbertoCat === 'todas' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                 {categoriasBase.map(cat => (
                   <div key={cat.id} className="relative group/sub">
@@ -365,15 +484,13 @@ export default function Home() {
                       className="w-full flex items-center justify-between px-5 py-3 border-b border-zinc-50 last:border-0 hover:bg-zinc-50 transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Se clicar no nome, seleciona a categoria
                         setCategoriaAtiva(cat.id);
+                        setSubCategoriaAtiva(null);
                         setMenuAbertoCat(null);
                         setSubMenuAberto(null);
                       }}
                     >
                       <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:text-[#611F3A]">{cat.label}</span>
-                      
-                      {/* Setinha para abrir sub-menu no mobile ou apenas visual no desktop */}
                       <span 
                         className="text-zinc-300 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold"
                         onClick={(e) => {
@@ -385,7 +502,6 @@ export default function Home() {
                       </span>
                     </button>
                     
-                    {/* Menu 2º Nível (Efeito Cascata com Subcategorias) */}
                     <div className={`absolute left-full top-0 ml-1 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-[70] overflow-hidden transition-all duration-200 md:opacity-0 md:invisible md:group-hover/sub:opacity-100 md:group-hover/sub:visible ${subMenuAberto === cat.id ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                       {cat.subs.map(sub => (
                         <button 
@@ -394,6 +510,7 @@ export default function Home() {
                           onClick={(e) => {
                             e.stopPropagation();
                             setCategoriaAtiva(cat.id);
+                            setSubCategoriaAtiva(sub); 
                             setMenuAbertoCat(null); 
                             setSubMenuAberto(null);
                           }}
@@ -407,16 +524,16 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Categorias Normais (Lado a Lado) */}
             {categoriasBase.map(cat => (
               <div key={cat.id} className="relative group">
                 <button 
                   onClick={() => {
                     setCategoriaAtiva(cat.id);
+                    setSubCategoriaAtiva(null);
                     setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id);
                   }}
                   className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
-                    categoriaAtiva === cat.id 
+                    categoriaAtiva === cat.id && !subCategoriaAtiva
                       ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
                       : 'bg-white border border-zinc-200 text-[#611F3A] hover:border-[#611F3A]'
                   }`}
@@ -431,6 +548,7 @@ export default function Home() {
                       className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
                       onClick={() => {
                         setCategoriaAtiva(cat.id);
+                        setSubCategoriaAtiva(sub); 
                         setMenuAbertoCat(null); 
                       }}
                     >
@@ -445,28 +563,18 @@ export default function Home() {
 
         {produtosFiltrados.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-zinc-400 uppercase tracking-widest font-bold">Nenhum produto encontrado.</p>
+            <p className="text-zinc-400 uppercase tracking-widest font-bold">Nenhum produto encontrado nesta categoria no momento.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {produtosFiltrados.map((produto) => (
-              <div key={produto.id} className="flex flex-col group animate-in fade-in duration-500">
-                <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-                <div className="text-left mt-2">
-                  <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
-                    {categoriasBase.find(c => c.id === produto.categoria)?.label}
-                  </p>
-                  <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
-                  <p className="text-sm font-bold text-[#611F3A] mt-2 mb-4">R$ {produto.preco.toFixed(2)}</p>
-                  
-                  <button 
-                    onClick={() => adicionarAoCarrinho(produto)} 
-                    className="w-full bg-[#611F3A] text-white py-3 rounded-md text-[10px] uppercase tracking-[0.2em] font-bold shadow-sm hover:bg-[#D4AF37] transition-colors active:scale-95"
-                  >
-                    Adicionar à Sacola
-                  </button>
-                </div>
-              </div>
+              <ProdutoCard 
+                key={produto.id} 
+                produto={produto} 
+                categoriasBase={categoriasBase} 
+                adicionarAoCarrinho={adicionarAoCarrinho} 
+                setNotificacao={setNotificacao}
+              />
             ))}
           </div>
         )}
@@ -487,9 +595,6 @@ export default function Home() {
               </a>
               <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
-              </a>
-              <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
               </a>
             </div>
           </div>
