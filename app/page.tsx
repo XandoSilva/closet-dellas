@@ -34,6 +34,88 @@ function ModalMedidas({ aberto, fechar }: { aberto: boolean, fechar: () => void 
   );
 }
 
+// NOVO: Modal de "Ver Detalhes" (Quick View)
+function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, setNotificacao, categoriasBase }: any) {
+  if (!aberto || !produto) return null;
+  
+  const [tamanho, setTamanho] = useState<string | null>(null);
+
+  const handleAddCart = () => {
+    if (!tamanho) {
+      setNotificacao("Por favor, selecione um tamanho antes de adicionar à sacola! 📏");
+      setTimeout(() => setNotificacao(""), 4000);
+      return;
+    }
+    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho });
+    setTamanho(null);
+    fechar();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4 md:p-8" onClick={fechar}>
+      <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto md:overflow-hidden rounded-2xl shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
+        <button onClick={fechar} className="absolute top-4 right-4 bg-white/50 w-8 h-8 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-100 text-xl z-50 shadow-sm">✕</button>
+        
+        {/* Imagem */}
+        <div className="w-full md:w-1/2 aspect-[3/4] md:aspect-auto md:h-[600px] bg-zinc-100">
+          <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+        </div>
+
+        {/* Informações */}
+        <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col">
+          <p className="text-[10px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-2">
+            {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
+          </p>
+          <h2 className="text-2xl md:text-3xl font-serif italic text-[#611F3A] mb-2">{produto.nome}</h2>
+          <p className="text-xl font-bold text-[#D4AF37] mb-6">R$ {produto.preco.toFixed(2)}</p>
+          
+          <div className="prose prose-sm text-zinc-500 mb-8 flex-1">
+            <p className="leading-relaxed">{produto.descricao}</p>
+            <ul className="mt-4 space-y-1 text-xs">
+              <li>✨ Modelagem exclusiva</li>
+              <li>✨ Tecido premium com caimento perfeito</li>
+              <li>✨ Acabamento de alta costura</li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-800 mb-3">Selecione o Tamanho:</p>
+            <div className="flex gap-2 mb-6">
+              {['P', 'M', 'G', 'U'].map(t => {
+                const temEstoque = produto.tamanhosDisponiveis.includes(t);
+                return (
+                  <button 
+                    key={t}
+                    onClick={() => temEstoque && setTamanho(t)}
+                    disabled={!temEstoque}
+                    title={temEstoque ? `Tamanho ${t}` : 'Esgotado'}
+                    className={`w-10 h-10 rounded-full text-xs font-bold transition-all border ${
+                      !temEstoque
+                        ? 'bg-zinc-50 text-zinc-300 border-zinc-100 cursor-not-allowed opacity-50' 
+                        : tamanho === t 
+                          ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
+                          : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                )
+              })}
+            </div>
+            
+            <button 
+              onClick={handleAddCart} 
+              className="w-full bg-[#611F3A] text-white py-4 rounded-md text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-colors active:scale-95"
+            >
+              Adicionar à Sacola
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }) {
   const [fotoAtual, setFotoAtual] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,7 +148,7 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   };
 
   return (
-    <div className="relative aspect-[3/4] w-full overflow-hidden bg-zinc-100 rounded-md group/carrossel">
+    <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos">
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
@@ -84,8 +166,8 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
 
       {imagens.length > 1 && (
         <>
-          <button onClick={fotoAnterior} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/carrossel:opacity-100 transition-opacity hover:bg-white shadow-sm">❮</button>
-          <button onClick={proximaFoto} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/carrossel:opacity-100 transition-opacity hover:bg-white shadow-sm">❯</button>
+          <button onClick={fotoAnterior} className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm">❮</button>
+          <button onClick={proximaFoto} className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center text-xs font-bold opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:bg-white shadow-sm">❯</button>
           
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 rounded-full backdrop-blur-sm pointer-events-none">
             {imagens.map((_, index) => (
@@ -98,9 +180,10 @@ function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }
   );
 }
 
-// Card de Produto modificado para suportar bloqueio de tamanhos sem estoque
-function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao }: any) {
+// Card de Produto com Escassez e botão "Ver Detalhes"
+function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }: any) {
   const [tamanho, setTamanho] = useState<string | null>(null);
+  const ehUltimaPeca = produto.tamanhosDisponiveis.length === 1 && produto.tamanhosDisponiveis[0] !== 'U';
 
   const handleAddCart = () => {
     if (!tamanho) {
@@ -109,12 +192,40 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       return;
     }
     adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho });
-    setTamanho(null); // Reseta a seleção após adicionar
+    setTamanho(null); 
   };
 
   return (
-    <div className="flex flex-col group animate-in fade-in duration-500">
-      <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+    <div className="flex flex-col group animate-in fade-in duration-500 relative">
+      
+      {/* Escassez */}
+      {ehUltimaPeca && (
+        <span className="absolute top-3 left-3 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-2.5 py-1.5 rounded-sm z-10 shadow-md animate-pulse">
+          Última Peça
+        </span>
+      )}
+
+      <div className="relative aspect-[3/4] w-full rounded-md overflow-hidden group/imagem">
+        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+        
+        {/* Quick View Button */}
+        <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/imagem:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
+          <button 
+            onClick={(e) => { e.stopPropagation(); abrirDetalhe(produto); }}
+            className="bg-white/95 text-[#611F3A] px-6 py-3 rounded text-[10px] uppercase tracking-[0.2em] font-bold shadow-xl pointer-events-auto hover:bg-[#611F3A] hover:text-white transition-colors transform translate-y-4 group-hover/imagem:translate-y-0 duration-300"
+          >
+            Ver Detalhes
+          </button>
+        </div>
+        {/* Mobile Quick View (Ícone pequeno de olho no canto inferior) */}
+        <button 
+          onClick={() => abrirDetalhe(produto)}
+          className="md:hidden absolute bottom-3 right-3 bg-white/90 w-8 h-8 rounded-full flex items-center justify-center shadow-md text-[#611F3A] z-20"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+        </button>
+      </div>
+
       <div className="text-left mt-3">
         <p className="text-[9px] text-zinc-400 uppercase tracking-[0.2em] font-bold mb-1">
           {categoriasBase.find((c:any) => c.id === produto.categoria)?.label} • {produto.subcategoria}
@@ -122,7 +233,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <h4 className="text-xs font-bold text-zinc-800 leading-tight h-8">{produto.nome}</h4>
         <p className="text-sm font-bold text-[#611F3A] mt-1">R$ {produto.preco.toFixed(2)}</p>
 
-        {/* Seleção de Tamanho com Lógica de Estoque */}
+        {/* Seleção de Tamanho */}
         <div className="flex gap-2 my-3">
           {['P', 'M', 'G', 'U'].map(t => {
             const temEstoque = produto.tamanhosDisponiveis.includes(t);
@@ -134,7 +245,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
                 title={temEstoque ? `Tamanho ${t}` : 'Esgotado'}
                 className={`w-7 h-7 rounded-full text-[10px] font-bold transition-colors border ${
                   !temEstoque
-                    ? 'bg-zinc-100 text-zinc-300 border-zinc-100 cursor-not-allowed opacity-50' // Design para sem estoque
+                    ? 'bg-zinc-50 text-zinc-300 border-zinc-100 cursor-not-allowed opacity-50'
                     : tamanho === t 
                       ? 'bg-[#611F3A] text-white border-[#611F3A]' 
                       : 'bg-white text-zinc-600 border-zinc-200 hover:border-[#611F3A]'
@@ -217,10 +328,12 @@ export default function Home() {
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
   const [guiaAberto, setGuiaAberto] = useState(false);
   const [notificacao, setNotificacao] = useState("");
+  const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); // Estado do Quick View
   
   const [categoriaAtiva, setCategoriaAtiva] = useState('todas');
   const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
+  const [ordenacao, setOrdenacao] = useState('recentes'); // Estado da Ordenação
   
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
   const [subMenuAberto, setSubMenuAberto] = useState<string | null>(null);
@@ -233,22 +346,14 @@ export default function Home() {
     { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
     { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
     { id: 'macacao', label: 'MACACÃO', subs: ['Longo', 'Pantacourt'] },
+    { id: 'casacos', label: 'CASACOS E JAQUETAS', subs: ['Blazer', 'Jaqueta', 'Sobretudo'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
   ];
 
-  // Simulação do Banco de Dados com Datas e Tamanhos
   const gerarProdutos = () => {
     const listaProdutos: any[] = [];
-    
-    // Simulação de combinações de estoque
-    const gradesEstoque = [
-      ['P', 'M', 'G'], // Estoque completo
-      ['M', 'G'],      // Sem o P
-      ['U'],           // Apenas Tamanho Único
-      ['P', 'M'],      // Sem o G
-      ['P']            // Última peça P
-    ];
+    const gradesEstoque = [['P', 'M', 'G'], ['M', 'G'], ['U'], ['P', 'M'], ['P']];
 
     categoriasBase.forEach((cat, catIndex) => {
       for (let i = 1; i <= 4; i++) {
@@ -262,8 +367,9 @@ export default function Home() {
           categoria: cat.id,
           subcategoria: cat.subs[i % cat.subs.length], 
           dataCadastro: dataCadastroFake,
-          tamanhosDisponiveis: gradesEstoque[(catIndex + i) % gradesEstoque.length], // Distribui grades diferentes pros produtos
-          preco: 250 + i * 15,
+          tamanhosDisponiveis: gradesEstoque[(catIndex + i) % gradesEstoque.length],
+          preco: 180 + (catIndex * i * 7) + (i * 15), // Preços variados para testar o filtro
+          descricao: `Esta peça incrível da categoria ${cat.label} foi desenvolvida com tecidos nobres para garantir conforto e durabilidade. O corte valoriza a silhueta, tornando-se um item indispensável no seu closet. Combine com acessórios dourados para um look impecável.`,
           imagens: [
             `https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-1`,
             `https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=800&fit=crop&sig=${catIndex * 10 + i}-2`,
@@ -302,24 +408,27 @@ export default function Home() {
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(mensagem)}`, '_blank');
   };
 
-  const produtosFiltrados = todosProdutos.filter(p => {
+  // LÓGICA DE FILTRO E ORDENAÇÃO
+  let produtosFiltrados = todosProdutos.filter(p => {
     if (busca.trim() !== '') {
       return p.nome.toLowerCase().includes(busca.toLowerCase());
     }
-    
     if (categoriaAtiva === 'lancamentos') {
-      const dataProduto = new Date(p.dataCadastro);
-      const diffTime = Math.abs(Date.now() - dataProduto.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+      const diffDays = Math.ceil(Math.abs(Date.now() - new Date(p.dataCadastro).getTime()) / (1000 * 60 * 60 * 24)); 
       return diffDays <= 20;
     }
-
     if (categoriaAtiva !== 'todas') {
       if (p.categoria !== categoriaAtiva) return false;
       if (subCategoriaAtiva && p.subcategoria !== subCategoriaAtiva) return false;
     }
-
     return true;
+  });
+
+  produtosFiltrados = produtosFiltrados.sort((a, b) => {
+    if (ordenacao === 'menor_preco') return a.preco - b.preco;
+    if (ordenacao === 'maior_preco') return b.preco - a.preco;
+    if (ordenacao === 'recentes') return new Date(b.dataCadastro).getTime() - new Date(a.dataCadastro).getTime();
+    return 0;
   });
 
   const irParaLancamentos = () => {
@@ -336,6 +445,7 @@ export default function Home() {
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
+      <ModalDetalheProduto aberto={!!produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} produto={produtoDetalheAberto} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
 
       {/* BOTÃO FLUTUANTE WHATSAPP */}
       <a 
@@ -445,9 +555,10 @@ export default function Home() {
           </div>
         </div>
         
-        {!busca && (
-          <div className="flex flex-wrap gap-3 mb-12 border-b border-zinc-100 pb-6 relative z-40">
-            
+        {/* BARRA DE ORDENAÇÃO E CATEGORIAS */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 relative z-40">
+          
+          <div className="flex flex-wrap gap-3">
             <button 
               onClick={irParaLancamentos}
               className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
@@ -490,15 +601,7 @@ export default function Home() {
                       }}
                     >
                       <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:text-[#611F3A]">{cat.label}</span>
-                      <span 
-                        className="text-zinc-300 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSubMenuAberto(subMenuAberto === cat.id ? null : cat.id);
-                        }}
-                      >
-                        ❯
-                      </span>
+                      <span className="text-zinc-300 p-2 -mr-2 md:p-0 md:mr-0 text-xs font-bold" onClick={(e) => { e.stopPropagation(); setSubMenuAberto(subMenuAberto === cat.id ? null : cat.id); }}>❯</span>
                     </button>
                     
                     <div className={`absolute left-full top-0 ml-1 w-48 bg-white border border-zinc-100 shadow-xl rounded-lg z-[70] overflow-hidden transition-all duration-200 md:opacity-0 md:invisible md:group-hover/sub:opacity-100 md:group-hover/sub:visible ${subMenuAberto === cat.id ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
@@ -506,13 +609,7 @@ export default function Home() {
                         <button 
                           key={sub}
                           className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setCategoriaAtiva(cat.id);
-                            setSubCategoriaAtiva(sub); 
-                            setMenuAbertoCat(null); 
-                            setSubMenuAberto(null);
-                          }}
+                          onClick={(e) => { e.stopPropagation(); setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null); setSubMenuAberto(null); }}
                         >
                           {sub}
                         </button>
@@ -526,11 +623,7 @@ export default function Home() {
             {categoriasBase.map(cat => (
               <div key={cat.id} className="relative group">
                 <button 
-                  onClick={() => {
-                    setCategoriaAtiva(cat.id);
-                    setSubCategoriaAtiva(null);
-                    setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id);
-                  }}
+                  onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id); }}
                   className={`px-6 py-2.5 rounded-full text-[10px] uppercase tracking-widest font-bold transition-all ${
                     categoriaAtiva === cat.id && !subCategoriaAtiva
                       ? 'bg-[#611F3A] text-white border-2 border-black shadow-md' 
@@ -545,11 +638,7 @@ export default function Home() {
                     <button 
                       key={sub}
                       className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-widest font-bold text-zinc-500 hover:bg-zinc-50 hover:text-[#611F3A] border-b border-zinc-50 last:border-0 transition-colors"
-                      onClick={() => {
-                        setCategoriaAtiva(cat.id);
-                        setSubCategoriaAtiva(sub); 
-                        setMenuAbertoCat(null); 
-                      }}
+                      onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null); }}
                     >
                       {sub}
                     </button>
@@ -558,7 +647,21 @@ export default function Home() {
               </div>
             ))}
           </div>
-        )}
+
+          {/* NOVO: SELECT DE ORDENAÇÃO */}
+          <div className="w-full md:w-auto flex items-center justify-end gap-2 border-t md:border-none pt-4 md:pt-0 border-zinc-100">
+            <span className="text-[10px] uppercase tracking-widest font-bold text-zinc-400">Ordenar:</span>
+            <select
+              value={ordenacao}
+              onChange={(e) => setOrdenacao(e.target.value)}
+              className="bg-transparent border border-zinc-200 text-[#611F3A] text-[10px] uppercase font-bold tracking-widest rounded-full px-4 py-2.5 focus:ring-1 focus:ring-[#611F3A] outline-none cursor-pointer"
+            >
+              <option value="recentes">Mais Recentes</option>
+              <option value="menor_preco">Menor Preço</option>
+              <option value="maior_preco">Maior Preço</option>
+            </select>
+          </div>
+        </div>
 
         {produtosFiltrados.length === 0 ? (
           <div className="py-20 text-center">
@@ -573,14 +676,51 @@ export default function Home() {
                 categoriasBase={categoriasBase} 
                 adicionarAoCarrinho={adicionarAoCarrinho} 
                 setNotificacao={setNotificacao}
+                abrirDetalhe={setProdutoDetalheAberto} // Prop para abrir Quick View
               />
             ))}
           </div>
         )}
       </section>
 
+      {/* NOVO: PROVA SOCIAL - ELAS USAM */}
+      <section className="py-16 px-6 md:px-12 bg-zinc-50 border-t border-zinc-200">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <h3 className="text-3xl font-serif italic text-[#611F3A] mb-2">Elas usam Closet Dellas</h3>
+            <p className="text-xs uppercase tracking-[0.2em] font-bold text-zinc-400">Inspirações reais de nossas clientes</p>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
+            <div className="group relative overflow-hidden rounded-lg aspect-square">
+              <img src="https://images.unsplash.com/photo-1515347619252-c0fb95392e21?q=80&w=400&h=400&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-3xl">❤️</span>
+              </div>
+            </div>
+            <div className="group relative overflow-hidden rounded-lg aspect-square">
+              <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=400&h=400&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-3xl">❤️</span>
+              </div>
+            </div>
+            <div className="group relative overflow-hidden rounded-lg aspect-square">
+              <img src="https://images.unsplash.com/photo-1529139574466-a303027c028b?q=80&w=400&h=400&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-3xl">❤️</span>
+              </div>
+            </div>
+            <div className="group relative overflow-hidden rounded-lg aspect-square">
+              <img src="https://images.unsplash.com/photo-1485230895905-31d98601d361?q=80&w=400&h=400&fit=crop" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-3xl">❤️</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* QUEM SOMOS / SEÇÃO ESCURA */}
-      <section className="bg-[#611F3A] py-20 px-6 text-white mt-10">
+      <section className="bg-[#611F3A] py-20 px-6 text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
             <h3 className="text-3xl md:text-4xl font-serif italic mb-6">Nossa Essência</h3>
@@ -589,11 +729,17 @@ export default function Home() {
             </p>
 
             <div className="flex gap-4 mb-8">
+              {/* Instagram */}
               <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd" /></svg>
               </a>
+              {/* TikTok */}
               <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg>
+              </a>
+              {/* WhatsApp (Restaurado) */}
+              <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white text-[#611F3A] rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-colors shadow-lg">
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
               </a>
             </div>
           </div>
