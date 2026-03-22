@@ -259,21 +259,9 @@ export default function Home() {
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
 
   const banners = [
-    {
-        imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop",
-        tag: "Curadoria Brás de Luxo",
-        titulo: "A elegância que <br/> <span class='not-italic font-light'>você merece.</span>"
-    },
-    {
-        imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop",
-        tag: "Novidades Chegando",
-        titulo: "Nova coleção <br/> <span class='not-italic font-light'>direto do Brás.</span>"
-    },
-    {
-        imagem: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1600&h=800&fit=crop",
-        tag: "Benefício Exclusivo",
-        titulo: "Frete Grátis <br/> <span class='not-italic font-light text-2xl md:text-4xl block mt-4'>Acima de R$399 para o Sudeste</span>"
-    }
+    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria Brás de Luxo", titulo: "A elegância que <br/> <span class='not-italic font-light'>você merece.</span>" },
+    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", titulo: "Nova coleção <br/> <span class='not-italic font-light'>direto do Brás.</span>" },
+    { imagem: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1600&h=800&fit=crop", tag: "Benefício Exclusivo", titulo: "Frete Grátis <br/> <span class='not-italic font-light text-2xl md:text-4xl block mt-4'>Acima de R$399 para o Sudeste</span>" }
   ];
 
   const categoriasBase = [
@@ -290,7 +278,7 @@ export default function Home() {
   useEffect(() => {
     const intervalo = setInterval(() => {
       setBannerAtual((prev) => (prev + 1 === banners.length ? 0 : prev + 1));
-    }, 4000); // 4 Segundos
+    }, 4000);
     return () => clearInterval(intervalo);
   }, [banners.length]);
 
@@ -303,13 +291,8 @@ export default function Home() {
   const parseDate = (dateStr: string) => {
     if (!dateStr) return null;
     let parts: string[] = [];
-    if (dateStr.includes('/')) {
-      parts = dateStr.split('/');
-      if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0]));
-    } else if (dateStr.includes('-')) {
-      parts = dateStr.split('-');
-      if (parts.length === 3) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
-    }
+    if (dateStr.includes('/')) { parts = dateStr.split('/'); if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])); } 
+    else if (dateStr.includes('-')) { parts = dateStr.split('-'); if (parts.length === 3) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])); }
     return null;
   };
 
@@ -320,21 +303,13 @@ export default function Home() {
         const text = await res.text();
         const rows = text.split('\n').slice(1);
         const hoje = new Date();
-        
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const cleanCol = (col: string) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          
           const dataCadastro = parseDate(cleanCol(cols[9]));
           let ehNovidade = false;
-          if (dataCadastro) {
-            const diffTempo = Math.abs(hoje.getTime() - dataCadastro.getTime());
-            const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
-            ehNovidade = diffDias <= 20; 
-          }
-          
+          if (dataCadastro) { const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); ehNovidade = diffDias <= 20; }
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
-
           return {
             ref: cleanCol(cols[0]), nome: cleanCol(cols[1]), categoria: cleanCol(cols[2]).toLowerCase(),
             subcategoria: cleanCol(cols[3]), tamanho: cleanCol(cols[4]), estoque: parseInt(cleanCol(cols[5])) || 0,
@@ -424,13 +399,9 @@ export default function Home() {
         <button onClick={() => setGuiaAberto(true)} className="flex flex-col items-center gap-1"><span className="text-xl">📏</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Medidas</span></button>
       </div>
 
-      {/* BANNER ROTATIVO (AGORA PROTEGIDO) */}
       <section className="relative w-full aspect-[21/9] min-h-[400px] bg-zinc-900 overflow-hidden">
         {banners.map((banner, index) => (
-            <div 
-              key={index} 
-              className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-            >
+            <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
                 <img src={banner.imagem} className="absolute inset-0 w-full h-full object-cover scale-105" alt="Banner" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
                 <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 h-full flex flex-col justify-center text-left text-white">
@@ -496,7 +467,7 @@ export default function Home() {
         )}
       </section>
 
-      {/* SEÇÃO DELLAS QUE INSPIRAM (GARANTIDA AQUI) */}
+      {/* SEÇÃO DELLAS QUE INSPIRAM (GARANTIDA AQUI NA HOME) */}
       <section className="py-24 bg-zinc-50 border-t border-zinc-100">
           <div className="max-w-7xl mx-auto px-6 text-center">
               <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#D4AF37] mb-4 block">Comunidade</span>
