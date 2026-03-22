@@ -63,13 +63,10 @@ function Notificacao({ mensagem }: { mensagem: string }) {
   );
 }
 
-function CarrosselProduto({ imagens, nome, isHovered }: { imagens: string[], nome: string, isHovered?: boolean }) {
+function CarrosselProduto({ imagens, nome }: { imagens: string[], nome: string }) {
   const [fotoAtual, setFotoAtual] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fotosExibir = imagens && imagens.length > 0 ? imagens : ['https://via.placeholder.com/400x600?text=Sem+Foto'];
-
-  // Efeito de Hover Vitrine: Troca para a segunda foto se estiver com mouse em cima e houver foto
-  const imagemVisivel = (isHovered && fotosExibir.length > 1) ? fotosExibir[1] : fotosExibir[0];
 
   const handleScroll = () => {
     if (scrollRef.current) {
@@ -103,32 +100,24 @@ function CarrosselProduto({ imagens, nome, isHovered }: { imagens: string[], nom
       <div 
         ref={scrollRef} 
         onScroll={handleScroll} 
-        className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide md:overflow-hidden" 
+        className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" 
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {/* Desktop: Usa o hover swap suave */}
-        <div className="hidden md:block w-full h-full relative flex-shrink-0">
+        {fotosExibir.map((img, index) => (
             <img 
-                src={imagemVisivel} 
-                alt={nome} 
-                className="w-full h-full object-cover transition-all duration-700 ease-in-out transform group-hover/fotos:scale-105" 
+                key={index} 
+                src={img} 
+                alt={`${nome} - Foto ${index + 1}`} 
+                className="w-full h-full object-cover flex-shrink-0 snap-center transition-transform duration-700 group-hover/fotos:scale-105" 
             />
-        </div>
-        {/* Mobile: Mantém o carrossel scrollável */}
-        <div className="md:hidden flex h-full w-full">
-            {fotosExibir.map((img, index) => (
-              <img key={index} src={img} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center" />
-            ))}
-        </div>
+        ))}
       </div>
       
       {fotosExibir.length > 1 && (
         <>
-          {/* Setas Desktop Restabelecidas */}
-          <button onClick={anterior} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center shadow-lg z-30 opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:scale-110">❮</button>
-          <button onClick={proxima} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center shadow-lg z-30 opacity-0 group-hover/fotos:opacity-100 transition-opacity hover:scale-110">❯</button>
+          <button onClick={anterior} className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center shadow-lg z-30 opacity-0 group-hover/fotos:opacity-100 transition-all hover:scale-110">❮</button>
+          <button onClick={proxima} className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 text-[#611F3A] w-8 h-8 rounded-full items-center justify-center shadow-lg z-30 opacity-0 group-hover/fotos:opacity-100 transition-all hover:scale-110">❯</button>
           
-          {/* Pontinhos Mobile */}
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 p-1.5 bg-black/20 rounded-full backdrop-blur-sm z-20 md:hidden pointer-events-none">
             {fotosExibir.map((_, i) => (
               <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${i === fotoAtual ? 'bg-white scale-125' : 'bg-white/40'}`} />
@@ -203,7 +192,6 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
 
 function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }: any) {
   const [tamanho, setTamanho] = useState<string | null>(null);
-  const [isHovered, setIsHovered] = useState(false);
   const esgotado = produto.estoqueTotal <= 0;
 
   const handleQuickAdd = () => {
@@ -216,12 +204,8 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   };
 
   return (
-    <div 
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-        className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700"
-    >
-      {/* Badges */}
+    <div className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700">
+      
       {produto.ehNovidade && !esgotado && (
         <span className="absolute top-7 right-7 bg-[#D4AF37] text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">New</span>
       )}
@@ -232,9 +216,8 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>
       )}
 
-      {/* Imagem com Overlay Quick View */}
       <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm cursor-pointer" onClick={() => abrirDetalhe(produto)}>
-        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} isHovered={isHovered} />
+        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">
             Quick View
@@ -346,7 +329,9 @@ export default function Home() {
   const [notificacao, setNotificacao] = useState("");
   const [sacolaPulse, setSacolaPulse] = useState(false);
   const [produtoDetalheAberto, setProdutoDetalheAberto] = useState<any>(null); 
-  const [categoriaAtiva, setCategoriaAtiva] = useState('novidades'); 
+  
+  // INICIA COM A CATEGORIA "TODAS" PARA MOSTRAR ABUNDÂNCIA
+  const [categoriaAtiva, setCategoriaAtiva] = useState('todas'); 
   const [subCategoriaAtiva, setSubCategoriaAtiva] = useState<string | null>(null);
   const [menuAbertoCat, setMenuAbertoCat] = useState<string | null>(null);
   const [busca, setBusca] = useState('');
@@ -355,7 +340,6 @@ export default function Home() {
   const foneWhatsAppRaw = "5521971366354";
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
 
-  // Apenas as categorias que vão para a segunda linha do menu
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
@@ -403,7 +387,7 @@ export default function Home() {
           if (dataCadastro) {
             const diffTempo = Math.abs(hoje.getTime() - dataCadastro.getTime());
             const diffDias = Math.ceil(diffTempo / (1000 * 60 * 60 * 24));
-            ehNovidade = diffDias <= 20; // 20 Dias para Novidade
+            ehNovidade = diffDias <= 20; 
           }
 
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
@@ -498,7 +482,7 @@ export default function Home() {
         finalizar={finalizarPedidoWhatsApp} 
       />
 
-      {/* BOTÕES FLUTUANTES (Scroll to Top e WhatsApp) RESTAURADOS */}
+      {/* BOTÕES FLUTUANTES RESTAURADOS (Scroll Top + WhatsApp) */}
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[100px] right-6 w-12 h-12 bg-white text-[#611F3A] rounded-full shadow-2xl flex items-center justify-center z-[8000] border border-zinc-100 hover:scale-110 transition-all">
           <span className="font-bold text-xl">↑</span>
@@ -509,7 +493,7 @@ export default function Home() {
         <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
       </a>
 
-      {/* HEADER DEKTOP/GERAL */}
+      {/* HEADER GERAL */}
       <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-zinc-100 shadow-sm transition-all duration-500">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex flex-col md:flex-row justify-between items-center gap-6">
           <h1 className="text-3xl md:text-4xl font-serif font-extrabold text-[#611F3A] tracking-tighter">
@@ -544,7 +528,7 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* BARRA MOBILE INFERIOR RESTAURADA (APP-STYLE) */}
+      {/* BARRA MOBILE INFERIOR RESTAURADA */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-zinc-100 px-8 py-4 flex justify-between items-center z-[9000] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <button onClick={() => {setCategoriaAtiva('novidades'); window.scrollTo({top:0, behavior:'smooth'})}} className="flex flex-col items-center gap-1">
             <span className="text-xl">⭐</span>
@@ -574,7 +558,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BARRA DE BENEFÍCIOS */}
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 6x</p></div>
@@ -611,7 +594,7 @@ export default function Home() {
             </button>
           </div>
 
-          {/* LINHA 2: Categorias Base (Sanfona) */}
+          {/* LINHA 2: Categorias Base (Sanfona blindada) */}
           <div className="flex flex-wrap justify-center gap-3 w-full">
             {categoriasBase.map((cat: any) => (
              <div key={cat.id} className="relative group/menu">
@@ -647,10 +630,9 @@ export default function Home() {
              </div>
             ))}
           </div>
-
         </div>
 
-        {/* VITRINE */}
+        {/* VITRINE DE PRODUTOS */}
         {carregando ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
@@ -672,7 +654,9 @@ export default function Home() {
         )}
       </section>
 
-      {/* RODAPÉ COMPLETO RESTAURADO (COM REDES SOCIAIS E DETALHES) */}
+      <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
+
+      {/* RODAPÉ COMPLETO RESTAURADO */}
       <footer className="bg-[#611F3A] pt-24 pb-12 px-6 md:px-12 text-white mt-10">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           
