@@ -303,7 +303,7 @@ export default function Home() {
               subcategoria: item.subcategoria,
               preco: item.preco,
               descricao: item.descricao,
-              imagens: [item.imagem],
+              imagens: item.imagem.split(';').map((link: string) => link.trim()).filter(Boolean),
               estoqueTotal: item.estoque,
               grade: [{ tam: item.tamanho, qtd: item.estoque }]
             });
