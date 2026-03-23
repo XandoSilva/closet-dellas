@@ -291,10 +291,10 @@ export default function Home() {
   const foneWhatsAppRaw = "5521971366354";
   
   // ⚠️ ATENÇÃO AQUI: COLE O SEU LINK DA ABA DE ESTOQUE ENTRE AS ASPAS ABAIXO:
-  const SHEET_CSV_URL = "COLE_O_LINK_DO_CSV_DO_ESTOQUE_AQUI";
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=0&single=true&output=csv";
   
   // ⚠️ ATENÇÃO AQUI: COLE O SEU LINK DA ABA DE BANNERS ENTRE AS ASPAS ABAIXO:
-  const SHEET_BANNERS_URL = "COLE_O_LINK_DO_CSV_DOS_BANNERS_AQUI"; 
+  const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
 
   // Banners de segurança ajustados (Sem mencionar origem popular)
   const bannersFallback = [
