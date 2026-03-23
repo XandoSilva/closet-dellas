@@ -189,50 +189,80 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
+// ATUALIZAÇÃO UX: FUNÇÃO DA SACOLA QUE PERGUNTA O NOME
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
+  const [nomeDella, setNomeDella] = useState("");
+  const [passoCheckout, setPassoCheckout] = useState(1); 
   const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
+
+  useEffect(() => { if (!aberto) setPassoCheckout(1); }, [aberto]);
 
   return (
     <>
       <div className={`fixed top-0 right-0 h-full w-full md:w-[450px] bg-white shadow-2xl z-[10000] transform transition-transform duration-700 ease-in-out flex flex-col ${aberto ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex justify-between items-center p-8 bg-white border-b border-zinc-100">
           <div>
-            <h2 className="text-2xl font-serif italic text-[#611F3A]">Sua Sacola</h2>
-            <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">Você tem {carrinho.length} itens</p>
+            <h2 className="text-2xl font-serif italic text-[#611F3A]">{passoCheckout === 1 ? 'Sua Sacola' : 'Quase lá! ✨'}</h2>
+            {passoCheckout === 1 && <p className="text-[10px] text-zinc-400 uppercase tracking-widest mt-1">Você tem {carrinho.length} itens</p>}
           </div>
           <button onClick={fechar} className="w-10 h-10 flex items-center justify-center text-zinc-300 hover:text-[#611F3A] transition-colors rounded-full hover:bg-zinc-50">✕</button>
         </div>
         
         <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
-          {carrinho.map((item, index) => {
-            const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
-            return (
-              <div key={index} className="flex gap-6 items-center animate-in fade-in slide-in-from-right-8">
-                <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden shadow-sm"><img src={imgCart} className="w-full h-full object-cover" /></div>
-                <div className="flex-1">
-                  <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-tight leading-tight">{item.nome}</h4>
-                  <p className="text-[10px] text-[#D4AF37] mt-1.5 font-bold uppercase tracking-widest">Tamanho: {item.tamanhoSelecionado}</p>
-                  <p className="text-sm font-serif italic text-[#611F3A] mt-2">R$ {Number(item.preco).toFixed(2)}</p>
+          {passoCheckout === 1 ? (
+            <>
+              {carrinho.map((item, index) => {
+                const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
+                return (
+                  <div key={index} className="flex gap-6 items-center animate-in fade-in slide-in-from-right-8">
+                    <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden shadow-sm"><img src={imgCart} className="w-full h-full object-cover" /></div>
+                    <div className="flex-1">
+                      <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-tight leading-tight">{item.nome}</h4>
+                      <p className="text-[10px] text-[#D4AF37] mt-1.5 font-bold uppercase tracking-widest">Tamanho: {item.tamanhoSelecionado}</p>
+                      <p className="text-sm font-serif italic text-[#611F3A] mt-2">R$ {Number(item.preco).toFixed(2)}</p>
+                    </div>
+                    <button onClick={() => remover(index)} className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 hover:bg-zinc-100 hover:text-red-400 transition-all">✕</button>
+                  </div>
+                );
+              })}
+              {carrinho.length === 0 && (
+                <div className="py-20 text-center">
+                    <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
+                    <p className="text-xs text-zinc-400 py-10 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!<br/>Encontre algo incrível na nova coleção.</p>
                 </div>
-                <button onClick={() => remover(index)} className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 hover:bg-zinc-100 hover:text-red-400 transition-all">✕</button>
-              </div>
-            );
-          })}
-          {carrinho.length === 0 && (
-            <div className="py-20 text-center">
-                <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
-                <p className="text-xs text-zinc-400 py-10 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!<br/>Encontre algo incrível na nova coleção.</p>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20">
+              <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-6 text-center">Para um atendimento exclusivo:</p>
+              <input 
+                type="text" 
+                placeholder="Como podemos te chamar?" 
+                value={nomeDella}
+                onChange={(e) => setNomeDella(e.target.value)}
+                className="w-full text-center text-2xl font-serif italic text-[#611F3A] border-b-2 border-zinc-100 pb-4 focus:border-[#D4AF37] outline-none transition-colors placeholder:text-zinc-300"
+                autoFocus
+              />
             </div>
           )}
         </div>
 
         {carrinho.length > 0 && (
           <div className="p-8 bg-zinc-50 border-t border-zinc-100">
-            <div className="flex justify-between mb-8 items-center">
-              <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-[0.3em]">Subtotal</span>
-              <span className="font-serif italic text-3xl text-[#611F3A]">R$ {total.toFixed(2)}</span>
-            </div>
-            <button onClick={finalizar} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">FECHAR PEDIDO NO WHATSAPP</button>
+            {passoCheckout === 1 ? (
+              <>
+                <div className="flex justify-between mb-8 items-center">
+                  <span className="text-[10px] uppercase font-bold text-zinc-400 tracking-[0.3em]">Subtotal</span>
+                  <span className="font-serif italic text-3xl text-[#611F3A]">R$ {total.toFixed(2)}</span>
+                </div>
+                <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
+              </>
+            ) : (
+              <button onClick={() => finalizar(nomeDella)} disabled={nomeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 disabled:bg-zinc-300 disabled:shadow-none flex items-center justify-center gap-3">
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
+                ENVIAR PARA WHATSAPP
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -243,7 +273,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
 
 export default function Home() {
   const [todosProdutos, setTodosProdutos] = useState([]);
-  const [bannersAPI, setBannersAPI] = useState([]); // NOVO ESTADO DOS BANNERS
+  const [bannersAPI, setBannersAPI] = useState([]); 
   const [carregando, setCarregando] = useState(true);
   const [carrinho, setCarrinho] = useState([]);
   const [carrinhoAberto, setCarrinhoAberto] = useState(false);
@@ -260,16 +290,16 @@ export default function Home() {
 
   const foneWhatsAppRaw = "5521971366354";
   
-  // URL DO ESTOQUE
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=0&single=true&output=csv";
+  // ⚠️ ATENÇÃO AQUI: COLE O SEU LINK DA ABA DE ESTOQUE ENTRE AS ASPAS ABAIXO:
+  const SHEET_CSV_URL = "COLE_O_LINK_DO_CSV_DO_ESTOQUE_AQUI";
   
-  // ⚠️ SUA NOVA URL DOS BANNERS VEM AQUI EMBAIXO:
-  const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
+  // ⚠️ ATENÇÃO AQUI: COLE O SEU LINK DA ABA DE BANNERS ENTRE AS ASPAS ABAIXO:
+  const SHEET_BANNERS_URL = "COLE_O_LINK_DO_CSV_DOS_BANNERS_AQUI"; 
 
-  // Banners de segurança (caso a planilha falhe ou esteja vazia)
+  // Banners de segurança ajustados (Sem mencionar origem popular)
   const bannersFallback = [
-    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria Brás de Luxo", tituloPrincipal: "A elegância que", tituloDestaque: "você merece." },
-    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", tituloPrincipal: "Nova coleção", tituloDestaque: "direto do Brás." }
+    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria Premium", tituloPrincipal: "A elegância que", tituloDestaque: "você merece." },
+    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", tituloPrincipal: "Nova coleção", tituloDestaque: "direto das passarelas." }
   ];
 
   const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
@@ -306,11 +336,9 @@ export default function Home() {
     return null;
   };
 
-  // FETCH DA PLANILHA (AGORA PUXA OS DOIS: ESTOQUE E BANNERS)
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        // Puxando Banners
         if(SHEET_BANNERS_URL && SHEET_BANNERS_URL !== "COLE_O_LINK_DO_CSV_DOS_BANNERS_AQUI") {
             const resBanners = await fetch(SHEET_BANNERS_URL);
             const textBanners = await resBanners.text();
@@ -323,33 +351,34 @@ export default function Home() {
             if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
         }
 
-        // Puxando Estoque
-        const res = await fetch(SHEET_CSV_URL);
-        const text = await res.text();
-        const rows = text.split('\n').slice(1);
-        const hoje = new Date();
-        const rawData = rows.map(row => {
-          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          const dataCadastro = parseDate(cleanCol(cols[9]));
-          let ehNovidade = false;
-          if (dataCadastro) { const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); ehNovidade = diffDias <= 20; }
-          const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
-          return {
-            ref: cleanCol(cols[0]), nome: cleanCol(cols[1]), categoria: cleanCol(cols[2]).toLowerCase(),
-            subcategoria: cleanCol(cols[3]), tamanho: cleanCol(cols[4]), estoque: parseInt(cleanCol(cols[5])) || 0,
-            preco: parseFloat(cleanCol(cols[6]).replace(/\./g, '').replace(',', '.')) || 0,
-            descricao: cleanCol(cols[7]), imagens: imagensArray, ehNovidade: ehNovidade
-          };
-        }).filter(r => r.ref && r.nome);
+        if(SHEET_CSV_URL && SHEET_CSV_URL !== "COLE_O_LINK_DO_CSV_DO_ESTOQUE_AQUI") {
+          const res = await fetch(SHEET_CSV_URL);
+          const text = await res.text();
+          const rows = text.split('\n').slice(1);
+          const hoje = new Date();
+          const rawData = rows.map(row => {
+            const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
+            const dataCadastro = parseDate(cleanCol(cols[9]));
+            let ehNovidade = false;
+            if (dataCadastro) { const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); ehNovidade = diffDias <= 20; }
+            const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
+            return {
+              ref: cleanCol(cols[0]), nome: cleanCol(cols[1]), categoria: cleanCol(cols[2]).toLowerCase(),
+              subcategoria: cleanCol(cols[3]), tamanho: cleanCol(cols[4]), estoque: parseInt(cleanCol(cols[5])) || 0,
+              preco: parseFloat(cleanCol(cols[6]).replace(/\./g, '').replace(',', '.')) || 0,
+              descricao: cleanCol(cols[7]), imagens: imagensArray, ehNovidade: ehNovidade
+            };
+          }).filter(r => r.ref && r.nome);
 
-        const grouped = rawData.reduce((acc, item) => {
-          const exist = acc.find(p => p.id === item.ref);
-          if (exist) { exist.grade.push({ tam: item.tamanho, qtd: item.estoque }); exist.estoqueTotal += item.estoque; }
-          else { acc.push({ id: item.ref, nome: item.nome, categoria: item.categoria, subcategoria: item.subcategoria, preco: item.preco, descricao: item.descricao, imagens: item.imagens, estoqueTotal: item.estoque, ehNovidade: item.ehNovidade, grade: [{ tam: item.tamanho, qtd: item.estoque }] }); }
-          return acc;
-        }, []);
-        setTodosProdutos(grouped);
+          const grouped = rawData.reduce((acc, item) => {
+            const exist = acc.find(p => p.id === item.ref);
+            if (exist) { exist.grade.push({ tam: item.tamanho, qtd: item.estoque }); exist.estoqueTotal += item.estoque; }
+            else { acc.push({ id: item.ref, nome: item.nome, categoria: item.categoria, subcategoria: item.subcategoria, preco: item.preco, descricao: item.descricao, imagens: item.imagens, estoqueTotal: item.estoque, ehNovidade: item.ehNovidade, grade: [{ tam: item.tamanho, qtd: item.estoque }] }); }
+            return acc;
+          }, []);
+          setTodosProdutos(grouped);
+        }
         setCarregando(false);
       } catch (e) { setCarregando(false); }
     };
@@ -371,11 +400,12 @@ export default function Home() {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
-  const finalizarPedidoWhatsApp = () => {
-    let msg = `Olá, Closet Dellas! ✨\nGostaria de finalizar meu pedido:\n\n`;
+  // ATUALIZAÇÃO UX: FUNÇÃO QUE GERA O TEXTO COM O NOME DA CLIENTE NO WHATSAPP
+  const finalizarPedidoWhatsApp = (nomeCliente) => {
+    let msg = `Olá, Closet Dellas! ✨\nSou a *${nomeCliente}* e gostaria de finalizar meu pedido:\n\n`;
     carrinho.forEach((item, index) => { msg += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`; });
     const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
-    msg += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno!_`;
+    msg += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno com as formas de pagamento!_`;
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -485,7 +515,7 @@ export default function Home() {
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : produtosFiltrados.length === 0 ? (
-          <NoResults mensagem={busca ? `Não encontramos nada para "${busca}".` : `A coleção está sendo atualizada com peças exclusivas do Brás! Volte em breve.`} />
+          <NoResults mensagem={busca ? `Não encontramos nada para "${busca}".` : `A coleção está sendo atualizada com peças exclusivas! Volte em breve.`} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 mb-24">
             {produtosFiltrados.map(p => (
@@ -531,7 +561,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           <div className="md:col-span-1">
             <h3 className="text-3xl font-serif font-extrabold mb-6 tracking-tighter">Closet <span className="italic font-light text-[#D4AF37]">Dellas</span></h3>
-            <p className="text-sm font-light leading-relaxed opacity-80 mb-8 md:max-w-xs text-balance">Sua curadoria exclusiva das melhores tendências do Brás, unindo sofisticação e preço justo para mulheres reais.</p>
+            <p className="text-sm font-light leading-relaxed opacity-80 mb-8 md:max-w-xs text-balance">Sua curadoria exclusiva das melhores tendências, unindo sofisticação e elegância para mulheres reais.</p>
             <div className="flex justify-center md:justify-start gap-4">
               <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-all duration-300">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.46 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
