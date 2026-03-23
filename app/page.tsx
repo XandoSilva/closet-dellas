@@ -261,7 +261,7 @@ export default function Home() {
   const foneWhatsAppRaw = "5521971366354";
   
   // URL DO ESTOQUE
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?output=csv";
+  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=0&single=true&output=csv";
   
   // ⚠️ SUA NOVA URL DOS BANNERS VEM AQUI EMBAIXO:
   const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
