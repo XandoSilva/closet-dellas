@@ -403,9 +403,15 @@ export default function Home() {
   // ATUALIZAÇÃO UX: FUNÇÃO QUE GERA O TEXTO COM O NOME DA CLIENTE NO WHATSAPP
   const finalizarPedidoWhatsApp = (nomeCliente) => {
     let msg = `Olá, Closet Dellas! ✨\nSou a *${nomeCliente}* e gostaria de finalizar meu pedido:\n\n`;
-    carrinho.forEach((item, index) => { msg += `${index + 1}. *${item.nome}* (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`; });
+    
+    carrinho.forEach((item, index) => { 
+      // Adicionamos a REF logo no início para facilitar sua conferência
+      msg += `${index + 1}. *[REF: ${item.id}]* ${item.nome} (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`; 
+    });
+
     const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
     msg += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno com as formas de pagamento!_`;
+    
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
   };
 
