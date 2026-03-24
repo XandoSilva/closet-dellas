@@ -528,15 +528,32 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
             {categoriasBase.map((cat) => (
-             <div key={cat.id} className="relative group/menu">
-                <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
+             <div 
+                key={cat.id} 
+                className="relative group/menu"
+                onMouseEnter={() => setMenuAbertoCat(cat.id)}
+                onMouseLeave={() => setMenuAbertoCat(null)}
+              >
+                <button 
+                  onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
+                  className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}
+                >
                   {cat.label} {cat.subs && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
                 </button>
+                
                 {cat.subs && (
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 z-50 w-48 overflow-hidden transition-all duration-500 ${menuAbertoCat === cat.id ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none md:group-hover/menu:opacity-100 md:group-hover/menu:translate-y-0'}`}>
-                     {cat.subs?.map((sub) => (
-                       <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}>{sub}</button>
-                     ))}
+                  <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 transition-all duration-500 ${menuAbertoCat === cat.id ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0'}`}>
+                    <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 overflow-hidden">
+                      {cat.subs?.map((sub) => (
+                        <button 
+                          key={sub} 
+                          onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
+                          className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}
+                        >
+                          {sub}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
              </div>
