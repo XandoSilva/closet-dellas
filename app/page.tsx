@@ -385,7 +385,7 @@ export default function Home() {
           return {
             ref: cleanCol(cols[0]), nome: cleanCol(cols[1]), categoria: cleanCol(cols[2]).toLowerCase(),
             subcategoria: cleanCol(cols[3]), tamanho: cleanCol(cols[4]), estoque: parseInt(cleanCol(cols[5])) || 0,
-            preco: parseFloat(cleanCol(cols[6]).replace(/\./g, '').replace(',', '.')) || 0,
+            preco: parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0,
             descricao: cleanCol(cols[7]), imagens: imagensArray, ehNovidade: ehNovidade
           };
         }).filter(Boolean);
