@@ -129,7 +129,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
           <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}</p>
-          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-tight break-words whitespace-normal">
+          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal pt-2">
   {produto.nome}
 </h2>
           <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
