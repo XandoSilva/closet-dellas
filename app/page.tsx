@@ -123,28 +123,68 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   return (
     <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4 md:p-8" onClick={fechar}>
       <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
+        
+        {/* Botão Fechar */}
         <button onClick={fechar} className="absolute top-6 right-6 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-100 text-xl z-50 shadow-sm transition-all">✕</button>
+        
+        {/* Lado Esquerdo: Imagem */}
         <div className="w-full md:w-1/2 aspect-[3/4] bg-zinc-100">
           <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         </div>
-        <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col justify-center">
-          <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}</p>
-          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-relaxed break-words whitespace-normal h-auto overflow-visible py-2">
-  {produto.nome}
-</h2>
-          <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
+        
+        {/* Lado Direito: Detalhes (O AJUSTE ESTÁ AQUI) */}
+        <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-start">
+          
+          {/* Categoria e Subcategoria */}
+          <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">
+            {categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}
+          </p>
+          
+          {/* Título - Agora com espaço garantido */}
+          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal h-auto overflow-visible">
+            {produto.nome}
+          </h2>
+          
+          {/* Preço */}
+          <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">
+            R$ {Number(produto.preco).toFixed(2)}
+          </p>
+          
           <div className="h-px w-12 bg-[#D4AF37]/30 mb-8" />
-          <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-light">{produto.descricao}</p>
-          <div>
+          
+          {/* Descrição */}
+          <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-light">
+            {produto.descricao}
+          </p>
+          
+          {/* Seleção de Tamanho e Botão */}
+          <div className="mt-auto">
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
-            <div className="flex gap-3 mb-10">
+            <div className="flex gap-3 mb-10 flex-wrap">
               {produto.grade.map((item) => (
-                <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-lg' : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'}`}>
+                <button 
+                  key={item.tam} 
+                  disabled={item.qtd <= 0} 
+                  onClick={() => setTamanho(item.tam)} 
+                  className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
+                    item.qtd <= 0 
+                    ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' 
+                    : tamanho === item.tam 
+                    ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-lg' 
+                    : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'
+                  }`}
+                >
                   {item.tam}
                 </button>
               ))}
             </div>
-            <button onClick={handleAddCart} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95">Adicionar à Sacola</button>
+            
+            <button 
+              onClick={handleAddCart} 
+              className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95"
+            >
+              Adicionar à Sacola
+            </button>
           </div>
         </div>
       </div>
