@@ -322,11 +322,11 @@ export default function Home() {
     { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
     { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
-    { id: 'macacao', label: 'MACACÃO', subs: ['Longo', 'Pantacourt'] },
+    { id: 'body', label: 'BODY', subs: ['Básico', 'Manga Longa' , 'Renda'] },
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Calça e Blusa', 'Saia e Cropped', 'Short e Blusa'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
-    { id: 'body', nome: 'Body' },
+    
   ];
 
   useEffect(() => {
