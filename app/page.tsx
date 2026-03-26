@@ -405,11 +405,28 @@ export default function Home() {
   }, []);
 
   // LÓGICA DE FILTRAGEM ATUALIZADA (INCLUI ÚLTIMAS PEÇAS)
+  // LÓGICA DE FILTRAGEM ATUALIZADA (INCLUI ÚLTIMAS PEÇAS E NOVIDADES POR DATA)
   const produtosFiltrados = todosProdutos.filter(p => {
     const termoBusca = busca.trim().toLowerCase();
     if (termoBusca !== '') return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
     if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1; // FILTRO ÚLTIMAS PEÇAS
-    if (categoriaAtiva === 'novidades') return p.ehNovidade;
+    
+    // FILTRO DE NOVIDADES (Cálculo de 20 dias)
+    if (categoriaAtiva === 'novidades') {
+      if (!p.data_cadastro) return false; // Se não tiver data na planilha, não é novidade
+      const partesData = p.data_cadastro.split('/');
+      if (partesData.length !== 3) return false; // Previne erro se a data estiver mal digitada
+      
+      const [dia, mes, ano] = partesData;
+      const dataProduto = new Date(ano, mes - 1, dia); // O JS começa o mês no 0
+      const dataHoje = new Date();
+      
+      const diferencaTempo = dataHoje.getTime() - dataProduto.getTime();
+      const diferencaDias = Math.ceil(diferencaTempo / (1000 * 3600 * 24));
+      
+      return diferencaDias <= 20; // Mostra se tiver 20 dias ou menos
+    }
+
     if (categoriaAtiva === 'todas') return true;
     return p.categoria === categoriaAtiva && (!subCategoriaAtiva || p.subcategoria === subCategoriaAtiva);
   });
