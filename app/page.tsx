@@ -326,6 +326,7 @@ export default function Home() {
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Calça e Blusa', 'Saia e Cropped', 'Short e Blusa'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
+    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco'] },
     
   ];
 
