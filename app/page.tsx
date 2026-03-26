@@ -531,7 +531,7 @@ export default function Home() {
             {categoriasBase.map((cat) => (
              <div 
                 key={cat.id} 
-                className="relative group/menu"
+                className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`}
                 onMouseEnter={() => setMenuAbertoCat(cat.id)}
                 onMouseLeave={() => setMenuAbertoCat(null)}
               >
