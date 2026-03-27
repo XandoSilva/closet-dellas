@@ -498,7 +498,7 @@ export default function Home() {
     
     // Construção da Mensagem Estruturada
     let msg = `Olá, Closet Dellas! ✨\n`;
-    msg += `Sou a *${nomeCliente}* e quero garantir estas peças:\n`;
+    msg += `Sou *${nomeCliente}* e quero garantir estas peças:\n`;
     msg += `────────────────────\n\n`;
 
     carrinho.forEach((item, index) => { 
