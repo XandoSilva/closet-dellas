@@ -332,7 +332,7 @@ export default function Home() {
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
-    { id: ' blouses', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
     { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
     { id: 'body', label: 'BODY', subs: ['Básico', 'Manga Longa' , 'Renda'] },
@@ -400,7 +400,6 @@ export default function Home() {
           
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
           
-          // LÓGICA DE GRADE: LÊ A COLUNA P (INDEX 15)
           const gradeString = cleanCol(cols[15]);
           let gradeFinal = [];
           if (gradeString && gradeString.includes(':')) {
@@ -409,7 +408,6 @@ export default function Home() {
               return { tam: tam, qtd: parseInt(qtd) || 0 };
             });
           } else {
-            // Fallback para modelo antigo caso a coluna P esteja vazia
             gradeFinal = [{ tam: cleanCol(cols[4]), qtd: parseInt(cleanCol(cols[5])) || 0 }];
           }
 
