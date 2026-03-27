@@ -3,6 +3,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Script from 'next/script'; 
 
 // === FUNÇÃO AUXILIAR DE OTIMIZAÇÃO (CLOUDINARY) ===
 const otimizarImg = (url) => {
@@ -320,6 +321,10 @@ export default function Home() {
 
   const foneWhatsAppRaw = "5521971366354";
   
+  // IDs de Monitoramento Ativados
+  const CLARITY_ID = "w2dhylfktb";
+  const GA4_ID = "G-P13JKPTP4E";
+
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=0&single=true&output=csv";
   const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
 
@@ -387,7 +392,6 @@ export default function Home() {
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          
           if(!cols[0] || !cols[1]) return null;
 
           const dataCadastroRaw = cleanCol(cols[9]);
@@ -399,7 +403,6 @@ export default function Home() {
           }
           
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
-          
           const gradeString = cleanCol(cols[15]);
           let gradeFinal = [];
           if (gradeString && gradeString.includes(':')) {
@@ -411,8 +414,6 @@ export default function Home() {
             gradeFinal = [{ tam: cleanCol(cols[4]), qtd: parseInt(cleanCol(cols[5])) || 0 }];
           }
 
-          const estoqueItem = gradeFinal.reduce((acc, g) => acc + g.qtd, 0);
-          
           return {
             ref: cleanCol(cols[0]), 
             nome: cleanCol(cols[1]), 
@@ -424,7 +425,7 @@ export default function Home() {
             ehNovidade: ehNovidade,
             data_cadastro_raw: dataCadastroRaw,
             grade: gradeFinal,
-            estoqueTotal: estoqueItem
+            estoqueTotal: gradeFinal.reduce((acc, g) => acc + g.qtd, 0)
           };
         }).filter(Boolean);
 
@@ -438,19 +439,7 @@ export default function Home() {
             });
             exist.estoqueTotal += item.estoqueTotal;
           } else {
-            acc.push({ 
-              id: item.ref, 
-              nome: item.nome, 
-              categoria: item.categoria, 
-              subcategoria: item.subcategoria, 
-              preco: item.preco, 
-              descricao: item.descricao, 
-              imagens: item.imagens, 
-              estoqueTotal: item.estoqueTotal, 
-              ehNovidade: item.ehNovidade, 
-              data_cadastro: item.data_cadastro_raw,
-              grade: item.grade 
-            });
+            acc.push({ ...item, data_cadastro: item.data_cadastro_raw, id: item.ref });
           }
           return acc;
         }, []);
@@ -501,6 +490,29 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
+      
+      {/* 1. SCRIPT GOOGLE ANALYTICS 4 (GA4) */}
+      <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA4_ID}');
+        `}
+      </Script>
+
+      {/* 2. SCRIPT MICROSOFT CLARITY */}
+      <Script id="microsoft-clarity" strategy="afterInteractive">
+        {`
+          (function(c,l,a,r,i,t,y){
+              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+          })(window, document, "clarity", "script", "${CLARITY_ID}");
+        `}
+      </Script>
+
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
@@ -635,36 +647,6 @@ export default function Home() {
             ))}
           </div>
         )}
-      </section>
-
-      <section className="py-24 bg-zinc-50 border-t border-zinc-100">
-          <div className="max-w-7xl mx-auto px-6 text-center">
-              <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-[#D4AF37] mb-4 block">Comunidade</span>
-              <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-12">Dellas que Inspiram</h3>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-                  <div className="aspect-square bg-zinc-200 rounded-2xl overflow-hidden group relative cursor-pointer">
-                      <img src={otimizarImg("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=600&fit=crop")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Cliente" />
-                      <div className="absolute inset-0 bg-[#611F3A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-3xl">🤍</span></div>
-                  </div>
-                  <div className="aspect-square bg-zinc-200 rounded-2xl overflow-hidden group relative cursor-pointer">
-                      <img src={otimizarImg("https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&h=600&fit=crop")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Cliente" />
-                      <div className="absolute inset-0 bg-[#611F3A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-3xl">🤍</span></div>
-                  </div>
-                  <div className="aspect-square bg-zinc-200 rounded-2xl overflow-hidden group relative cursor-pointer">
-                      <img src={otimizarImg("https://images.unsplash.com/photo-1509631179647-0c500fc74151?q=80&w=600&h=600&fit=crop")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Cliente" />
-                      <div className="absolute inset-0 bg-[#611F3A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-3xl">🤍</span></div>
-                  </div>
-                  <div className="aspect-square bg-zinc-200 rounded-2xl overflow-hidden group relative cursor-pointer">
-                      <img src={otimizarImg("https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=600&h=600&fit=crop")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Cliente" />
-                      <div className="absolute inset-0 bg-[#611F3A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-3xl">🤍</span></div>
-                  </div>
-              </div>
-
-              <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-4 border-2 border-[#611F3A] text-[#611F3A] rounded-full text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#611F3A] hover:text-white transition-all">
-                  Siga @_closetdellas9 no Instagram
-              </a>
-          </div>
       </section>
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
