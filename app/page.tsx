@@ -461,24 +461,30 @@ export default function Home() {
   }, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
-    const termoBusca = busca.trim().toLowerCase();
-    if (termoBusca !== '') return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
-    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
-    
-    if (categoriaAtiva === 'novidades') {
-      if (!p.data_cadastro) return false;
-      const partesData = p.data_cadastro.split('/');
-      if (partesData.length !== 3) return false;
-      const [dia, mes, ano] = partesData;
-      const dataProduto = new Date(ano, mes - 1, dia);
-      const dataHoje = new Date();
-      const diffDias = Math.ceil(Math.abs(dataHoje.getTime() - dataProduto.getTime()) / (1000 * 3600 * 24));
-      return diffDias <= 20;
+    const termoBusca = busca.trim().toLowerCase();
+    
+    // 1. Prioridade para a Busca
+    if (termoBusca !== '') {
+      return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
     }
 
-    if (categoriaAtiva === 'todas') return true;
-    return p.categoria === categoriaAtiva && (!subCategoriaAtiva || p.subcategoria === subCategoriaAtiva);
-  });
+    // 2. Filtro de Últimas Peças
+    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
+    
+    // 3. Filtro de Novidades (Usando o cálculo que já fizemos no fetch)
+    if (categoriaAtiva === 'novidades') return p.ehNovidade;
+
+    // 4. Filtro por Categoria e Subcategoria (Normalizando para evitar erro de maiúsculas/minúsculas)
+    const matchCategoria = categoriaAtiva === 'todas' || p.categoria === categoriaAtiva;
+    
+    // Normalizamos a subcategoria para comparar "Midi" com "midi" sem erro
+    const subP = (p.subcategoria || "").toLowerCase().trim();
+    const subAtiva = (subCategoriaAtiva || "").toLowerCase().trim();
+    
+    const matchSubcategoria = !subCategoriaAtiva || subP === subAtiva;
+
+    return matchCategoria && matchSubcategoria;
+  });
 
   const adicionarAoCarrinho = (item) => {
     setCarrinho(prev => [...prev, item]);
