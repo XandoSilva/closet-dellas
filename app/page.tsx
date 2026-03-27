@@ -494,14 +494,26 @@ export default function Home() {
   };
 
   const finalizarPedidoWhatsApp = (nomeCliente) => {
-    let msg = `Olá, Closet Dellas! ✨\nSou a *${nomeCliente}* e gostaria de finalizar meu pedido:\n\n`;
-    carrinho.forEach((item, index) => { 
-        msg += `${index + 1}. *[REF: ${item.id}]* ${item.nome} (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`; 
-    });
-    const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
-    msg += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno com as formas de pagamento!_`;
-    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
-  };
+    const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
+    
+    // Construção da Mensagem Estruturada
+    let msg = `Olá, Closet Dellas! ✨\n`;
+    msg += `Sou a *${nomeCliente}* e quero garantir estas peças:\n`;
+    msg += `────────────────────\n\n`;
+
+    carrinho.forEach((item, index) => { 
+        msg += `🛍️ *${item.nome}*\n`;
+        msg += `   └ [REF: ${item.id}] | Tam: ${item.tamanhoSelecionado}\n`;
+        msg += `   └ Valor: R$ ${Number(item.preco).toFixed(2)}\n\n`; 
+    });
+
+    msg += `────────────────────\n`;
+    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+    msg += `📍 _Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
+    msg += `_Aguardo o link/chave para pagamento!_`;
+
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
