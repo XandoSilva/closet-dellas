@@ -343,7 +343,7 @@ export default function Home() {
     { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
-    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans', 'Básico'] },
     { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
   ];
 
