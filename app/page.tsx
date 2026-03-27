@@ -336,16 +336,16 @@ export default function Home() {
   const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
 
   const categoriasBase = [
-    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
-    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
-    { id: 'body', label: 'BODY', subs: ['Básico', 'Manga Longa' , 'Renda'] },
-    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Calça e Blusa', 'Saia e Cropped', 'Short e Blusa'] },
-    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
-    { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
-    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco'] },
-  ];
+    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
+    { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
+    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
+    { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
+    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
+    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans'] },
+    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
+  ];
 
   useEffect(() => {
     if (bannersExibicao.length <= 1) return;
