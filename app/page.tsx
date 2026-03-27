@@ -403,30 +403,32 @@ export default function Home() {
           }
           
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
-          const gradeString = cleanCol(cols[15]);
-          let gradeFinal = [];
-          if (gradeString && gradeString.includes(':')) {
-            gradeFinal = gradeString.split('#').map(g => {
-              const [tam, qtd] = g.split(':');
-              return { tam: tam, qtd: parseInt(qtd) || 0 };
-            });
-          } else {
-            gradeFinal = [{ tam: cleanCol(cols[4]), qtd: parseInt(cleanCol(cols[5])) || 0 }];
-          }
+          
+          // NOVO LEITOR DE GRADE (Focado na Coluna E e Coluna F)
+          const tamanhosString = cleanCol(cols[4]); // Lê a Coluna E (Ex: "P,M,G")
+          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; // Lê a Coluna F (Estoque Total)
+          
+          let gradeFinal = [];
+          if (tamanhosString) {
+            gradeFinal = tamanhosString.split(',').map(tam => ({
+              tam: tam.trim(),
+              qtd: 1 // Como a planilha já esconde os zerados, se a letra chegou aqui, mantemos o botão ativo
+            })).filter(g => g.tam !== "");
+          }
 
-          return {
-            ref: cleanCol(cols[0]), 
-            nome: cleanCol(cols[1]), 
-            categoria: cleanCol(cols[2]).toLowerCase(),
-            subcategoria: cleanCol(cols[3]), 
-            preco: parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0,
-            descricao: cleanCol(cols[7]), 
-            imagens: imagensArray, 
-            ehNovidade: ehNovidade,
-            data_cadastro_raw: dataCadastroRaw,
-            grade: gradeFinal,
-            estoqueTotal: gradeFinal.reduce((acc, g) => acc + g.qtd, 0)
-          };
+          return {
+            ref: cleanCol(cols[0]), 
+            nome: cleanCol(cols[1]), 
+            categoria: cleanCol(cols[2]).toLowerCase(),
+            subcategoria: cleanCol(cols[3]), 
+            preco: parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0,
+            descricao: cleanCol(cols[7]), 
+            imagens: imagensArray, 
+            ehNovidade: ehNovidade,
+            data_cadastro_raw: dataCadastroRaw,
+            grade: gradeFinal,
+            estoqueTotal: estoqueReal // Agora usa o totalizador da planilha para avisos de "Última Peça"
+          };
         }).filter(Boolean);
 
         const grouped = rawData.reduce((acc, item) => {
