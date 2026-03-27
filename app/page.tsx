@@ -5,10 +5,8 @@
 import { useState, useRef, useEffect } from 'react';
 
 // === FUNÇÃO AUXILIAR DE OTIMIZAÇÃO (CLOUDINARY) ===
-// Reduz o peso da imagem automaticamente mantendo a qualidade visual.
 const otimizarImg = (url) => {
   if (!url || !url.includes('cloudinary.com')) return url;
-  // Insere parâmetros de otimização automática na URL
   return url.replace('/upload/', '/upload/q_auto,f_auto/');
 };
 
@@ -92,7 +90,6 @@ function CarrosselProduto({ imagens, nome }) {
     <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-2xl">
       <div ref={scrollRef} onScroll={handleScroll} className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {fotosExibir.map((img, index) => (
-            // APLICAÇÃO DA OTIMIZAÇÃO NA IMAGEM DO CARROSSEL
             <img key={index} src={otimizarImg(img)} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center transition-transform duration-700 group-hover/fotos:scale-105" />
         ))}
       </div>
@@ -123,41 +120,24 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   return (
     <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10000] flex items-center justify-center p-4 md:p-8" onClick={fechar}>
       <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
-        
-        {/* Botão Fechar */}
         <button onClick={fechar} className="absolute top-6 right-6 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-100 text-xl z-50 shadow-sm transition-all">✕</button>
-        
-        {/* Lado Esquerdo: Imagem */}
         <div className="w-full md:w-1/2 aspect-[3/4] bg-zinc-100">
           <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
         </div>
-        
-        {/* Lado Direito: Detalhes (O AJUSTE ESTÁ AQUI) */}
         <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-start">
-          
-          {/* Categoria e Subcategoria */}
           <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">
             {categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}
           </p>
-          
-          {/* Título - Agora com espaço garantido */}
           <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal h-auto overflow-visible">
             {produto.nome}
           </h2>
-          
-          {/* Preço */}
           <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">
             R$ {Number(produto.preco).toFixed(2)}
           </p>
-          
           <div className="h-px w-12 bg-[#D4AF37]/30 mb-8" />
-          
-          {/* Descrição */}
           <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-light">
             {produto.descricao}
           </p>
-          
-          {/* Seleção de Tamanho e Botão */}
           <div className="mt-auto">
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10 flex-wrap">
@@ -178,7 +158,6 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
                 </button>
               ))}
             </div>
-            
             <button 
               onClick={handleAddCart} 
               className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95"
@@ -240,13 +219,11 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
-// === COMPONENTE SACOLA ATUALIZADO (CAPTURA DE NOME) ===
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
   const [nomeDella, setNomeDella] = useState("");
-  const [passoCheckout, setPassoCheckout] = useState(1); // 1: Sacola, 2: Nome
+  const [passoCheckout, setPassoCheckout] = useState(1);
   const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
 
-  // Quando fechar a sacola, reseta o passo para o início
   useEffect(() => { if (!aberto) setPassoCheckout(1); }, [aberto]);
 
   return (
@@ -262,13 +239,11 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
         
         <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide">
           {passoCheckout === 1 ? (
-            // PASSO 1: EXIBIÇÃO DOS ITENS
             <>
               {carrinho.map((item, index) => {
                 const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
                 return (
                   <div key={index} className="flex gap-6 items-center animate-in fade-in slide-in-from-right-8">
-                    {/* APLICAÇÃO DA OTIMIZAÇÃO NA MINIATURA DA SACOLA */}
                     <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden shadow-sm"><img src={otimizarImg(imgCart)} className="w-full h-full object-cover" /></div>
                     <div className="flex-1">
                       <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-tight leading-tight">{item.nome}</h4>
@@ -288,7 +263,6 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
               )}
             </>
           ) : (
-            // PASSO 2: CAPTURA DO NOME
             <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20">
               <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-6 text-center">Para um atendimento exclusivo:</p>
               <input 
@@ -314,7 +288,6 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                 <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
               </>
             ) : (
-              // BOTÃO FINAL PASSA O NOME CAPTURADO
               <button onClick={() => finalizar(nomeDella)} disabled={nomeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 disabled:bg-zinc-300 disabled:shadow-none flex items-center justify-center gap-3">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
                 ENVIAR PARA WHATSAPP
@@ -347,11 +320,9 @@ export default function Home() {
 
   const foneWhatsAppRaw = "5521971366354";
   
-  // URLS ATUALIZADAS E ESPECÍFICAS POR ABA
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=0&single=true&output=csv";
   const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqN7v3UoxhNoKYW56h2kv1D1tju1FawnzYEyaJBnIVeiNO53P49haHNix9voK-i7dLDVSpzss_65IY/pub?gid=1143291600&single=true&output=csv"; 
 
-  // Banners de segurança (FALLBACK) - VARRIDOS CONTRA "BRÁS"
   const bannersFallback = [
     { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria de Luxo", tituloPrincipal: "A elegância que", tituloDestaque: "você merece." },
     { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", tituloPrincipal: "Nova coleção", tituloDestaque: "selecionada a dedo." }
@@ -361,7 +332,7 @@ export default function Home() {
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo', 'Midi', 'Curto'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
+    { id: ' blouses', label: 'BLUSAS', subs: ['Camisas', 'T-shirts', 'Regatas', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Renda', 'Manga Longa', 'Básico'] },
     { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
     { id: 'body', label: 'BODY', subs: ['Básico', 'Manga Longa' , 'Renda'] },
@@ -369,7 +340,6 @@ export default function Home() {
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curta', 'Plissada'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Linho', 'Jeans', 'Alfaiataria'] },
     { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco'] },
-    
   ];
 
   useEffect(() => {
@@ -397,7 +367,6 @@ export default function Home() {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        // Puxando Banners (Aba 2)
         const resBanners = await fetch(SHEET_BANNERS_URL);
         if(resBanners.ok) {
             const textBanners = await resBanners.text();
@@ -410,36 +379,84 @@ export default function Home() {
             if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
         }
 
-        // Puxando Estoque (Aba 1)
         const res = await fetch(SHEET_CSV_URL);
         const text = await res.text();
         const rows = text.split('\n').slice(1);
         const hoje = new Date();
+        
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
           if(!cols[0] || !cols[1]) return null;
 
-          const dataCadastro = parseDate(cleanCol(cols[9]));
+          const dataCadastroRaw = cleanCol(cols[9]);
+          const dataCadastro = parseDate(dataCadastroRaw);
           let ehNovidade = false;
-          if (dataCadastro) { const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); ehNovidade = diffDias <= 20; }
+          if (dataCadastro) { 
+            const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); 
+            ehNovidade = diffDias <= 20; 
+          }
+          
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
           
+          // LÓGICA DE GRADE: LÊ A COLUNA P (INDEX 15)
+          const gradeString = cleanCol(cols[15]);
+          let gradeFinal = [];
+          if (gradeString && gradeString.includes(':')) {
+            gradeFinal = gradeString.split('#').map(g => {
+              const [tam, qtd] = g.split(':');
+              return { tam: tam, qtd: parseInt(qtd) || 0 };
+            });
+          } else {
+            // Fallback para modelo antigo caso a coluna P esteja vazia
+            gradeFinal = [{ tam: cleanCol(cols[4]), qtd: parseInt(cleanCol(cols[5])) || 0 }];
+          }
+
+          const estoqueItem = gradeFinal.reduce((acc, g) => acc + g.qtd, 0);
+          
           return {
-            ref: cleanCol(cols[0]), nome: cleanCol(cols[1]), categoria: cleanCol(cols[2]).toLowerCase(),
-            subcategoria: cleanCol(cols[3]), tamanho: cleanCol(cols[4]), estoque: parseInt(cleanCol(cols[5])) || 0,
+            ref: cleanCol(cols[0]), 
+            nome: cleanCol(cols[1]), 
+            categoria: cleanCol(cols[2]).toLowerCase(),
+            subcategoria: cleanCol(cols[3]), 
             preco: parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0,
-            descricao: cleanCol(cols[7]), imagens: imagensArray, ehNovidade: ehNovidade
+            descricao: cleanCol(cols[7]), 
+            imagens: imagensArray, 
+            ehNovidade: ehNovidade,
+            data_cadastro_raw: dataCadastroRaw,
+            grade: gradeFinal,
+            estoqueTotal: estoqueItem
           };
         }).filter(Boolean);
 
         const grouped = rawData.reduce((acc, item) => {
           const exist = acc.find(p => p.id === item.ref);
-          if (exist) { exist.grade.push({ tam: item.tamanho, qtd: item.estoque }); exist.estoqueTotal += item.estoque; }
-          else { acc.push({ id: item.ref, nome: item.nome, categoria: item.categoria, subcategoria: item.subcategoria, preco: item.preco, descricao: item.descricao, imagens: item.imagens, estoqueTotal: item.estoque, ehNovidade: item.ehNovidade, grade: [{ tam: item.tamanho, qtd: item.estoque }] }); }
+          if (exist) {
+            item.grade.forEach(novaG => {
+              const gExistente = exist.grade.find(g => g.tam === novaG.tam);
+              if (gExistente) gExistente.qtd += novaG.qtd;
+              else exist.grade.push(novaG);
+            });
+            exist.estoqueTotal += item.estoqueTotal;
+          } else {
+            acc.push({ 
+              id: item.ref, 
+              nome: item.nome, 
+              categoria: item.categoria, 
+              subcategoria: item.subcategoria, 
+              preco: item.preco, 
+              descricao: item.descricao, 
+              imagens: item.imagens, 
+              estoqueTotal: item.estoqueTotal, 
+              ehNovidade: item.ehNovidade, 
+              data_cadastro: item.data_cadastro_raw,
+              grade: item.grade 
+            });
+          }
           return acc;
         }, []);
+
         setTodosProdutos(grouped);
         setCarregando(false);
       } catch (e) { setCarregando(false); }
@@ -447,27 +464,20 @@ export default function Home() {
     fetchDados();
   }, []);
 
-  // LÓGICA DE FILTRAGEM ATUALIZADA (INCLUI ÚLTIMAS PEÇAS)
-  // LÓGICA DE FILTRAGEM ATUALIZADA (INCLUI ÚLTIMAS PEÇAS E NOVIDADES POR DATA)
   const produtosFiltrados = todosProdutos.filter(p => {
     const termoBusca = busca.trim().toLowerCase();
     if (termoBusca !== '') return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
-    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1; // FILTRO ÚLTIMAS PEÇAS
+    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
     
-    // FILTRO DE NOVIDADES (Cálculo de 20 dias)
     if (categoriaAtiva === 'novidades') {
-      if (!p.data_cadastro) return false; // Se não tiver data na planilha, não é novidade
+      if (!p.data_cadastro) return false;
       const partesData = p.data_cadastro.split('/');
-      if (partesData.length !== 3) return false; // Previne erro se a data estiver mal digitada
-      
+      if (partesData.length !== 3) return false;
       const [dia, mes, ano] = partesData;
-      const dataProduto = new Date(ano, mes - 1, dia); // O JS começa o mês no 0
+      const dataProduto = new Date(ano, mes - 1, dia);
       const dataHoje = new Date();
-      
-      const diferencaTempo = dataHoje.getTime() - dataProduto.getTime();
-      const diferencaDias = Math.ceil(diferencaTempo / (1000 * 3600 * 24));
-      
-      return diferencaDias <= 20; // Mostra se tiver 20 dias ou menos
+      const diffDias = Math.ceil(Math.abs(dataHoje.getTime() - dataProduto.getTime()) / (1000 * 3600 * 24));
+      return diffDias <= 20;
     }
 
     if (categoriaAtiva === 'todas') return true;
@@ -481,18 +491,13 @@ export default function Home() {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
-  // MENSAGEM FINAL ATUALIZADA (CAPTURA NOME E INCLUI REF)
   const finalizarPedidoWhatsApp = (nomeCliente) => {
     let msg = `Olá, Closet Dellas! ✨\nSou a *${nomeCliente}* e gostaria de finalizar meu pedido:\n\n`;
-    
     carrinho.forEach((item, index) => { 
-        // REF incluída na mensagem para conferência rápida
         msg += `${index + 1}. *[REF: ${item.id}]* ${item.nome} (Tam: ${item.tamanhoSelecionado}) - R$ ${Number(item.preco).toFixed(2)}\n`; 
     });
-
     const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
     msg += `\n*Total: R$ ${total.toFixed(2)}*\n\n_Aguardo seu retorno com as formas de pagamento!_`;
-    
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -500,7 +505,6 @@ export default function Home() {
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
-      {/* SACOLA LATERAL ATUALIZADA PASSA A FUNÇÃO FINALIZAR QUE REQUER NOME */}
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
 
       {mostrarTopo && (
@@ -531,7 +535,6 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* MENU MOBILE ATUALIZADO (INCLUI ÚLTIMAS) */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-zinc-100 px-8 py-4 flex justify-between items-center z-[9000] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <button onClick={() => {setCategoriaAtiva('novidades'); window.scrollTo({top:0, behavior:'smooth'})}} className="flex flex-col items-center gap-1"><span className="text-xl">⭐</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Novas</span></button>
         <button onClick={() => {setCategoriaAtiva('ultimas'); window.scrollTo({top:0, behavior:'smooth'})}} className="flex flex-col items-center gap-1"><span className="text-xl">🚨</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Últimas</span></button>
@@ -547,7 +550,6 @@ export default function Home() {
       <section className="relative w-full aspect-[21/9] min-h-[420px] bg-zinc-900 overflow-hidden">
         {bannersExibicao.map((banner, index) => (
             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                {/* OTIMIZAÇÃO APLICADA NO BANNER HERO */}
                 <img src={otimizarImg(banner.imagem)} className="absolute inset-0 w-full h-full object-cover scale-105" alt="Banner" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
                 <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 h-full flex flex-col justify-center text-left text-white">
@@ -573,7 +575,7 @@ export default function Home() {
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 3x</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes, demais cidades verificar condições</p></div>
+          <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes</p></div>
           <div className="flex items-center gap-2"><span className="text-xl">✨</span><p className="text-[10px] uppercase font-bold tracking-widest">Curadoria Exclusiva</p></div>
           <div className="flex items-center gap-2"><span className="text-xl">👜</span><p className="text-[10px] uppercase font-bold tracking-widest">Malinha Delivery <span className="text-[#D4AF37] ml-1">(Em Breve)</span></p></div>
         </div>
@@ -581,7 +583,6 @@ export default function Home() {
 
       <section className="max-w-7xl mx-auto pt-16 px-6">
         <div className="flex flex-col gap-6 mb-16 items-center">
-          {/* MENU DE FILTROS ATUALIZADO (INCLUI BOTÃO ÚLTIMAS) */}
           <div className="flex justify-center gap-4 w-full flex-wrap">
             <button onClick={() => { setCategoriaAtiva('ultimas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'ultimas' ? 'bg-red-600 text-white border-red-600 shadow-xl scale-105' : 'bg-white border-zinc-100 text-red-600 hover:border-red-600'}`}>🚨 ÚLTIMAS PEÇAS</button>
             <button onClick={() => { setCategoriaAtiva('novidades'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'novidades' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-white border-zinc-100 text-[#611F3A] hover:border-[#611F3A]'}`}>⭐ NOVIDADES</button>
@@ -628,7 +629,7 @@ export default function Home() {
             {[...Array(8)].map((_, i) => <SkeletonCard key={i} />)}
           </div>
         ) : produtosFiltrados.length === 0 ? (
-          <NoResults mensagem={busca ? `Não encontramos nada para "${busca}".` : `A coleção está sendo atualizada com peças exclusivas! Volte em breve.`} />
+          <NoResults mensagem={busca ? `Não encontramos nada para "${busca}".` : `A coleção está sendo atualizada! Volte em breve.`} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 mb-24">
             {produtosFiltrados.map(p => (
@@ -645,7 +646,6 @@ export default function Home() {
               
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                   <div className="aspect-square bg-zinc-200 rounded-2xl overflow-hidden group relative cursor-pointer">
-                      {/* EXEMPLO DE OTIMIZAÇÃO EM IMAGEM ESTÁTICA */}
                       <img src={otimizarImg("https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=600&h=600&fit=crop")} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Cliente" />
                       <div className="absolute inset-0 bg-[#611F3A]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-3xl">🤍</span></div>
                   </div>
@@ -671,7 +671,6 @@ export default function Home() {
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
 
-      {/* FOOTER VARRIDO CONTRA "BRÁS" */}
       <footer className="bg-[#611F3A] pt-24 pb-12 px-6 md:px-12 text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           <div className="md:col-span-1">
