@@ -404,17 +404,24 @@ export default function Home() {
           
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
           
-          // NOVO LEITOR DE GRADE (Focado na Coluna E e Coluna F)
-          const tamanhosString = cleanCol(cols[4]); // Lê a Coluna E (Ex: "P,M,G")
-          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; // Lê a Coluna F (Estoque Total)
+          // NOVO LEITOR DE GRADE (Puxando a quantidade REAL das colunas K até O)
+          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; 
           
           let gradeFinal = [];
-          if (tamanhosString) {
-            gradeFinal = tamanhosString.split(',').map(tam => ({
-              tam: tam.trim(),
-              qtd: 1 // Como a planilha já esconde os zerados, se a letra chegou aqui, mantemos o botão ativo
-            })).filter(g => g.tam !== "");
-          }
+          
+          // Lendo as colunas K(10), L(11), M(12), N(13) e O(14)
+          const qtdP = parseInt(cleanCol(cols[10])) || 0;
+          const qtdM = parseInt(cleanCol(cols[11])) || 0;
+          const qtdG = parseInt(cleanCol(cols[12])) || 0;
+          const qtdGG = parseInt(cleanCol(cols[13])) || 0;
+          const qtdU = parseInt(cleanCol(cols[14])) || 0;
+
+          // Só cria o botão se a quantidade for maior que zero, e já manda o número real pro site!
+          if (qtdP > 0) gradeFinal.push({ tam: 'P', qtd: qtdP });
+          if (qtdM > 0) gradeFinal.push({ tam: 'M', qtd: qtdM });
+          if (qtdG > 0) gradeFinal.push({ tam: 'G', qtd: qtdG });
+          if (qtdGG > 0) gradeFinal.push({ tam: 'GG', qtd: qtdGG });
+          if (qtdU > 0) gradeFinal.push({ tam: 'U', qtd: qtdU });
 
           return {
             ref: cleanCol(cols[0]), 
@@ -427,7 +434,7 @@ export default function Home() {
             ehNovidade: ehNovidade,
             data_cadastro_raw: dataCadastroRaw,
             grade: gradeFinal,
-            estoqueTotal: estoqueReal // Agora usa o totalizador da planilha para avisos de "Última Peça"
+            estoqueTotal: estoqueReal
           };
         }).filter(Boolean);
 
