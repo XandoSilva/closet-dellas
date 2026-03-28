@@ -357,7 +357,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                     <div className="flex-1">
                       <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-tight leading-tight">{item.nome}</h4>
                       <p className="text-[9px] text-zinc-400 mt-1 uppercase tracking-widest">REF: {item.id}</p>
-                      <p className="text-[10px] text-[#D4AF37] mt-1.5 font-bold uppercase tracking-widest">Tamanho: {item.tamanhoSelecionado}</p>
+                      <p className="text-[10px] text-[#D4AF37] mt-1.5 font-bold uppercase tracking-widest">{item.corSelecionada ? `${item.corSelecionada} | ` : ''}Tam: {item.tamanhoSelecionado}</p>
                       <p className={`text-sm font-serif italic mt-2 ${item.temPromo ? 'text-red-600 font-bold' : 'text-[#611F3A]'}`}>R$ {Number(precoExibicao).toFixed(2)}</p>
                     </div>
                     <button onClick={() => remover(index)} className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 hover:bg-zinc-100 hover:text-red-400 transition-all">✕</button>
@@ -549,7 +549,8 @@ useEffect(() => {
             ehNovidade: ehNovidade,
             data_cadastro_raw: dataCadastroRaw,
             grade: gradeFinal,
-            estoqueTotal: estoqueReal
+            estoqueTotal: estoqueReal,
+            cores: coresArray
           };
         }).filter(Boolean);
 
