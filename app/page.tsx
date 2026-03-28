@@ -401,6 +401,7 @@ export default function Home() {
   const [busca, setBusca] = useState('');
   const [mostrarTopo, setMostrarTopo] = useState(false);
   const [bannerAtual, setBannerAtual] = useState(0);
+  const [politicaAberta, setPoliticaAberta] = useState(null);
 
   const foneWhatsAppRaw = "5521971366354";
   const CLARITY_ID = "w2dhylfktb";
@@ -601,6 +602,7 @@ export default function Home() {
 
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
+      <ModalPoliticas aberto={!!politicaAberta} fechar={() => setPoliticaAberta(null)} tipo={politicaAberta} />
       <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
 
       {mostrarTopo && (
