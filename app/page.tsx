@@ -607,39 +607,55 @@ export default function Home() {
           </div>
 
           {/* LOCALZE ESTE BLOCO E SUBSTITUA A DIV EXTERNA */}
+{/* LOCALIZE O MAP DAS CATEGORIAS E SUBSTITUA POR ESTE BLOCO */}
 <div className="flex flex-wrap justify-center gap-3 w-full">
-  {categoriasBase.map((cat) => (
-    <div 
-      key={cat.id} 
-      /* O PULO DO GATO: Se o menu está aberto, vira z-50, senão z-10 */
-      className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} 
-      onMouseEnter={() => setMenuAbertoCat(cat.id)} 
-      onMouseLeave={() => setMenuAbertoCat(null)}
-    >
-      <button 
-        onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
-        className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A]'}`}
-      >
-        {cat.label} {cat.subs && <span className="text-[8px] opacity-40">▼</span>}
-      </button>
+  {categoriasBase.map((cat) => {
+    // FILTRO DE INTELIGÊNCIA: Só pega as subcategorias que realmente existem no estoque para esta categoria
+    const subsComProduto = cat.subs?.filter(sub => 
+      todosProdutos.some(p => 
+        p.categoria === cat.id && 
+        p.subcategoria?.toLowerCase().trim() === sub.toLowerCase().trim()
+      )
+    ) || [];
 
-      {cat.subs && menuAbertoCat === cat.id && (
-        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
-          <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl border border-zinc-50 overflow-hidden">
-            {cat.subs.map((sub) => (
-              <button 
-                key={sub} 
-                onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
-                className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37]' : 'text-zinc-500'}`}
-              >
-                {sub}
-              </button>
-            ))}
+    // Se a categoria não tiver nenhum produto em nenhuma subcategoria, você pode até optar por esconder o botão todo.
+    // Mas vamos focar em esconder as subcategorias vazias dentro do menu:
+    
+    return (
+      <div 
+        key={cat.id} 
+        className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`}
+        onMouseEnter={() => setMenuAbertoCat(cat.id)}
+        onMouseLeave={() => setMenuAbertoCat(null)}
+      >
+        <button 
+          onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
+          className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}
+        >
+          {cat.label} 
+          {/* Só mostra a setinha se houver subcategorias com produtos */}
+          {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
+        </button>
+        
+        {/* Menu Suspenso: Só renderiza se houver subs com produtos */}
+        {subsComProduto.length > 0 && menuAbertoCat === cat.id && (
+          <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
+            <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 overflow-hidden">
+              {subsComProduto.map((sub) => (
+                <button 
+                  key={sub} 
+                  onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
+                  className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}
+                >
+                  {sub}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
-  ))}
+        )}
+      </div>
+    );
+  })}
 </div>
         </div>
 
