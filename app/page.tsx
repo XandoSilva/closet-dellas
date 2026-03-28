@@ -865,7 +865,7 @@ export default function Home() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 text-center">
-          <p className="text-[10px] uppercase tracking-[0.4em] text-white/50">© 2026 Closet Dellas • Miguel Pereira - RJ</p>
+          <p className="text-[10px] uppercase tracking-[0.4em] text-white/50">© 2026 Closet Dellas • Eng. Paulo de Frontin - RJ</p>
         </div>
       </footer>
 
