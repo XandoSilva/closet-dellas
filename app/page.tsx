@@ -374,7 +374,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
   const [nomeDella, setNomeDella] = useState("");
-  const [cidadeDella, setCidadeDella] = useState(""); // Novo campo Cidade
+  const [cidadeDella, setCidadeDella] = useState("");
   const [passoCheckout, setPassoCheckout] = useState(1);
   
   const total = carrinho.reduce((acc, item) => {
@@ -835,7 +835,7 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="md:col-span-2">
+          <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Políticas</h4>
             <ul className="flex flex-col gap-4 text-xs font-light opacity-80 text-center md:text-left">
               <li onClick={() => setPoliticaAberta('trocas')} className="hover:text-[#D4AF37] cursor-pointer transition-colors">Trocas e Devoluções</li>
