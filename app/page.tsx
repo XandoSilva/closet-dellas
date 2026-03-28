@@ -5,6 +5,27 @@
 import { useState, useRef, useEffect } from 'react';
 import Script from 'next/script'; 
 
+// === CONFIGURAÇÃO DE CORES (ADICIONE NOVAS CORES AQUI) ===
+const MAPA_CORES = {
+  'preto': '#000000',
+  'branco': '#FFFFFF',
+  'vermelho': '#FF0000',
+  'azul': '#0000FF',
+  'rosa': '#FFC0CB',
+  'verde': '#008000',
+  'amarelo': '#FFFF00',
+  'cinza': '#808080',
+  'vinho': '#722F37',
+  'fúcsia': '#FF00FF',
+  'terracota': '#E2725B',
+  'nude': '#E3BC9A',
+  'off white': '#FAF9F6',
+  'lavanda': '#E6E6FA',
+  'azul marinho': '#000080',
+  'marrom': '#5C4033',
+  'bege': '#F5F5DC'
+};
+
 // === FUNÇÃO AUXILIAR DE OTIMIZAÇÃO (CLOUDINARY) ===
 const otimizarImg = (url) => {
   if (!url || !url.includes('cloudinary.com')) return url;
@@ -59,9 +80,6 @@ function ModalMedidas({ aberto, fechar }) {
   );
 }
 
-// ... fim do ModalMedidas
-  
-// COLE O ModalPoliticas AQUI (Entre o ModalMedidas e a Notificacao)
 function ModalPoliticas({ aberto, fechar, tipo }) {
   if (!aberto) return null;
 
@@ -174,7 +192,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
     adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
     setTamanho(null);
-    setCor(null); // Reseta a cor ao fechar
+    setCor(null); 
     fechar();
   };
 
@@ -210,27 +228,33 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           </p>
           <div className="mt-auto">
             
-            {/* SELEÇÃO DE CORES - ADICIONADO */}
-  {produto.cores && produto.cores.length > 0 && (
-    <div className="mb-8">
-      <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione a Cor:</p>
-      <div className="flex gap-3 flex-wrap">
-        {produto.cores.map((c) => (
-          <button 
-            key={c}
-            onClick={() => setCor(c)}
-            className={`px-5 py-2.5 rounded-full text-[10px] font-bold transition-all border-2 ${
-              cor === c 
-              ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md scale-105' 
-              : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'
-            }`}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-    </div>
-  )}
+            {/* SELEÇÃO DE CORES - BOLINHAS COLORIDAS */}
+            {produto.cores && produto.cores.length > 0 && (
+              <div className="mb-8">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione a Cor:</p>
+                <div className="flex gap-4 flex-wrap">
+                  {produto.cores.map((c) => {
+                    const corHex = MAPA_CORES[c.toLowerCase().trim()] || '#E2E2E2';
+                    return (
+                      <button 
+                        key={c}
+                        onClick={() => setCor(c)}
+                        title={c}
+                        className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
+                          cor === c 
+                          ? 'ring-2 ring-[#611F3A] ring-offset-2 scale-110 shadow-lg border-white' 
+                          : 'border-zinc-100 hover:scale-105'
+                        }`}
+                        style={{ backgroundColor: corHex }}
+                      >
+                        {!MAPA_CORES[c.toLowerCase().trim()] && <span className="text-[8px] uppercase">{c[0]}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10 flex-wrap">
               {produto.grade.map((item) => (
@@ -269,12 +293,12 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   const esgotado = produto.estoqueTotal <= 0;
 
   const handleQuickAdd = () => {
-  if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor primeiro! 🎨");
-  if (!tamanho) return setNotificacao("Selecione um tamanho disponível! ✨");
-  adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
-  setTamanho(null); 
-  setCor(null); 
-};
+    if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor primeiro! 🎨");
+    if (!tamanho) return setNotificacao("Selecione um tamanho disponível! ✨");
+    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
+    setTamanho(null); 
+    setCor(null); 
+  };
 
   return (
     <div className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700">
@@ -309,26 +333,25 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           )}
         </div>
 
-        {/* SELEÇÃO DE CORES NO CARD */}
-{produto.cores && produto.cores.length > 0 && (
-  <div className="flex gap-2 mb-3 flex-wrap">
-    {produto.cores.map((c) => (
-      <button 
-        key={c} 
-        onClick={() => setCor(c)} 
-        className={`px-3 py-1 rounded-full text-[8px] font-bold border-2 transition-all ${
-          cor === c 
-          ? 'bg-[#611F3A] text-white border-[#611F3A] scale-105 shadow-sm' 
-          : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'
-        }`}
-      >
-        {c}
-      </button>
-    ))}
-  </div>
-)}
-
-{/* O bloco de tamanhos continua abaixo... */}
+        {/* SELEÇÃO DE CORES NO CARD - BOLINHAS */}
+        {produto.cores && produto.cores.length > 0 && (
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {produto.cores.map((c) => {
+              const corHex = MAPA_CORES[c.toLowerCase().trim()] || '#E2E2E2';
+              return (
+                <button 
+                  key={c} 
+                  onClick={() => setCor(c)} 
+                  title={c}
+                  className={`w-6 h-6 rounded-full border-2 transition-all ${
+                    cor === c ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' : 'border-zinc-100'
+                  }`}
+                  style={{ backgroundColor: corHex }}
+                />
+              );
+            })}
+          </div>
+        )}
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {produto.grade.map((item) => (
@@ -349,6 +372,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
   const [nomeDella, setNomeDella] = useState("");
+  const [cidadeDella, setCidadeDella] = useState(""); // Novo campo Cidade
   const [passoCheckout, setPassoCheckout] = useState(1);
   
   const total = carrinho.reduce((acc, item) => {
@@ -396,16 +420,27 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
               )}
             </>
           ) : (
-            <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20">
-              <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-6 text-center">Para um atendimento exclusivo:</p>
-              <input 
-                type="text" 
-                placeholder="Como podemos te chamar?" 
-                value={nomeDella}
-                onChange={(e) => setNomeDella(e.target.value)}
-                className="w-full text-center text-2xl font-serif italic text-[#611F3A] border-b-2 border-zinc-100 pb-4 focus:border-[#D4AF37] outline-none transition-colors placeholder:text-zinc-300"
-                autoFocus
-              />
+            <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20 space-y-8">
+              <div>
+                <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-4 text-center">Como podemos te chamar?</p>
+                <input 
+                  type="text" 
+                  placeholder="Seu nome aqui... ✨" 
+                  value={nomeDella}
+                  onChange={(e) => setNomeDella(e.target.value)}
+                  className="w-full text-center text-2xl font-serif italic text-[#611F3A] border-b-2 border-zinc-100 pb-4 focus:border-[#D4AF37] outline-none transition-colors placeholder:text-zinc-300"
+                />
+              </div>
+              <div>
+                <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold mb-4 text-center">Qual sua cidade?</p>
+                <input 
+                  type="text" 
+                  placeholder="Ex: Frontin, Mendes..." 
+                  value={cidadeDella}
+                  onChange={(e) => setCidadeDella(e.target.value)}
+                  className="w-full text-center text-2xl font-serif italic text-[#611F3A] border-b-2 border-zinc-100 pb-4 focus:border-[#D4AF37] outline-none transition-colors placeholder:text-zinc-300"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -421,7 +456,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                 <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
               </>
             ) : (
-              <button onClick={() => finalizar(nomeDella)} disabled={nomeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 flex items-center justify-center gap-3">
+              <button onClick={() => finalizar(nomeDella, cidadeDella)} disabled={nomeDella.trim() === "" || cidadeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 flex items-center justify-center gap-3">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
                 ENVIAR PARA WHATSAPP
               </button>
@@ -451,12 +486,14 @@ export default function Home() {
   const [mostrarTopo, setMostrarTopo] = useState(false);
   const [bannerAtual, setBannerAtual] = useState(0);
   const [politicaAberta, setPoliticaAberta] = useState(null);
-useEffect(() => {
+
+  useEffect(() => {
     if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
     }
     window.scrollTo(0, 0);
   }, []);
+
   const foneWhatsAppRaw = "5521971366354";
   const CLARITY_ID = "w2dhylfktb";
   const GA4_ID = "G-P13JKPTP4E";
@@ -473,15 +510,15 @@ useEffect(() => {
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
+    { id: 'icon-blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
-    { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] }, // Corrigido 'calças'
+    { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] },
     { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
     { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans', 'Básico'] },
     { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
-    { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Básico', 'Cintos'] }, // Adicionado Acessórios
+    { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Básico', 'Cintos'] },
   ];
 
   useEffect(() => {
@@ -555,7 +592,6 @@ useEffect(() => {
           if (qtdGG > 0) gradeFinal.push({ tam: 'GG', qtd: qtdGG });
           if (qtdU > 0) gradeFinal.push({ tam: 'U', qtd: qtdU });
 
-          // Lógica de Preços (Original e Promo)
           const precoOriginal = parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
           const precoPromocional = parseFloat(cleanCol(cols[15]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
           const coresArray = cols[16] ? cleanCol(cols[16]).split(';').map(c => c.trim()).filter(Boolean) : [];
@@ -619,17 +655,18 @@ useEffect(() => {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
-  const finalizarPedidoWhatsApp = (nomeCliente) => {
+  const finalizarPedidoWhatsApp = (nomeCliente, cidadeCliente) => {
     const total = carrinho.reduce((acc, item) => {
         const p = item.temPromo ? item.precoPromo : item.preco;
         return acc + (Number(p) || 0);
     }, 0);
     
     let msg = `Olá, Closet Dellas! ✨\n`;
-    msg += `Sou *${nomeCliente}* e quero garantir estas peças:\n`;
+    msg += `Sou *${nomeCliente}* de *${cidadeCliente}*.\n`;
+    msg += `Quero garantir estas peças:\n`;
     msg += `────────────────────\n\n`;
 
-    carrinho.forEach((item, index) => { 
+    carrinho.forEach((item) => { 
         const valorItem = item.temPromo ? item.precoPromo : item.preco;
         msg += `🛍️ *${item.nome}*\n`;
         msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
@@ -647,7 +684,6 @@ useEffect(() => {
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       
-      {/* MONITORAMENTO */}
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
         {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA4_ID}');`}
@@ -713,7 +749,7 @@ useEffect(() => {
             </div>
         )}
       </section>
-      {/* SEÇÃO DE BENEFÍCIOS - BARRA DE CONFIANÇA */}
+
       <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
           <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 3x</p></div>
@@ -731,57 +767,36 @@ useEffect(() => {
             <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-white border-zinc-100 text-[#611F3A] hover:border-[#611F3A]'}`}>VER TODAS</button>
           </div>
 
-          {/* LOCALZE ESTE BLOCO E SUBSTITUA A DIV EXTERNA */}
-{/* LOCALIZE O MAP DAS CATEGORIAS E SUBSTITUA POR ESTE BLOCO */}
-<div className="flex flex-wrap justify-center gap-3 w-full">
-  {categoriasBase.map((cat) => {
-    // FILTRO DE INTELIGÊNCIA: Só pega as subcategorias que realmente existem no estoque para esta categoria
-    const subsComProduto = cat.subs?.filter(sub => 
-      todosProdutos.some(p => 
-        p.categoria === cat.id && 
-        p.subcategoria?.toLowerCase().trim() === sub.toLowerCase().trim()
-      )
-    ) || [];
+          <div className="flex flex-wrap justify-center gap-3 w-full">
+            {categoriasBase.map((cat) => {
+              const subsComProduto = cat.subs?.filter(sub => 
+                todosProdutos.some(p => 
+                  p.categoria === cat.id && 
+                  p.subcategoria?.toLowerCase().trim() === sub.toLowerCase().trim()
+                )
+              ) || [];
 
-    // Se a categoria não tiver nenhum produto em nenhuma subcategoria, você pode até optar por esconder o botão todo.
-    // Mas vamos focar em esconder as subcategorias vazias dentro do menu:
-    
-    return (
-      <div 
-        key={cat.id} 
-        className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`}
-        onMouseEnter={() => setMenuAbertoCat(cat.id)}
-        onMouseLeave={() => setMenuAbertoCat(null)}
-      >
-        <button 
-          onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
-          className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}
-        >
-          {cat.label} 
-          {/* Só mostra a setinha se houver subcategorias com produtos */}
-          {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
-        </button>
-        
-        {/* Menu Suspenso: Só renderiza se houver subs com produtos */}
-        {subsComProduto.length > 0 && menuAbertoCat === cat.id && (
-          <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
-            <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 overflow-hidden">
-              {subsComProduto.map((sub) => (
-                <button 
-                  key={sub} 
-                  onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
-                  className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}
-                >
-                  {sub}
-                </button>
-              ))}
-            </div>
+              return (
+                <div key={cat.id} className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
+                  <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
+                    {cat.label} 
+                    {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
+                  </button>
+                  {subsComProduto.length > 0 && menuAbertoCat === cat.id && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
+                      <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 overflow-hidden">
+                        {subsComProduto.map((sub) => (
+                          <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}>
+                            {sub}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
-    );
-  })}
-</div>
         </div>
 
         {carregando ? (
@@ -806,45 +821,21 @@ useEffect(() => {
           <div className="md:col-span-1">
             <h3 className="text-3xl font-serif font-extrabold mb-6 tracking-tighter">Closet <span className="italic font-light text-[#D4AF37]">Dellas</span></h3>
             <p className="text-sm font-light leading-relaxed opacity-80 mb-8 md:max-w-xs">Sua curadoria exclusiva das melhores tendências, unindo sofisticação e preço justo para mulheres reais.</p>
-            {/* REDES SOCIAIS - RODAPÉ */}
-      <div className="flex justify-center md:justify-start gap-4 mt-8">
-        {/* INSTAGRAM */}
-        <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-all duration-300">
-          <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.46 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
-        </a>
-
-        {/* WHATSAPP */}
-        <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all duration-300">
-          <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
-        </a>
-
-        {/* TIKTOK */}
-        <a href="https://tiktok.com/@_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition-all duration-300">
-          <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.03 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-3.49 2.36-6.45 5.61-7.73.5-.2 1.01-.35 1.53-.47V12.3c-.5.1-.98.27-1.44.51-1.1.58-1.92 1.57-2.13 2.82-.04.28-.05.57-.04.85.02 1.01.35 2.01 1.02 2.75.92 1.07 2.37 1.6 3.77 1.4 1.1-.11 2.1-.73 2.63-1.72.33-.58.46-1.26.46-1.93.02-3.65-.01-7.31.02-10.97z"/></svg>
-        </a>
-      </div>
+            <div className="flex justify-center md:justify-start gap-4 mt-8">
+              <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-all duration-300">
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.46 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
+              </a>
+              <a href={`https://wa.me/${foneWhatsAppRaw}`} target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#25D366] hover:text-white transition-all duration-300">
+                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Políticas</h4>
             <ul className="flex flex-col gap-4 text-xs font-light opacity-80 text-center md:text-left">
-              <li 
-                onClick={() => setPoliticaAberta('trocas')} 
-                className="hover:text-[#D4AF37] cursor-pointer transition-colors"
-              >
-                Trocas e Devoluções
-              </li>
-              <li 
-                onClick={() => setPoliticaAberta('entregas')} 
-                className="hover:text-[#D4AF37] cursor-pointer transition-colors"
-              >
-                Prazos e Entregas
-              </li>
-              <li 
-                onClick={() => setPoliticaAberta('malinha')} 
-                className="hover:text-[#D4AF37] cursor-pointer transition-colors font-medium"
-              >
-                Malinha Delivery ✨
-              </li>
+              <li onClick={() => setPoliticaAberta('trocas')} className="hover:text-[#D4AF37] cursor-pointer transition-colors">Trocas e Devoluções</li>
+              <li onClick={() => setPoliticaAberta('entregas')} className="hover:text-[#D4AF37] cursor-pointer transition-colors">Prazos e Entregas</li>
+              <li onClick={() => setPoliticaAberta('malinha')} className="hover:text-[#D4AF37] cursor-pointer transition-colors font-medium">Malinha Delivery ✨</li>
             </ul>
           </div>
           <div>
