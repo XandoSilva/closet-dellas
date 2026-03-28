@@ -606,24 +606,41 @@ export default function Home() {
             <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-white border-zinc-100 text-[#611F3A] hover:border-[#611F3A]'}`}>VER TODAS</button>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3 w-full">
-            {categoriasBase.map((cat) => (
-             <div key={cat.id} className="relative group/menu z-10" onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
-                <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A]'}`}>
-                  {cat.label} {cat.subs && <span className="text-[8px] opacity-40">▼</span>}
-                </button>
-                {cat.subs && menuAbertoCat === cat.id && (
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
-                    <div className="bg-white shadow-2xl rounded-2xl border border-zinc-50 overflow-hidden">
-                      {cat.subs.map((sub) => (
-                        <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37]' : 'text-zinc-500'}`}>{sub}</button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-             </div>
+          {/* LOCALZE ESTE BLOCO E SUBSTITUA A DIV EXTERNA */}
+<div className="flex flex-wrap justify-center gap-3 w-full">
+  {categoriasBase.map((cat) => (
+    <div 
+      key={cat.id} 
+      /* O PULO DO GATO: Se o menu está aberto, vira z-50, senão z-10 */
+      className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} 
+      onMouseEnter={() => setMenuAbertoCat(cat.id)} 
+      onMouseLeave={() => setMenuAbertoCat(null)}
+    >
+      <button 
+        onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
+        className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A]'}`}
+      >
+        {cat.label} {cat.subs && <span className="text-[8px] opacity-40">▼</span>}
+      </button>
+
+      {cat.subs && menuAbertoCat === cat.id && (
+        <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
+          <div className="bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl border border-zinc-50 overflow-hidden">
+            {cat.subs.map((sub) => (
+              <button 
+                key={sub} 
+                onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
+                className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37]' : 'text-zinc-500'}`}
+              >
+                {sub}
+              </button>
             ))}
           </div>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
         </div>
 
         {carregando ? (
