@@ -770,9 +770,25 @@ export default function Home() {
           </div>
           <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Políticas</h4>
-            <ul className="flex flex-col gap-4 text-xs font-light opacity-80">
-              <li>Trocas e Devoluções</li>
-              <li>Prazos e Entregas</li>
+            <ul className="flex flex-col gap-4 text-xs font-light opacity-80 text-center md:text-left">
+              <li 
+                onClick={() => setPoliticaAberta('trocas')} 
+                className="hover:text-[#D4AF37] cursor-pointer transition-colors"
+              >
+                Trocas e Devoluções
+              </li>
+              <li 
+                onClick={() => setPoliticaAberta('entregas')} 
+                className="hover:text-[#D4AF37] cursor-pointer transition-colors"
+              >
+                Prazos e Entregas
+              </li>
+              <li 
+                onClick={() => setPoliticaAberta('malinha')} 
+                className="hover:text-[#D4AF37] cursor-pointer transition-colors font-medium"
+              >
+                Malinha Delivery ✨
+              </li>
             </ul>
           </div>
           <div>
