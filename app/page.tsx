@@ -598,6 +598,15 @@ export default function Home() {
             </div>
         )}
       </section>
+      {/* SEÇÃO DE BENEFÍCIOS - BARRA DE CONFIANÇA */}
+      <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
+        <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
+          <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 3x</p></div>
+          <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes</p></div>
+          <div className="flex items-center gap-2"><span className="text-xl">✨</span><p className="text-[10px] uppercase font-bold tracking-widest">Curadoria Exclusiva</p></div>
+          <div className="flex items-center gap-2"><span className="text-xl">👜</span><p className="text-[10px] uppercase font-bold tracking-widest">Malinha Delivery <span className="text-[#D4AF37] ml-1">(Em Breve)</span></p></div>
+        </div>
+      </section>
 
       <section className="max-w-7xl mx-auto pt-16 px-6">
         <div className="flex flex-col gap-6 mb-16 items-center">
