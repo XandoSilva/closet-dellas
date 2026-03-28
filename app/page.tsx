@@ -265,13 +265,16 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
 
 function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotificacao, abrirDetalhe }) {
   const [tamanho, setTamanho] = useState(null);
+  const [cor, setCor] = useState(null);
   const esgotado = produto.estoqueTotal <= 0;
 
   const handleQuickAdd = () => {
-    if (!tamanho) return setNotificacao("Selecione um tamanho disponível! ✨");
-    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho });
-    setTamanho(null); 
-  };
+  if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor primeiro! 🎨");
+  if (!tamanho) return setNotificacao("Selecione um tamanho disponível! ✨");
+  adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
+  setTamanho(null); 
+  setCor(null); 
+};
 
   return (
     <div className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700">
@@ -305,6 +308,27 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
             <p className="text-base font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
           )}
         </div>
+
+        {/* SELEÇÃO DE CORES NO CARD */}
+{produto.cores && produto.cores.length > 0 && (
+  <div className="flex gap-2 mb-3 flex-wrap">
+    {produto.cores.map((c) => (
+      <button 
+        key={c} 
+        onClick={() => setCor(c)} 
+        className={`px-3 py-1 rounded-full text-[8px] font-bold border-2 transition-all ${
+          cor === c 
+          ? 'bg-[#611F3A] text-white border-[#611F3A] scale-105 shadow-sm' 
+          : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'
+        }`}
+      >
+        {c}
+      </button>
+    ))}
+  </div>
+)}
+
+{/* O bloco de tamanhos continua abaixo... */}
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {produto.grade.map((item) => (
