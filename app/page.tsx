@@ -71,7 +71,7 @@ function ModalPoliticas({ aberto, fechar, tipo }) {
       texto: (
         <div className="space-y-4 text-sm text-zinc-600">
           <p>• **Prazo:** 7 dias corridos após o recebimento para arrependimento.</p>
-          <p>• **Condições:** Peça com etiqueta original, sem sinais de uso ou lavagem.</p>
+          <p>• **Condições:** Peça com etiqueta original, sem sinais de uso ou lavagem ou odores.</p>
           <p>• **Defeito:** Até 30 dias para comunicar falhas de fabricação.</p>
           <p>• **Solicitação:** Através do nosso WhatsApp oficial.</p>
         </div>
@@ -83,7 +83,7 @@ function ModalPoliticas({ aberto, fechar, tipo }) {
         <div className="space-y-4 text-sm text-zinc-600">
           <p>• **Frete Grátis:** Exclusivo para Engenheiro Paulo de Frontin e Mendes.</p>
           <p>• **Prazo Local:** Entrega em até 24h úteis após o pagamento.</p>
-          <p>• **Correios:** Prazo calculado conforme o CEP no ato da postagem.</p>
+          <p>• **Demais localidades:** Necessário verificar no nosso WhatsApp.</p>
           <p>• **Retirada:** Opção de retirada em mãos disponível sob agendamento.</p>
         </div>
       )
@@ -402,7 +402,12 @@ export default function Home() {
   const [mostrarTopo, setMostrarTopo] = useState(false);
   const [bannerAtual, setBannerAtual] = useState(0);
   const [politicaAberta, setPoliticaAberta] = useState(null);
-
+useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
   const foneWhatsAppRaw = "5521971366354";
   const CLARITY_ID = "w2dhylfktb";
   const GA4_ID = "G-P13JKPTP4E";
