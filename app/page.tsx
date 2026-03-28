@@ -23,7 +23,7 @@ const MAPA_CORES = {
   'lavanda': '#E6E6FA',
   'azul marinho': '#000080',
   'marrom': '#5C4033',
-  'bege': '#F5F5DC',
+  'bege': '#b3ad7e',
   'dourado': '#D4AF37',
   'prata': '#C0C0C0',
   'off white': '#FAF9F6',
