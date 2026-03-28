@@ -27,7 +27,9 @@ const MAPA_CORES = {
   'dourado': '#D4AF37',
   'prata': '#C0C0C0',
   'off white': '#FAF9F6',
-  'azul turquesa': '#40b3e0',
+  'azul piscina': '#00BFFF',
+  'laranja': '#FFA500',
+  'azul turquesa': '#40d5e0',
 };
 
 // === FUNÇÃO AUXILIAR DE OTIMIZAÇÃO (CLOUDINARY) ===
