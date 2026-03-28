@@ -665,10 +665,11 @@ export default function Home() {
     }, 0);
     
     let msg = `Olá, Closet Dellas! ✨\n`;
-    msg += `Sou *${nomeCliente}* de *${cidadeCliente}*.\n`;
+    msg += `Sou *${nomeCliente.trim()}* de *${cidadeCliente.trim()}*.\n`;
     msg += `Quero garantir estas peças:\n`;
     msg += `────────────────────\n\n`;
 
+    // Listagem dos produtos
     carrinho.forEach((item) => { 
         const valorItem = item.temPromo ? item.precoPromo : item.preco;
         msg += `🛍️ *${item.nome}*\n`;
@@ -676,9 +677,12 @@ export default function Home() {
         msg += `   └ Valor: R$ ${Number(valorItem).toFixed(2)}\n\n`; 
     });
 
+    // Fechamento e Reforço do Contato
     msg += `────────────────────\n`;
     msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-    msg += `📍 _Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
+    msg += `📍 *CLIENTE:* ${nomeCliente.trim()}\n`; // Reforço no final
+    msg += `📍 *CIDADE:* ${cidadeCliente.trim()}\n\n`; // Reforço no final
+    msg += `_Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
     msg += `_Aguardo o link/chave para pagamento!_`;
 
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
