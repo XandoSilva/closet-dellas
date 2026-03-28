@@ -320,37 +320,28 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
       <div className="text-left px-2 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
-            <p className="text-[9px] text-[#D4AF37] uppercase tracking-[0.2em] font-bold">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'}</p>
-            <p className="text-[9px] text-zinc-300 font-medium uppercase tracking-widest">{produto.subcategoria}</p>
+            <p className="text-[11px] text-[#D4AF37] uppercase tracking-[0.2em] font-bold">{categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'}</p>
+            <p className="text-[11px] text-zinc-400 font-medium uppercase tracking-widest">{produto.subcategoria}</p>
         </div>
-        <h4 className="text-sm font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
+        <h4 className="text-base font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
         
         <div className="flex items-center gap-2 mb-4">
           {produto.temPromo ? (
             <>
-              <span className="text-[10px] line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-              <p className="text-base font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
             </>
           ) : (
-            <p className="text-base font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
           )}
         </div>
 
-        {/* SELEÇÃO DE CORES NO CARD - BOLINHAS */}
         {produto.cores && produto.cores.length > 0 && (
           <div className="flex gap-2 mb-4 flex-wrap">
             {produto.cores.map((c) => {
               const corHex = MAPA_CORES[c.toLowerCase().trim()] || '#E2E2E2';
               return (
-                <button 
-                  key={c} 
-                  onClick={() => setCor(c)} 
-                  title={c}
-                  className={`w-6 h-6 rounded-full border-2 transition-all ${
-                    cor === c ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' : 'border-zinc-100'
-                  }`}
-                  style={{ backgroundColor: corHex }}
-                />
+                <button key={c} onClick={() => setCor(c)} title={c} className={`w-7 h-7 rounded-full border-2 transition-all ${cor === c ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' : 'border-zinc-100'}`} style={{ backgroundColor: corHex }} />
               );
             })}
           </div>
@@ -358,15 +349,15 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {produto.grade.map((item) => (
-            <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-8 h-8 rounded-full text-[9px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'}`}>
+            <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'}`}>
               {item.tam}
             </button>
           ))}
         </div>
         
         <div className="flex gap-2 mt-auto">
-          <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[9px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
-          <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-4 rounded-full text-[9px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-all active:scale-95 disabled:bg-zinc-200 disabled:shadow-none">{esgotado ? 'Indisponível' : 'Adicionar'}</button>
+          <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
+          <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-all active:scale-95 disabled:bg-zinc-200 disabled:shadow-none">{esgotado ? 'Indisponível' : 'Adicionar'}</button>
         </div>
       </div>
     </div>
@@ -416,11 +407,14 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                 );
               })}
               {carrinho.length === 0 && (
-                <div className="py-20 text-center">
-                    <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
-                    <p className="text-xs text-zinc-400 py-10 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!<br/>Encontre algo incrível na nova coleção.</p>
-                </div>
-              )}
+            <div className="py-20 text-center flex flex-col items-center">
+                <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
+                <p className="text-xs text-zinc-400 py-6 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!</p>
+                <button onClick={fechar} className="bg-[#611F3A] text-white px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#D4AF37] transition-all">
+                  Ver Novidades ✨
+                </button>
+            </div>
+          )}
             </>
           ) : (
             <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20 space-y-8">
@@ -763,6 +757,16 @@ export default function Home() {
           <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes</p></div>
           <div className="flex items-center gap-2"><span className="text-xl">✨</span><p className="text-[10px] uppercase font-bold tracking-widest">Curadoria Exclusiva</p></div>
           <div className="flex items-center gap-2"><span className="text-xl">👜</span><p className="text-[10px] uppercase font-bold tracking-widest">Malinha Delivery <span className="text-[#D4AF37] ml-1">(Em Breve)</span></p></div>
+        </div>
+      </section>
+
+      {/* BANNER MALINHA DELIVERY */}
+      <section className="bg-gradient-to-r from-[#611F3A] to-[#8a2b52] py-10 px-6 text-white text-center cursor-pointer hover:opacity-95 transition-opacity" onClick={() => setPoliticaAberta('malinha')}>
+        <div className="max-w-3xl mx-auto flex flex-col items-center">
+          <span className="text-3xl mb-3">🛍️</span>
+          <h3 className="text-2xl font-serif italic mb-2 tracking-wide">Conheça a Malinha Delivery</h3>
+          <p className="text-xs font-light opacity-90 uppercase tracking-widest mb-4">Prove as peças no conforto da sua casa antes de decidir.</p>
+          <button className="text-[10px] font-bold uppercase tracking-[0.3em] bg-white text-[#611F3A] px-6 py-2 rounded-full hover:bg-[#D4AF37] hover:text-white transition-all shadow-lg">Saiba Como Funciona</button>
         </div>
       </section>
 
