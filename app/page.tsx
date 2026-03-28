@@ -129,12 +129,21 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">
             {categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}
           </p>
-          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal h-auto overflow-visible">
+          <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal">
             {produto.nome}
           </h2>
-          <p className="text-2xl font-bold text-[#611F3A] mb-8 tracking-tight">
-            R$ {Number(produto.preco).toFixed(2)}
-          </p>
+          
+          <div className="flex items-center gap-3 mb-8">
+            {produto.temPromo ? (
+              <>
+                <span className="text-lg line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+                <p className="text-3xl font-bold text-red-600 tracking-tight">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+              </>
+            ) : (
+              <p className="text-3xl font-bold text-[#611F3A] tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
+            )}
+          </div>
+
           <div className="h-px w-12 bg-[#D4AF37]/30 mb-8" />
           <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-light">
             {produto.descricao}
@@ -184,7 +193,9 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
   return (
     <div className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700">
-      {produto.ehNovidade && !esgotado && <span className="absolute top-7 right-7 bg-[#D4AF37] text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">New</span>}
+      {produto.temPromo && !esgotado && <span className="absolute top-7 right-7 bg-red-600 text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">Oferta</span>}
+      {produto.ehNovidade && !esgotado && !produto.temPromo && <span className="absolute top-7 right-7 bg-[#D4AF37] text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">New</span>}
+      
       {esgotado && <span className="absolute top-7 left-7 bg-zinc-400 text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md">Sold Out</span>}
       {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
 
@@ -201,11 +212,21 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
             <p className="text-[9px] text-zinc-300 font-medium uppercase tracking-widest">{produto.subcategoria}</p>
         </div>
         <h4 className="text-sm font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
-        <p className="text-base font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+        
+        <div className="flex items-center gap-2 mb-4">
+          {produto.temPromo ? (
+            <>
+              <span className="text-[10px] line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+              <p className="text-base font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+            </>
+          ) : (
+            <p className="text-base font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+          )}
+        </div>
 
-        <div className="flex gap-2 my-5 flex-wrap">
+        <div className="flex gap-2 mb-5 flex-wrap">
           {produto.grade.map((item) => (
-            <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} title={item.qtd <= 0 ? 'Esgotado' : `${item.qtd} unidades`} className={`w-8 h-8 rounded-full text-[9px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'}`}>
+            <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-8 h-8 rounded-full text-[9px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-400 border-zinc-100 hover:border-[#611F3A]'}`}>
               {item.tam}
             </button>
           ))}
@@ -223,7 +244,11 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
   const [nomeDella, setNomeDella] = useState("");
   const [passoCheckout, setPassoCheckout] = useState(1);
-  const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
+  
+  const total = carrinho.reduce((acc, item) => {
+    const p = item.temPromo ? item.precoPromo : item.preco;
+    return acc + (Number(p) || 0);
+  }, 0);
 
   useEffect(() => { if (!aberto) setPassoCheckout(1); }, [aberto]);
 
@@ -243,6 +268,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
             <>
               {carrinho.map((item, index) => {
                 const imgCart = item.imagens && item.imagens.length > 0 ? item.imagens[0] : 'https://via.placeholder.com/150?text=Sem+Foto';
+                const precoExibicao = item.temPromo ? item.precoPromo : item.preco;
                 return (
                   <div key={index} className="flex gap-6 items-center animate-in fade-in slide-in-from-right-8">
                     <div className="w-20 h-28 flex-shrink-0 rounded-xl overflow-hidden shadow-sm"><img src={otimizarImg(imgCart)} className="w-full h-full object-cover" /></div>
@@ -250,7 +276,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                       <h4 className="text-xs font-bold text-zinc-800 uppercase tracking-tight leading-tight">{item.nome}</h4>
                       <p className="text-[9px] text-zinc-400 mt-1 uppercase tracking-widest">REF: {item.id}</p>
                       <p className="text-[10px] text-[#D4AF37] mt-1.5 font-bold uppercase tracking-widest">Tamanho: {item.tamanhoSelecionado}</p>
-                      <p className="text-sm font-serif italic text-[#611F3A] mt-2">R$ {Number(item.preco).toFixed(2)}</p>
+                      <p className={`text-sm font-serif italic mt-2 ${item.temPromo ? 'text-red-600 font-bold' : 'text-[#611F3A]'}`}>R$ {Number(precoExibicao).toFixed(2)}</p>
                     </div>
                     <button onClick={() => remover(index)} className="w-8 h-8 rounded-full bg-zinc-50 flex items-center justify-center text-zinc-300 hover:bg-zinc-100 hover:text-red-400 transition-all">✕</button>
                   </div>
@@ -289,7 +315,7 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                 <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
               </>
             ) : (
-              <button onClick={() => finalizar(nomeDella)} disabled={nomeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 disabled:bg-zinc-300 disabled:shadow-none flex items-center justify-center gap-3">
+              <button onClick={() => finalizar(nomeDella)} disabled={nomeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 flex items-center justify-center gap-3">
                 <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
                 ENVIAR PARA WHATSAPP
               </button>
@@ -320,8 +346,6 @@ export default function Home() {
   const [bannerAtual, setBannerAtual] = useState(0);
 
   const foneWhatsAppRaw = "5521971366354";
-  
-  // IDs de Monitoramento Ativados
   const CLARITY_ID = "w2dhylfktb";
   const GA4_ID = "G-P13JKPTP4E";
 
@@ -336,16 +360,16 @@ export default function Home() {
   const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
 
   const categoriasBase = [
-    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
-    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
-    { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
-    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
-    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
-    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans', 'Básico'] },
-    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
-  ];
+    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
+    { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
+    { id: 'calcas', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans'] },
+    { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
+    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
+    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans', 'Básico'] },
+    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
+  ];
 
   useEffect(() => {
     if (bannersExibicao.length <= 1) return;
@@ -403,39 +427,40 @@ export default function Home() {
           }
           
           const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
+          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; 
           
-          // NOVO LEITOR DE GRADE (Puxando a quantidade REAL das colunas K até O)
-          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; 
-          
-          let gradeFinal = [];
-          
-          // Lendo as colunas K(10), L(11), M(12), N(13) e O(14)
+          let gradeFinal = [];
           const qtdP = parseInt(cleanCol(cols[10])) || 0;
           const qtdM = parseInt(cleanCol(cols[11])) || 0;
           const qtdG = parseInt(cleanCol(cols[12])) || 0;
           const qtdGG = parseInt(cleanCol(cols[13])) || 0;
           const qtdU = parseInt(cleanCol(cols[14])) || 0;
 
-          // Só cria o botão se a quantidade for maior que zero, e já manda o número real pro site!
           if (qtdP > 0) gradeFinal.push({ tam: 'P', qtd: qtdP });
           if (qtdM > 0) gradeFinal.push({ tam: 'M', qtd: qtdM });
           if (qtdG > 0) gradeFinal.push({ tam: 'G', qtd: qtdG });
           if (qtdGG > 0) gradeFinal.push({ tam: 'GG', qtd: qtdGG });
           if (qtdU > 0) gradeFinal.push({ tam: 'U', qtd: qtdU });
 
-          return {
-            ref: cleanCol(cols[0]), 
-            nome: cleanCol(cols[1]), 
-            categoria: cleanCol(cols[2]).toLowerCase(),
-            subcategoria: cleanCol(cols[3]), 
-            preco: parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0,
-            descricao: cleanCol(cols[7]), 
-            imagens: imagensArray, 
-            ehNovidade: ehNovidade,
-            data_cadastro_raw: dataCadastroRaw,
-            grade: gradeFinal,
-            estoqueTotal: estoqueReal
-          };
+          // Lógica de Preços (Original e Promo)
+          const precoOriginal = parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+          const precoPromocional = parseFloat(cleanCol(cols[15]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+
+          return {
+            ref: cleanCol(cols[0]), 
+            nome: cleanCol(cols[1]), 
+            categoria: cleanCol(cols[2]).toLowerCase(),
+            subcategoria: cleanCol(cols[3]), 
+            preco: precoOriginal,
+            precoPromo: precoPromocional,
+            temPromo: precoPromocional > 0 && precoPromocional < precoOriginal,
+            descricao: cleanCol(cols[7]), 
+            imagens: imagensArray, 
+            ehNovidade: ehNovidade,
+            data_cadastro_raw: dataCadastroRaw,
+            grade: gradeFinal,
+            estoqueTotal: estoqueReal
+          };
         }).filter(Boolean);
 
         const grouped = rawData.reduce((acc, item) => {
@@ -461,30 +486,16 @@ export default function Home() {
   }, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
-    const termoBusca = busca.trim().toLowerCase();
-    
-    // 1. Prioridade para a Busca
-    if (termoBusca !== '') {
-      return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
-    }
-
-    // 2. Filtro de Últimas Peças
-    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
-    
-    // 3. Filtro de Novidades (Usando o cálculo que já fizemos no fetch)
-    if (categoriaAtiva === 'novidades') return p.ehNovidade;
-
-    // 4. Filtro por Categoria e Subcategoria (Normalizando para evitar erro de maiúsculas/minúsculas)
-    const matchCategoria = categoriaAtiva === 'todas' || p.categoria === categoriaAtiva;
-    
-    // Normalizamos a subcategoria para comparar "Midi" com "midi" sem erro
+    const termoBusca = busca.trim().toLowerCase();
+    if (termoBusca !== '') return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
+    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
+    if (categoriaAtiva === 'novidades') return p.ehNovidade;
+    const matchCategoria = categoriaAtiva === 'todas' || p.categoria === categoriaAtiva;
     const subP = (p.subcategoria || "").toLowerCase().trim();
     const subAtiva = (subCategoriaAtiva || "").toLowerCase().trim();
-    
     const matchSubcategoria = !subCategoriaAtiva || subP === subAtiva;
-
-    return matchCategoria && matchSubcategoria;
-  });
+    return matchCategoria && matchSubcategoria;
+  });
 
   const adicionarAoCarrinho = (item) => {
     setCarrinho(prev => [...prev, item]);
@@ -494,50 +505,40 @@ export default function Home() {
   };
 
   const finalizarPedidoWhatsApp = (nomeCliente) => {
-    const total = carrinho.reduce((acc, item) => acc + (Number(item.preco) || 0), 0);
+    const total = carrinho.reduce((acc, item) => {
+        const p = item.temPromo ? item.precoPromo : item.preco;
+        return acc + (Number(p) || 0);
+    }, 0);
     
-    // Construção da Mensagem Estruturada
-    let msg = `Olá, Closet Dellas! ✨\n`;
+    let msg = `Olá, Closet Dellas! ✨\n`;
     msg += `Sou *${nomeCliente}* e quero garantir estas peças:\n`;
     msg += `────────────────────\n\n`;
 
-    carrinho.forEach((item, index) => { 
-        msg += `🛍️ *${item.nome}*\n`;
+    carrinho.forEach((item, index) => { 
+        const valorItem = item.temPromo ? item.precoPromo : item.preco;
+        msg += `🛍️ *${item.nome}*\n`;
         msg += `   └ [REF: ${item.id}] | Tam: ${item.tamanhoSelecionado}\n`;
-        msg += `   └ Valor: R$ ${Number(item.preco).toFixed(2)}\n\n`; 
-    });
+        msg += `   └ Valor: R$ ${Number(valorItem).toFixed(2)}\n\n`; 
+    });
 
-    msg += `────────────────────\n`;
-    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+    msg += `────────────────────\n`;
+    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
     msg += `📍 _Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
     msg += `_Aguardo o link/chave para pagamento!_`;
 
-    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
-  };
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       
-      {/* 1. SCRIPT GOOGLE ANALYTICS 4 (GA4) */}
+      {/* MONITORAMENTO */}
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${GA4_ID}');
-        `}
+        {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA4_ID}');`}
       </Script>
-
-      {/* 2. SCRIPT MICROSOFT CLARITY */}
       <Script id="microsoft-clarity" strategy="afterInteractive">
-        {`
-          (function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-          })(window, document, "clarity", "script", "${CLARITY_ID}");
-        `}
+        {`(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);})(window, document, "clarity", "script", "${CLARITY_ID}");`}
       </Script>
 
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
@@ -560,7 +561,7 @@ export default function Home() {
           <div className="relative w-full md:w-[450px]">
             <input type="text" placeholder="Encontre sua próxima peça favorita... ✨" value={busca} onChange={(e) => setBusca(e.target.value)} className="w-full bg-zinc-50 border-none rounded-full px-12 py-3.5 text-xs focus:ring-2 focus:ring-[#611F3A]/5 outline-none transition-all placeholder:text-zinc-300 shadow-inner" />
             <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-20">🔍</span>
-            {busca && <button onClick={() => setBusca('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-[#611F3A] animate-in fade-in">✕</button>}
+            {busca && <button onClick={() => setBusca('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-[#611F3A]">✕</button>}
           </div>
           <div className="hidden md:flex gap-8 items-center">
             <button onClick={() => setGuiaAberto(true)} className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#611F3A] hover:text-[#D4AF37] transition-colors">Guia de Medidas</button>
@@ -571,18 +572,6 @@ export default function Home() {
           </div>
         </div>
       </nav>
-
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-zinc-100 px-8 py-4 flex justify-between items-center z-[9000] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
-        <button onClick={() => {setCategoriaAtiva('novidades'); window.scrollTo({top:0, behavior:'smooth'})}} className="flex flex-col items-center gap-1"><span className="text-xl">⭐</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Novas</span></button>
-        <button onClick={() => {setCategoriaAtiva('ultimas'); window.scrollTo({top:0, behavior:'smooth'})}} className="flex flex-col items-center gap-1"><span className="text-xl">🚨</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Últimas</span></button>
-        <button onClick={() => setCarrinhoAberto(true)} className="relative flex flex-col items-center gap-1 -translate-y-6">
-            <div className={`w-16 h-16 bg-[#611F3A] rounded-full flex items-center justify-center text-white shadow-2xl ring-8 ring-white transition-transform ${sacolaPulse ? 'scale-110' : ''}`}>
-                <span className="text-2xl">👜</span>
-                {carrinho.length > 0 && <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-white text-[10px] w-6 h-6 rounded-full flex items-center justify-center border-2 border-white animate-bounce">{carrinho.length}</span>}
-            </div>
-        </button>
-        <button onClick={() => setGuiaAberto(true)} className="flex flex-col items-center gap-1"><span className="text-xl">📏</span><span className="text-[8px] font-bold uppercase tracking-widest text-zinc-400">Medidas</span></button>
-      </div>
 
       <section className="relative w-full aspect-[21/9] min-h-[420px] bg-zinc-900 overflow-hidden">
         {bannersExibicao.map((banner, index) => (
@@ -609,15 +598,6 @@ export default function Home() {
         )}
       </section>
 
-      <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
-        <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
-          <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 3x</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">✨</span><p className="text-[10px] uppercase font-bold tracking-widest">Curadoria Exclusiva</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">👜</span><p className="text-[10px] uppercase font-bold tracking-widest">Malinha Delivery <span className="text-[#D4AF37] ml-1">(Em Breve)</span></p></div>
-        </div>
-      </section>
-
       <section className="max-w-7xl mx-auto pt-16 px-6">
         <div className="flex flex-col gap-6 mb-16 items-center">
           <div className="flex justify-center gap-4 w-full flex-wrap">
@@ -628,30 +608,15 @@ export default function Home() {
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
             {categoriasBase.map((cat) => (
-             <div 
-                key={cat.id} 
-                className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`}
-                onMouseEnter={() => setMenuAbertoCat(cat.id)}
-                onMouseLeave={() => setMenuAbertoCat(null)}
-              >
-                <button 
-                  onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} 
-                  className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}
-                >
-                  {cat.label} {cat.subs && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
+             <div key={cat.id} className="relative group/menu z-10" onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
+                <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A]' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A]'}`}>
+                  {cat.label} {cat.subs && <span className="text-[8px] opacity-40">▼</span>}
                 </button>
-                
-                {cat.subs && (
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 transition-all duration-500 ${menuAbertoCat === cat.id ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0'}`}>
-                    <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.1)] rounded-2xl border border-zinc-50 overflow-hidden">
-                      {cat.subs?.map((sub) => (
-                        <button 
-                          key={sub} 
-                          onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} 
-                          className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 hover:text-[#D4AF37] transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}
-                        >
-                          {sub}
-                        </button>
+                {cat.subs && menuAbertoCat === cat.id && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-50 w-48 animate-in fade-in slide-in-from-top-2">
+                    <div className="bg-white shadow-2xl rounded-2xl border border-zinc-50 overflow-hidden">
+                      {cat.subs.map((sub) => (
+                        <button key={sub} onClick={() => {setCategoriaAtiva(cat.id); setSubCategoriaAtiva(sub); setMenuAbertoCat(null);}} className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-zinc-50 transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37]' : 'text-zinc-500'}`}>{sub}</button>
                       ))}
                     </div>
                   </div>
@@ -682,20 +647,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           <div className="md:col-span-1">
             <h3 className="text-3xl font-serif font-extrabold mb-6 tracking-tighter">Closet <span className="italic font-light text-[#D4AF37]">Dellas</span></h3>
-            <p className="text-sm font-light leading-relaxed opacity-80 mb-8 md:max-w-xs text-balance">Sua curadoria exclusiva das melhores tendências, unindo sofisticação e preço justo para mulheres reais.</p>
-            <div className="flex justify-center md:justify-start gap-4">
-              <a href="https://instagram.com/_closetdellas9" target="_blank" rel="noopener noreferrer" className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-all duration-300">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.46 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/></svg>
-              </a>
-            </div>
+            <p className="text-sm font-light leading-relaxed opacity-80 mb-8 md:max-w-xs">Sua curadoria exclusiva das melhores tendências, unindo sofisticação e preço justo para mulheres reais.</p>
           </div>
           <div>
             <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Políticas</h4>
             <ul className="flex flex-col gap-4 text-xs font-light opacity-80">
-              <li className="hover:text-[#D4AF37] cursor-pointer transition-colors">Trocas e Devoluções</li>
-              <li className="hover:text-[#D4AF37] cursor-pointer transition-colors">Prazos e Entregas</li>
-              <li className="hover:text-[#D4AF37] cursor-pointer transition-colors">Privacidade</li>
-              <li className="hover:text-[#D4AF37] cursor-pointer transition-colors">Termos e Condições</li>
+              <li>Trocas e Devoluções</li>
+              <li>Prazos e Entregas</li>
             </ul>
           </div>
           <div>
@@ -703,17 +661,14 @@ export default function Home() {
             <div className="flex flex-col gap-4 text-xs font-light opacity-80 leading-relaxed">
               <p>Segunda a Sexta: 09h às 18h</p>
               <p>Sábado: 09h às 13h</p>
-              <p className="mt-2"><span className="font-bold text-white">E-mail:</span> contato@closetdellas.com.br</p>
-              <p><span className="font-bold text-white">WhatsApp:</span> (21) 97136-6354</p>
+              <p className="mt-2"><span className="font-bold text-white">WhatsApp:</span> (21) 97136-6354</p>
             </div>
           </div>
           <div>
-            <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Pagamento Seguro</h4>
-            <p className="text-xs font-light opacity-80 mb-6 leading-relaxed">Ambiente 100% seguro para suas compras. Aceitamos PIX e Cartões.</p>
+            <h4 className="font-bold uppercase tracking-[0.3em] text-[#D4AF37] mb-8 text-[10px]">Pagamento</h4>
             <div className="flex justify-center md:justify-start gap-2 flex-wrap opacity-60">
                <span className="bg-white/10 px-4 py-2 rounded text-[9px] font-bold tracking-widest uppercase">PIX</span>
-               <span className="bg-white/10 px-4 py-2 rounded text-[9px] font-bold tracking-widest uppercase">VISA</span>
-               <span className="bg-white/10 px-4 py-2 rounded text-[9px] font-bold tracking-widest uppercase">MASTER</span>
+               <span className="bg-white/10 px-4 py-2 rounded text-[9px] font-bold tracking-widest uppercase">CARTÃO</span>
             </div>
           </div>
         </div>
