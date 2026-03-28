@@ -59,6 +59,63 @@ function ModalMedidas({ aberto, fechar }) {
   );
 }
 
+// ... fim do ModalMedidas
+  
+// COLE O ModalPoliticas AQUI (Entre o ModalMedidas e a Notificacao)
+function ModalPoliticas({ aberto, fechar, tipo }) {
+  if (!aberto) return null;
+
+  const conteudos = {
+    trocas: {
+      titulo: "Trocas e Devoluções",
+      texto: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>• **Prazo:** 7 dias corridos após o recebimento para arrependimento.</p>
+          <p>• **Condições:** Peça com etiqueta original, sem sinais de uso ou lavagem.</p>
+          <p>• **Defeito:** Até 30 dias para comunicar falhas de fabricação.</p>
+          <p>• **Solicitação:** Através do nosso WhatsApp oficial.</p>
+        </div>
+      )
+    },
+    entregas: {
+      titulo: "Prazos e Entregas",
+      texto: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>• **Frete Grátis:** Exclusivo para Engenheiro Paulo de Frontin e Mendes.</p>
+          <p>• **Prazo Local:** Entrega em até 24h úteis após o pagamento.</p>
+          <p>• **Correios:** Prazo calculado conforme o CEP no ato da postagem.</p>
+          <p>• **Retirada:** Opção de retirada em mãos disponível sob agendamento.</p>
+        </div>
+      )
+    },
+    malinha: {
+      titulo: "Malinha Delivery",
+      texto: (
+        <div className="space-y-4 text-sm text-zinc-600">
+          <p>O serviço mais amado das nossas Dellas! ✨</p>
+          <p>• **Como funciona:** Você seleciona até 5 peças que deseja provar.</p>
+          <p>• **Prazo:** A malinha fica com você por até 24h.</p>
+          <p>• **Comodidade:** Prove no conforto da sua casa e decida com o que ficar.</p>
+          <p>• **Taxa:** Consulte disponibilidade e taxa para sua região via WhatsApp.</p>
+        </div>
+      )
+    }
+  };
+
+  const data = conteudos[tipo] || conteudos.trocas;
+
+  return (
+    <div className="fixed inset-0 bg-[#611F3A]/60 backdrop-blur-sm z-[10001] flex items-center justify-center p-4" onClick={fechar}>
+      <div className="bg-white w-full max-w-lg p-8 rounded-3xl shadow-2xl relative animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+        <button onClick={fechar} className="absolute top-6 right-6 bg-zinc-100 w-8 h-8 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-200 transition-colors">✕</button>
+        <h2 className="text-2xl font-serif italic text-[#611F3A] mb-6 text-center">{data.titulo}</h2>
+        <div className="leading-relaxed">{data.texto}</div>
+        <button onClick={fechar} className="w-full mt-8 bg-[#611F3A] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest">Entendi</button>
+      </div>
+    </div>
+  );
+}
+
 function Notificacao({ mensagem }) {
   if (!mensagem) return null;
   return (
