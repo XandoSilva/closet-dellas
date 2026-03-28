@@ -863,6 +863,40 @@ export default function Home() {
           <p className="text-[10px] uppercase tracking-[0.4em] text-white/50">© 2026 Closet Dellas • Miguel Pereira - RJ</p>
         </div>
       </footer>
+
+      {/* BARRA DE NAVEGAÇÃO INFERIOR - COLA AQUI! */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-zinc-100 px-8 py-3 flex justify-between items-center z-[9000] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
+        <button 
+          onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+          className="flex flex-col items-center gap-1"
+        >
+          <span className="text-xl">🏠</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400">Home</span>
+        </button>
+        
+        <button 
+          onClick={() => setGuiaAberto(true)}
+          className="flex flex-col items-center gap-1"
+        >
+          <span className="text-xl">📏</span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400">Medidas</span>
+        </button>
+
+        <button 
+          onClick={() => setCarrinhoAberto(true)}
+          className={`relative flex flex-col items-center gap-1 transition-transform ${sacolaPulse ? 'scale-110' : ''}`}
+        >
+          <div className="relative">
+            <span className="text-2xl text-[#611F3A]">👜</span>
+            {carrinho.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[#D4AF37] text-white text-[8px] min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center font-bold animate-in zoom-in border border-white">
+                {carrinho.length}
+              </span>
+            )}
+          </div>
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#611F3A]">Sacola</span>
+        </button>
+      </div>
     </main>
   );
 }
