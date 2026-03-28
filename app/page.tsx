@@ -363,7 +363,7 @@ export default function Home() {
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
-    { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico'] }, // Corrigido 'calças'
+    { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] }, // Corrigido 'calças'
     { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
     { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
     { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
