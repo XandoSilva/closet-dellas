@@ -70,10 +70,10 @@ function ModalPoliticas({ aberto, fechar, tipo }) {
       titulo: "Trocas e Devoluções",
       texto: (
         <div className="space-y-4 text-sm text-zinc-600">
-          <p>• **Prazo:** 7 dias corridos após o recebimento para arrependimento.</p>
-          <p>• **Condições:** Peça com etiqueta original, sem sinais de uso ou lavagem ou odores.</p>
-          <p>• **Defeito:** Até 30 dias para comunicar falhas de fabricação.</p>
-          <p>• **Solicitação:** Através do nosso WhatsApp oficial.</p>
+          <p>• <span className="font-bold">Prazo:</span> 7 dias corridos após o recebimento para arrependimento.</p>
+          <p>• <span className="font-bold">Condições:</span> Peça com etiqueta original, sem sinais de uso, lavagem ou odores.</p>
+          <p>• <span className="font-bold">Defeito:</span> Até 30 dias para comunicar falhas de fabricação.</p>
+          <p>• <span className="font-bold">Solicitação:</span> Através do nosso WhatsApp oficial.</p>
         </div>
       )
     },
@@ -81,10 +81,10 @@ function ModalPoliticas({ aberto, fechar, tipo }) {
       titulo: "Prazos e Entregas",
       texto: (
         <div className="space-y-4 text-sm text-zinc-600">
-          <p>• **Frete Grátis:** Exclusivo para Engenheiro Paulo de Frontin e Mendes.</p>
-          <p>• **Prazo Local:** Entrega em até 24h úteis após o pagamento.</p>
-          <p>• **Demais localidades:** Necessário verificar no nosso WhatsApp.</p>
-          <p>• **Retirada:** Opção de retirada em mãos disponível sob agendamento.</p>
+          <p>• <span className="font-bold">Frete Grátis:</span> Exclusivo para Engenheiro Paulo de Frontin e Mendes.</p>
+          <p>• <span className="font-bold">Prazo Local:</span> Entrega em até 24h úteis após o pagamento.</p>
+          <p>• <span className="font-bold">Demais localidades:</span> Necessário verificar no nosso WhatsApp.</p>
+          <p>• <span className="font-bold">Retirada:</span> Opção de retirada em mãos disponível sob agendamento.</p>
         </div>
       )
     },
@@ -93,10 +93,10 @@ function ModalPoliticas({ aberto, fechar, tipo }) {
       texto: (
         <div className="space-y-4 text-sm text-zinc-600">
           <p>O serviço mais amado das nossas Dellas! ✨</p>
-          <p>• **Como funciona:** Você seleciona até 5 peças que deseja provar.</p>
-          <p>• **Prazo:** A malinha fica com você por até 24h.</p>
-          <p>• **Comodidade:** Prove no conforto da sua casa e decida com o que ficar.</p>
-          <p>• **Taxa:** Consulte disponibilidade e taxa para sua região via WhatsApp.</p>
+          <p>• <span className="font-bold">Como funciona:</span> Você seleciona até 5 peças que deseja provar.</p>
+          <p>• <span className="font-bold">Prazo:</span> A malinha fica com você por até 24h.</p>
+          <p>• <span className="font-bold">Comodidade:</span> Prove no conforto da sua casa e decida com o que ficar.</p>
+          <p>• <span className="font-bold">Taxa:</span> Consulte disponibilidade e taxa para sua região via WhatsApp.</p>
         </div>
       )
     }
@@ -167,11 +167,14 @@ function CarrosselProduto({ imagens, nome }) {
 function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, setNotificacao, categoriasBase }) {
   if (!aberto || !produto) return null;
   const [tamanho, setTamanho] = useState(null);
+  const [cor, setCor] = useState(null);
 
   const handleAddCart = () => {
+    if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor para sua peça! 🎨");
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
-    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho });
+    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
     setTamanho(null);
+    setCor(null); // Reseta a cor ao fechar
     fechar();
   };
 
@@ -206,6 +209,28 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
             {produto.descricao}
           </p>
           <div className="mt-auto">
+            
+            {/* SELEÇÃO DE CORES - ADICIONADO */}
+  {produto.cores && produto.cores.length > 0 && (
+    <div className="mb-8">
+      <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione a Cor:</p>
+      <div className="flex gap-3 flex-wrap">
+        {produto.cores.map((c) => (
+          <button 
+            key={c}
+            onClick={() => setCor(c)}
+            className={`px-5 py-2.5 rounded-full text-[10px] font-bold transition-all border-2 ${
+              cor === c 
+              ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md scale-105' 
+              : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'
+            }`}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10 flex-wrap">
               {produto.grade.map((item) => (
@@ -509,6 +534,7 @@ useEffect(() => {
           // Lógica de Preços (Original e Promo)
           const precoOriginal = parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
           const precoPromocional = parseFloat(cleanCol(cols[15]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+          const coresArray = cols[16] ? cleanCol(cols[16]).split(';').map(c => c.trim()).filter(Boolean) : [];
 
           return {
             ref: cleanCol(cols[0]), 
@@ -537,7 +563,7 @@ useEffect(() => {
             });
             exist.estoqueTotal += item.estoqueTotal;
           } else {
-            acc.push({ ...item, data_cadastro: item.data_cadastro_raw, id: item.ref });
+            acc.push({ ...item, data_cadastro: item.data_cadastro_raw, id: item.ref, cores: item.cores });
           }
           return acc;
         }, []);
@@ -581,7 +607,7 @@ useEffect(() => {
     carrinho.forEach((item, index) => { 
         const valorItem = item.temPromo ? item.precoPromo : item.preco;
         msg += `🛍️ *${item.nome}*\n`;
-        msg += `   └ [REF: ${item.id}] | Tam: ${item.tamanhoSelecionado}\n`;
+        msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
         msg += `   └ Valor: R$ ${Number(valorItem).toFixed(2)}\n\n`; 
     });
 
