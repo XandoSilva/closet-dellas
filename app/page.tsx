@@ -638,7 +638,7 @@ useEffect(() => {
         </div>
       </nav>
 
-      <section className="relative w-full aspect-[21/9] min-h-[420px] bg-zinc-900 overflow-hidden">
+      <section className="relative w-full aspect-[28/9] min-h-[315px] bg-zinc-900 overflow-hidden">
         {bannersExibicao.map((banner, index) => (
             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
                 <img src={otimizarImg(banner.imagem)} className="absolute inset-0 w-full h-full object-cover scale-105" alt="Banner" />
