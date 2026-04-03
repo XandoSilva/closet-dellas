@@ -510,7 +510,7 @@ export default function Home() {
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
-    { id: 'icon-blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
     { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] },
     { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
