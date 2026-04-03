@@ -546,7 +546,7 @@ export default function Home() {
   useEffect(() => {
     const fetchDados = async () => {
       try {
-        const resBanners = await fetch(SHEET_BANNERS_URL);
+        const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
         if(resBanners.ok) {
             const textBanners = await resBanners.text();
             const rowsBanners = textBanners.split('\n').slice(1);
@@ -558,7 +558,7 @@ export default function Home() {
             if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
         }
 
-        const res = await fetch(SHEET_CSV_URL);
+        const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
         const text = await res.text();
         const rows = text.split('\n').slice(1);
         const hoje = new Date();
@@ -829,7 +829,17 @@ export default function Home() {
       </section>
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
-
+{/* SEÇÃO: A ESSÊNCIA DELLAS */}
+      <section className="bg-[#FAF9F6] py-20 px-6 md:px-12 border-t border-zinc-100">
+        <div className="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <span className="text-3xl mb-6 block">✨</span>
+          <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-6">Nossa Essência</h3>
+          <p className="text-sm md:text-base text-zinc-600 leading-relaxed font-light mb-8 max-w-2xl mx-auto">
+            O Closet Dellas nasceu do desejo de trazer as principais tendências da moda para pertinho de você. Cada peça da nossa loja passa por uma curadoria rigorosa, onde avaliamos o caimento, a qualidade do tecido e a versatilidade. Nosso objetivo não é apenas vestir, mas garantir que você se sinta confiante, elegante e exclusiva. Do nosso closet direto para a sua casa, com carinho em cada detalhe da embalagem.
+          </p>
+          <div className="w-16 h-px bg-[#D4AF37] mx-auto"></div>
+        </div>
+      </section>
       <footer className="bg-[#611F3A] pt-24 pb-12 px-6 md:px-12 text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           <div className="md:col-span-1">
