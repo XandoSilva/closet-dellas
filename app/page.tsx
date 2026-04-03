@@ -15,6 +15,7 @@ const MAPA_CORES = {
   'verde': '#008000',
   'amarelo': '#FFFF00',
   'fendi': '#A19586',
+  'pink': '#FF1493',
   'cinza': '#808080',
   'vinho': '#722F37',
   'fúcsia': '#FF00FF',
