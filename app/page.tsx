@@ -512,15 +512,15 @@ export default function Home() {
 
   const categoriasBase = [
     { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
-    { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] },
-    { id: 'body', label: 'BODY', subs: ['Básico', 'Renda'] },
-    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Alfaiataria', 'Básico', 'Tricô'] },
-    { id: 'saias', label: 'SAIAS', subs: ['Midi', 'Curto (a)', 'Longo (a)'] },
-    { id: 'shorts', label: 'SHORTS', subs: ['Alfaiataria', 'Jeans', 'Básico'] },
-    { id: 'casacos', label: 'CASACOS', subs: ['Sobretudo', 'Jaqueta', 'Bobojaco', 'Tricô'] },
-    { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Básico', 'Cintos'] },
+    { id: 'blusas', label: 'BLUSAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'cropped', label: 'CROPPED', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'calças', label: 'CALÇAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'body', label: 'BODY', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'saias', label: 'SAIAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'shorts', label: 'SHORTS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'casacos', label: 'CASACOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
   ];
 
   useEffect(() => {
