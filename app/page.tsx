@@ -511,7 +511,7 @@ export default function Home() {
   const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
 
   const categoriasBase = [
-    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)'] },
+    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
     { id: 'blusas', label: 'BLUSAS', subs: ['T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset'] },
     { id: 'cropped', label: 'CROPPED', subs: ['Básico', 'Renda', 'Crochê', 'Amarração'] },
     { id: 'calças', label: 'CALÇAS', subs: ['Pantalona', 'Alfaiataria', 'Jeans', 'Básico', 'Crochê'] },
