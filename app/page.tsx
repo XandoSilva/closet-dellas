@@ -28,7 +28,6 @@ const MAPA_CORES = {
   'bege': '#b3ad7e',
   'dourado': '#D4AF37',
   'prata': '#C0C0C0',
-  'off white': '#FAF9F6',
   'azul piscina': '#00BFFF',
   'laranja': '#FFA500',
   'azul turquesa': '#40d5e0',
@@ -39,6 +38,8 @@ const otimizarImg = (url) => {
   if (!url || !url.includes('cloudinary.com')) return url;
   return url.replace('/upload/', '/upload/q_auto,f_auto/');
 };
+
+// --- COMPONENTES DE INTERFACE ---
 
 function SkeletonCard() {
   return (
@@ -236,7 +237,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           </p>
           <div className="mt-auto">
             
-            {/* SELEÇÃO DE CORES - BOLINHAS COLORIDAS */}
+            {/* SELEÇÃO DE CORES */}
             {produto.cores && produto.cores.length > 0 && (
               <div className="mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione a Cor:</p>
@@ -412,14 +413,14 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar, finalizar
                 );
               })}
               {carrinho.length === 0 && (
-            <div className="py-20 text-center flex flex-col items-center">
-                <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
-                <p className="text-xs text-zinc-400 py-6 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!</p>
-                <button onClick={fechar} className="bg-[#611F3A] text-white px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#D4AF37] transition-all">
-                  Ver Novidades ✨
-                </button>
-            </div>
-          )}
+                <div className="py-20 text-center flex flex-col items-center">
+                    <span className="text-4xl block mb-4 grayscale opacity-50">👜</span>
+                    <p className="text-xs text-zinc-400 py-6 uppercase tracking-[0.2em] leading-relaxed">Sua sacola está vazia, Della!</p>
+                    <button onClick={fechar} className="bg-[#611F3A] text-white px-8 py-3 rounded-full text-[11px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#D4AF37] transition-all">
+                      Ver Novidades ✨
+                    </button>
+                </div>
+              )}
             </>
           ) : (
             <div className="flex flex-col h-full justify-center animate-in fade-in zoom-in duration-500 pb-20 space-y-8">
@@ -457,27 +458,24 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar, finalizar
                 </div>
                 <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
               </>
-            // ... código anterior ...
-) : (
-  <div className="space-y-3">
-    <button 
-      onClick={() => finalizar(nomeDella, cidadeDella)} 
-      disabled={!nomeDella || !cidadeDella}
-      className="w-full bg-[#25D366] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#1DA851] flex items-center justify-center gap-2"
-    >
-      <span>💬</span> Finalizar no WhatsApp
-    </button>
-
-    <button 
-      onClick={() => finalizarTelegram(nomeDella, cidadeDella)} 
-      disabled={!nomeDella || !cidadeDella}
-      className="w-full bg-[#0088cc] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#0077b3] flex items-center justify-center gap-2"
-    >
-      <span>✈️</span> Finalizar no Telegram
-    </button>
-  </div>
-)}
-// ... código que vem depois ...
+            ) : (
+              <div className="space-y-3">
+                <button 
+                  onClick={() => finalizar(nomeDella, cidadeDella)} 
+                  disabled={nomeDella.trim() === "" || cidadeDella.trim() === ""} 
+                  className="w-full bg-[#25D366] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#1DA851] transition-all transform active:scale-95 flex items-center justify-center gap-3"
+                >
+                  <span>💬</span> WhatsApp
+                </button>
+                <button 
+                  onClick={() => finalizarTelegram(nomeDella, cidadeDella)} 
+                  disabled={nomeDella.trim() === "" || cidadeDella.trim() === ""} 
+                  className="w-full bg-[#0088cc] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#0077b3] transition-all transform active:scale-95 flex items-center justify-center gap-3"
+                >
+                  <span>✈️</span> Telegram (Copiar e Abrir)
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -485,6 +483,8 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar, finalizar
     </>
   );
 }
+
+// --- PÁGINA PRINCIPAL ---
 
 export default function Home() {
   const [todosProdutos, setTodosProdutos] = useState([]);
@@ -515,6 +515,7 @@ export default function Home() {
   const CLARITY_ID = "w2dhylfktb";
   const GA4_ID = "G-P13JKPTP4E";
 
+  // URLs das planilhas atualizadas
   const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiXIKGK6tBbAxErk8F6eCYoJPmb7FjK7Yo-UDDVlraJm_Q-8x3ea2EtR4dS9hHkqBbGHEnPZEC6-64/pub?gid=1773071955&single=true&output=csv";
   const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiXIKGK6tBbAxErk8F6eCYoJPmb7FjK7Yo-UDDVlraJm_Q-8x3ea2EtR4dS9hHkqBbGHEnPZEC6-64/pub?gid=1879558148&single=true&output=csv"; 
 
@@ -552,86 +553,93 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    let parts = [];
-    if (dateStr.includes('/')) { parts = dateStr.split('/'); if (parts.length === 3) return new Date(Number(parts[2]), Number(parts[1]) - 1, Number(parts[0])); } 
-    else if (dateStr.includes('-')) { parts = dateStr.split('-'); if (parts.length === 3) return new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])); }
-    return null;
-  };
-
+  // Lógica de Processamento da Planilha Nova (A a W)
   useEffect(() => {
-  const fetchDados = async () => {
-    try {
-      const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
-      const text = await res.text();
-      const rows = text.split('\n').slice(1);
-      
-      const rawData = rows.map(row => {
-        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-        const clean = (c) => c ? c.replace(/(^"|"$)/g, '').trim() : '';
+    const fetchDados = async () => {
+      try {
+        const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
+        if(resBanners.ok) {
+            const textBanners = await resBanners.text();
+            const rowsBanners = textBanners.split('\n').slice(1);
+            const parsedBanners = rowsBanners.map(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c ? c.replace(/(^"|"$)/g, '').trim() : '');
+                if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
+                return null;
+            }).filter(Boolean);
+            if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
+        }
 
-        // Filtro: Coluna P (índice 15) deve ser SIM
-        if (clean(cols[15]) !== "SIM") return null;
+        const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
+        const text = await res.text();
+        const rows = text.split('\n').slice(1);
+        
+        const rawData = rows.map(row => {
+          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+          const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
+          
+          // Verificação de SKU Base (Col B / Indice 1) e Nome (Col D / Indice 3)
+          if(!clean(cols[1]) || !clean(cols[3])) return null;
 
-        const precoBase = parseFloat(clean(cols[11]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
-        const promoValorStr = clean(cols[12]);
-        const precoPromo = (promoValorStr !== "REAL" && promoValorStr !== "") 
-          ? parseFloat(promoValorStr.replace(/[^0-9,-]/g, '').replace(',', '.')) 
-          : 0;
+          // Filtro Ativo Site (Col P / Indice 15)
+          if (clean(cols[15]) !== "SIM") return null;
 
-        // Coleta de Fotos (Colunas S a W / Índices 18 a 22)
-        const fotos = [18, 19, 20, 21, 22]
-          .map(idx => clean(cols[idx]))
-          .filter(url => url && url.startsWith('http'));
+          const precoBase = parseFloat(clean(cols[11]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+          const promoStr = clean(cols[12]);
+          const precoPromo = (promoStr !== "REAL" && promoStr !== "") ? parseFloat(promoStr.replace(/[^0-9,-]/g, '').replace(',', '.')) : 0;
 
-        return {
-          skuBase: clean(cols[1]),
-          nome: clean(cols[3]),
-          categoria: clean(cols[4]).toLowerCase(),
-          subcategoria: clean(cols[5]),
-          cor: clean(cols[6]),
-          tamanho: clean(cols[7]),
-          estoqueDisponivel: parseInt(clean(cols[10])) || 0,
-          preco: precoBase,
-          precoPromo: precoPromo,
-          descricao: clean(cols[17]), // Coluna R
-          imagens: fotos
-        };
-      }).filter(Boolean);
+          // Coleta de Fotos (Col S a W / Indices 18 a 22)
+          const fotos = [18, 19, 20, 21, 22]
+            .map(idx => clean(cols[idx]))
+            .filter(url => url && url.startsWith('http'));
 
-      // Agrupamento por SKU Base (Transforma linhas em produtos com grade)
-      const grouped = rawData.reduce((acc, row) => {
-        let p = acc.find(item => item.id === row.skuBase);
-        if (!p) {
-          p = { 
-            id: row.skuBase, nome: row.nome, categoria: row.categoria, 
-            subcategoria: row.subcategoria, preco: row.preco, precoPromo: row.precoPromo,
-            temPromo: row.precoPromo > 0, descricao: row.descricao, imagens: row.imagens,
-            cores: [], grade: [], estoqueTotal: 0, ehNovidade: true 
+          return {
+            skuBase: clean(cols[1]),
+            nome: clean(cols[3]),
+            categoria: clean(cols[4]).toLowerCase(),
+            subcategoria: clean(cols[5]),
+            cor: clean(cols[6]),
+            tamanho: clean(cols[7]),
+            estoque: parseInt(clean(cols[10])) || 0, // Disponível (Indice 10)
+            preco: precoBase,
+            precoPromo: precoPromo,
+            descricao: clean(cols[17]), // Indice 17
+            imagens: fotos,
+            ehNovidade: true // Podemos ajustar lógica de data se necessário
           };
-          acc.push(p);
-        }
-        
-        if (row.cor && !p.cores.includes(row.cor)) p.cores.push(row.cor);
-        
-        const gExistente = p.grade.find(g => g.tam === row.tamanho);
-        if (gExistente) {
-          gExistente.qtd += row.estoqueDisponivel;
-        } else {
-          p.grade.push({ tam: row.tamanho, qtd: row.estoqueDisponivel });
-        }
-        
-        p.estoqueTotal += row.estoqueDisponivel;
-        return acc;
-      }, []);
+        }).filter(Boolean);
 
-      setTodosProdutos(grouped);
-      setCarregando(false);
-    } catch (e) { console.error(e); setCarregando(false); }
-  };
-  fetchDados();
-}, []);
+        // Agrupamento por SKU Base para montar a grade
+        const grouped = rawData.reduce((acc, item) => {
+          let exist = acc.find(p => p.id === item.skuBase);
+          if (exist) {
+            // Se cor nova, adiciona ao array
+            if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
+            
+            // Gerencia a grade de tamanhos
+            const gExistente = exist.grade.find(g => g.tam === item.tamanho);
+            if (gExistente) gExistente.qtd += item.estoque;
+            else exist.grade.push({ tam: item.tamanho, qtd: item.estoque });
+            
+            exist.estoqueTotal += item.estoque;
+          } else {
+            acc.push({ 
+              ...item, 
+              id: item.skuBase, 
+              cores: item.cor ? [item.cor] : [],
+              grade: [{ tam: item.tamanho, qtd: item.estoque }],
+              estoqueTotal: item.estoque,
+              temPromo: item.precoPromo > 0
+            });
+          }
+          return acc;
+        }, []);
+
+        setTodosProdutos(grouped);
+        setCarregando(false);
+      } catch (e) { setCarregando(false); }
+    };
+    fetchDados();
+  }, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
     const termoBusca = busca.trim().toLowerCase();
@@ -652,41 +660,41 @@ export default function Home() {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
+  // Funções de Finalização Únicas
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
-  const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
-  let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
-  msg += `👤 *Della:* ${nomeDella.trim()}\n`;
-  msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
-  msg += `────────────────────\n\n`;
+    const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
+    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
+    msg += `👤 *Della:* ${nomeDella.trim()}\n`;
+    msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
+    msg += `────────────────────\n\n`;
 
-  carrinho.forEach((item) => {
-    const valor = item.temPromo ? item.precoPromo : item.preco;
-    msg += `🛍️ *${item.nome}*\n`;
-    msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
-    msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
-  });
+    carrinho.forEach((item) => {
+      const valor = item.temPromo ? item.precoPromo : item.preco;
+      msg += `🛍️ *${item.nome}*\n`;
+      msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
+      msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
+    });
 
-  msg += `────────────────────\n`;
-  msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-  msg += `_Desejo combinar a entrega/retirada!_`;
-  return msg;
-};
+    msg += `────────────────────\n`;
+    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+    msg += `_Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
+    msg += `_Aguardo o link/chave para pagamento!_`;
+    return msg;
+  };
 
-// No componente Home, atualize os métodos:
+  const finalizarWhatsApp = (nome, cidade) => {
+    const msg = gerarResumoPedido(nome, cidade, carrinho);
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
+  };
 
-const finalizarWhatsApp = (nome, cidade) => {
-  const msg = gerarResumoPedido(nome, cidade, carrinho);
-  window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
-};
-
-const finalizarTelegram = (nome, cidade) => {
-  const msg = gerarResumoPedido(nome, cidade, carrinho);
-  navigator.clipboard.writeText(msg).then(() => {
-    setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
-    // Altere para o seu @ do Telegram
-    window.open(`https://t.me/closetdellas9`, '_blank');
-  });
-};
+  const finalizarTelegram = (nome, cidade) => {
+    const msg = gerarResumoPedido(nome, cidade, carrinho);
+    navigator.clipboard.writeText(msg).then(() => {
+      setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
+      // Link do seu Telegram (ajuste se necessário)
+      window.open(`https://t.me/closetdellas9`, '_blank');
+    });
+  };
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
@@ -702,7 +710,14 @@ const finalizarTelegram = (nome, cidade) => {
       <ModalMedidas aberto={guiaAberto} fechar={() => setGuiaAberto(false)} />
       <Notificacao mensagem={notificacao} />
       <ModalPoliticas aberto={!!politicaAberta} fechar={() => setPoliticaAberta(null)} tipo={politicaAberta} />
-      <SacolaLateral aberto={carrinhoAberto} fechar={() => setCarrinhoAberto(false)} carrinho={carrinho} remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} finalizar={finalizarPedidoWhatsApp} />
+      <SacolaLateral 
+        aberto={carrinhoAberto} 
+        fechar={() => setCarrinhoAberto(false)} 
+        carrinho={carrinho} 
+        remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} 
+        finalizar={finalWhatsApp} 
+        finalizarTelegram={finalizarTelegram}
+      />
 
       {mostrarTopo && (
         <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-[100px] right-6 w-12 h-12 bg-white text-[#611F3A] rounded-full shadow-2xl flex items-center justify-center z-[8000] border border-zinc-100 hover:scale-110 transition-all">
@@ -832,7 +847,7 @@ const finalizarTelegram = (nome, cidade) => {
       </section>
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
-{/* SEÇÃO: A ESSÊNCIA DELLAS */}
+      
       <section className="bg-[#FAF9F6] py-20 px-6 md:px-12 border-t border-zinc-100">
         <div className="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <span className="text-3xl mb-6 block">✨</span>
@@ -843,6 +858,7 @@ const finalizarTelegram = (nome, cidade) => {
           <div className="w-16 h-px bg-[#D4AF37] mx-auto"></div>
         </div>
       </section>
+
       <footer className="bg-[#611F3A] pt-24 pb-12 px-6 md:px-12 text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16 items-start text-center md:text-left">
           <div className="md:col-span-1">
@@ -889,7 +905,7 @@ const finalizarTelegram = (nome, cidade) => {
         </div>
       </footer>
 
-      {/* BARRA DE NAVEGAÇÃO INFERIOR - COLA AQUI! */}
+      {/* BARRA DE NAVEGAÇÃO INFERIOR */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-zinc-100 px-8 py-3 flex justify-between items-center z-[9000] shadow-[0_-10px_30px_rgba(0,0,0,0.05)]">
         <button 
           onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); window.scrollTo({top: 0, behavior: 'smooth'}); }}
