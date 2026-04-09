@@ -570,37 +570,37 @@ export default function Home() {
 
         const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
         const text = await res.text();
-        const rows = text.split('\n').slice(1); // Ajustado para ler a partir da segunda linha
+        const rows = text.split('\n').slice(2); // Pula a linha vazia e o cabeçalho
         
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
-          const skuBase = clean(cols[1]); // Coluna B
-          const ativoSite = clean(cols[16]); // Coluna Q
+          const skuUnico = clean(cols[0]); // Coluna A (Agrupador)
+          const ativoSite = clean(cols[15]); // Coluna P (Ativo Site)
           
-          if(!skuBase || ativoSite.toUpperCase() !== "SIM") return null;
+          if(!skuUnico || ativoSite.toUpperCase() !== "SIM") return null;
 
           const parseValor = (val) => {
             if (!val) return 0;
             return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
           };
 
-          const fotos = [19, 20, 21, 22, 23] // Colunas T a X
+          const fotos = [18, 19, 20, 21, 22] // Colunas S a W (Foto 1 a Foto 5)
             .map(idx => clean(cols[idx]))
             .filter(url => url && url.startsWith('http'));
 
           return {
-            skuBase: skuBase,
-            nome: clean(cols[3]),       // Coluna D
+            skuBase: skuUnico,          // Usamos o SKU Único para agrupar cores/tamanhos
+            nome: clean(cols[3]),       // Coluna D (Nome Produto)
             categoria: clean(cols[4]).toLowerCase().trim(), // Coluna E
             subcategoria: clean(cols[5]), // Coluna F
             cor: clean(cols[6]),        // Coluna G
             tamanho: clean(cols[7]),    // Coluna H
             estoque: parseInt(clean(cols[10])) || 0, // Coluna K (Disponível)
-            preco: parseValor(clean(cols[11])),      // Coluna L
+            preco: parseValor(clean(cols[11])),      // Coluna L (Preço)
             precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
-            descricao: clean(cols[18]), // Coluna S
+            descricao: clean(cols[17]), // Coluna R (Descrição)
             imagens: fotos
           };
         }).filter(Boolean);
