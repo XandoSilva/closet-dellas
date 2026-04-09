@@ -570,31 +570,32 @@ export default function Home() {
 
         const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
         const text = await res.text();
-        const rows = text.split('\n').slice(1);
+        const rows = text.split('\n').slice(2); // Pula título e cabeçalho
         
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
-          if(!clean(cols[1]) || clean(cols[15]) !== "SIM") return null;
+          // Ajuste de Índice +2 para alinhar com a planilha A-W
+          if(!clean(cols[3]) || clean(cols[17]) !== "SIM") return null;
 
           const parseValor = (val) => parseFloat(val.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
 
-          const fotos = [18, 19, 20, 21, 22]
+          const fotos = [20, 21, 22, 23, 24] // Colunas S a W
             .map(idx => clean(cols[idx]))
             .filter(url => url && url.startsWith('http'));
 
           return {
-            skuBase: clean(cols[1]),    // Col B (1)
-            nome: clean(cols[3]),       // Col D (3)
-            categoria: clean(cols[4]).toLowerCase().trim(), // Col E (4)
-            subcategoria: clean(cols[5]), 
-            cor: clean(cols[6]),        
-            tamanho: clean(cols[7]),    
-            estoque: parseInt(clean(cols[10])) || 0, // Col K (10)
-            preco: parseValor(clean(cols[11])),      // Col L (11)
-            precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
-            descricao: clean(cols[17]), // Col R (17)
+            skuBase: clean(cols[3]),    // Col B (SKU Base)
+            nome: clean(cols[5]),       // Col D (Nome Produto)
+            categoria: clean(cols[6]).toLowerCase().trim(), // Col E (Categoria)
+            subcategoria: clean(cols[7]), // Col F (Subcategoria)
+            cor: clean(cols[8]),        // Col G
+            tamanho: clean(cols[9]),    // Col H
+            estoque: parseInt(clean(cols[12])) || 0, // Col K (Disponível)
+            preco: parseValor(clean(cols[13])),      // Col L (Preço)
+            precoPromo: (clean(cols[14]) !== "REAL" && clean(cols[14]) !== "") ? parseValor(clean(cols[14])) : 0,
+            descricao: clean(cols[19]), // Col R (Descrição)
             imagens: fotos
           };
         }).filter(Boolean);
@@ -659,20 +660,6 @@ export default function Home() {
     const msg = gerarResumoPedido(nome, cidade, carrinho);
     navigator.clipboard.writeText(msg).then(() => {
       setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
-      window.open(`https://t.me/closetdellas9`, '_blank');
-    });
-  };
-
-  const finalizarWhatsApp = (nome, cidade) => {
-    const msg = gerarResumoPedido(nome, cidade, carrinho);
-    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
-  };
-
-  const finalizarTelegram = (nome, cidade) => {
-    const msg = gerarResumoPedido(nome, cidade, carrinho);
-    navigator.clipboard.writeText(msg).then(() => {
-      setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
-      // Link do seu Telegram (ajuste se necessário)
       window.open(`https://t.me/closetdellas9`, '_blank');
     });
   };
