@@ -369,7 +369,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   );
 }
 
-function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
+function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar, finalizarTelegram }) {
   const [nomeDella, setNomeDella] = useState("");
   const [cidadeDella, setCidadeDella] = useState("");
   const [passoCheckout, setPassoCheckout] = useState(1);
@@ -457,12 +457,27 @@ function SacolaLateral({ aberto, fechar, carrinho, remover, finalizar }) {
                 </div>
                 <button onClick={() => setPassoCheckout(2)} className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#D4AF37] transition-all transform active:scale-95">AVANÇAR</button>
               </>
-            ) : (
-              <button onClick={() => finalizar(nomeDella, cidadeDella)} disabled={nomeDella.trim() === "" || cidadeDella.trim() === ""} className="w-full bg-[#25D366] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-2xl hover:bg-[#1DA851] transition-all transform active:scale-95 flex items-center justify-center gap-3">
-                <svg fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
-                ENVIAR PARA WHATSAPP
-              </button>
-            )}
+            // ... código anterior ...
+) : (
+  <div className="space-y-3">
+    <button 
+      onClick={() => finalizar(nomeDella, cidadeDella)} 
+      disabled={!nomeDella || !cidadeDella}
+      className="w-full bg-[#25D366] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#1DA851] flex items-center justify-center gap-2"
+    >
+      <span>💬</span> Finalizar no WhatsApp
+    </button>
+
+    <button 
+      onClick={() => finalizarTelegram(nomeDella, cidadeDella)} 
+      disabled={!nomeDella || !cidadeDella}
+      className="w-full bg-[#0088cc] text-white py-4 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg hover:bg-[#0077b3] flex items-center justify-center gap-2"
+    >
+      <span>✈️</span> Finalizar no Telegram
+    </button>
+  </div>
+)}
+// ... código que vem depois ...
           </div>
         )}
       </div>
@@ -546,97 +561,77 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
-        if(resBanners.ok) {
-            const textBanners = await resBanners.text();
-            const rowsBanners = textBanners.split('\n').slice(1);
-            const parsedBanners = rowsBanners.map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c ? c.replace(/(^"|"$)/g, '').trim() : '');
-                if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
-                return null;
-            }).filter(Boolean);
-            if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
-        }
+  const fetchDados = async () => {
+    try {
+      const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
+      const text = await res.text();
+      const rows = text.split('\n').slice(1);
+      
+      const rawData = rows.map(row => {
+        const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        const clean = (c) => c ? c.replace(/(^"|"$)/g, '').trim() : '';
 
-        const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
-        const text = await res.text();
-        const rows = text.split('\n').slice(1);
-        const hoje = new Date();
-        
-        const rawData = rows.map(row => {
-          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          const cleanCol = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          if(!cols[0] || !cols[1]) return null;
+        // Filtro: Coluna P (índice 15) deve ser SIM
+        if (clean(cols[15]) !== "SIM") return null;
 
-          const dataCadastroRaw = cleanCol(cols[9]);
-          const dataCadastro = parseDate(dataCadastroRaw);
-          let ehNovidade = false;
-          if (dataCadastro) { 
-            const diffDias = Math.ceil(Math.abs(hoje.getTime() - dataCadastro.getTime()) / (1000 * 60 * 60 * 24)); 
-            ehNovidade = diffDias <= 20; 
-          }
-          
-          const imagensArray = cleanCol(cols[8]).split(';').map(link => link.trim()).filter(Boolean);
-          const estoqueReal = parseInt(cleanCol(cols[5])) || 0; 
-          
-          let gradeFinal = [];
-          const qtdP = parseInt(cleanCol(cols[10])) || 0;
-          const qtdM = parseInt(cleanCol(cols[11])) || 0;
-          const qtdG = parseInt(cleanCol(cols[12])) || 0;
-          const qtdGG = parseInt(cleanCol(cols[13])) || 0;
-          const qtdU = parseInt(cleanCol(cols[14])) || 0;
+        const precoBase = parseFloat(clean(cols[11]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
+        const promoValorStr = clean(cols[12]);
+        const precoPromo = (promoValorStr !== "REAL" && promoValorStr !== "") 
+          ? parseFloat(promoValorStr.replace(/[^0-9,-]/g, '').replace(',', '.')) 
+          : 0;
 
-          if (qtdP > 0) gradeFinal.push({ tam: 'P', qtd: qtdP });
-          if (qtdM > 0) gradeFinal.push({ tam: 'M', qtd: qtdM });
-          if (qtdG > 0) gradeFinal.push({ tam: 'G', qtd: qtdG });
-          if (qtdGG > 0) gradeFinal.push({ tam: 'GG', qtd: qtdGG });
-          if (qtdU > 0) gradeFinal.push({ tam: 'U', qtd: qtdU });
+        // Coleta de Fotos (Colunas S a W / Índices 18 a 22)
+        const fotos = [18, 19, 20, 21, 22]
+          .map(idx => clean(cols[idx]))
+          .filter(url => url && url.startsWith('http'));
 
-          const precoOriginal = parseFloat(cleanCol(cols[6]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
-          const precoPromocional = parseFloat(cleanCol(cols[15]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
-          const coresArray = cols[16] ? cleanCol(cols[16]).split(';').map(c => c.trim()).filter(Boolean) : [];
+        return {
+          skuBase: clean(cols[1]),
+          nome: clean(cols[3]),
+          categoria: clean(cols[4]).toLowerCase(),
+          subcategoria: clean(cols[5]),
+          cor: clean(cols[6]),
+          tamanho: clean(cols[7]),
+          estoqueDisponivel: parseInt(clean(cols[10])) || 0,
+          preco: precoBase,
+          precoPromo: precoPromo,
+          descricao: clean(cols[17]), // Coluna R
+          imagens: fotos
+        };
+      }).filter(Boolean);
 
-          return {
-            ref: cleanCol(cols[0]), 
-            nome: cleanCol(cols[1]), 
-            categoria: cleanCol(cols[2]).toLowerCase(),
-            subcategoria: cleanCol(cols[3]), 
-            preco: precoOriginal,
-            precoPromo: precoPromocional,
-            temPromo: precoPromocional > 0 && precoPromocional < precoOriginal,
-            descricao: cleanCol(cols[7]), 
-            imagens: imagensArray, 
-            ehNovidade: ehNovidade,
-            data_cadastro_raw: dataCadastroRaw,
-            grade: gradeFinal,
-            estoqueTotal: estoqueReal,
-            cores: coresArray
+      // Agrupamento por SKU Base (Transforma linhas em produtos com grade)
+      const grouped = rawData.reduce((acc, row) => {
+        let p = acc.find(item => item.id === row.skuBase);
+        if (!p) {
+          p = { 
+            id: row.skuBase, nome: row.nome, categoria: row.categoria, 
+            subcategoria: row.subcategoria, preco: row.preco, precoPromo: row.precoPromo,
+            temPromo: row.precoPromo > 0, descricao: row.descricao, imagens: row.imagens,
+            cores: [], grade: [], estoqueTotal: 0, ehNovidade: true 
           };
-        }).filter(Boolean);
+          acc.push(p);
+        }
+        
+        if (row.cor && !p.cores.includes(row.cor)) p.cores.push(row.cor);
+        
+        const gExistente = p.grade.find(g => g.tam === row.tamanho);
+        if (gExistente) {
+          gExistente.qtd += row.estoqueDisponivel;
+        } else {
+          p.grade.push({ tam: row.tamanho, qtd: row.estoqueDisponivel });
+        }
+        
+        p.estoqueTotal += row.estoqueDisponivel;
+        return acc;
+      }, []);
 
-        const grouped = rawData.reduce((acc, item) => {
-          const exist = acc.find(p => p.id === item.ref);
-          if (exist) {
-            item.grade.forEach(novaG => {
-              const gExistente = exist.grade.find(g => g.tam === novaG.tam);
-              if (gExistente) gExistente.qtd += novaG.qtd;
-              else exist.grade.push(novaG);
-            });
-            exist.estoqueTotal += item.estoqueTotal;
-          } else {
-            acc.push({ ...item, data_cadastro: item.data_cadastro_raw, id: item.ref, cores: item.cores });
-          }
-          return acc;
-        }, []);
-
-        setTodosProdutos(grouped);
-        setCarregando(false);
-      } catch (e) { setCarregando(false); }
-    };
-    fetchDados();
-  }, []);
+      setTodosProdutos(grouped);
+      setCarregando(false);
+    } catch (e) { console.error(e); setCarregando(false); }
+  };
+  fetchDados();
+}, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
     const termoBusca = busca.trim().toLowerCase();
@@ -657,35 +652,41 @@ export default function Home() {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
-  const finalizarPedidoWhatsApp = (nomeCliente, cidadeCliente) => {
-    const total = carrinho.reduce((acc, item) => {
-        const p = item.temPromo ? item.precoPromo : item.preco;
-        return acc + (Number(p) || 0);
-    }, 0);
-    
-    let msg = `Olá, Closet Dellas! ✨\n`;
-    msg += `Sou *${nomeCliente.trim()}* de *${cidadeCliente.trim()}*.\n`;
-    msg += `Quero garantir estas peças:\n`;
-    msg += `────────────────────\n\n`;
+  const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
+  const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
+  let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
+  msg += `👤 *Della:* ${nomeDella.trim()}\n`;
+  msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
+  msg += `────────────────────\n\n`;
 
-    // Listagem dos produtos
-    carrinho.forEach((item) => { 
-        const valorItem = item.temPromo ? item.precoPromo : item.preco;
-        msg += `🛍️ *${item.nome}*\n`;
-        msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
-        msg += `   └ Valor: R$ ${Number(valorItem).toFixed(2)}\n\n`; 
-    });
+  carrinho.forEach((item) => {
+    const valor = item.temPromo ? item.precoPromo : item.preco;
+    msg += `🛍️ *${item.nome}*\n`;
+    msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
+    msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
+  });
 
-    // Fechamento e Reforço do Contato
-    msg += `────────────────────\n`;
-    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-    msg += `📍 *CLIENTE:* ${nomeCliente.trim()}\n`; // Reforço no final
-    msg += `📍 *CIDADE:* ${cidadeCliente.trim()}\n\n`; // Reforço no final
-    msg += `_Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
-    msg += `_Aguardo o link/chave para pagamento!_`;
+  msg += `────────────────────\n`;
+  msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+  msg += `_Desejo combinar a entrega/retirada!_`;
+  return msg;
+};
 
-    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
-  };
+// No componente Home, atualize os métodos:
+
+const finalizarWhatsApp = (nome, cidade) => {
+  const msg = gerarResumoPedido(nome, cidade, carrinho);
+  window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
+};
+
+const finalizarTelegram = (nome, cidade) => {
+  const msg = gerarResumoPedido(nome, cidade, carrinho);
+  navigator.clipboard.writeText(msg).then(() => {
+    setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
+    // Altere para o seu @ do Telegram
+    window.open(`https://t.me/closetdellas9`, '_blank');
+  });
+};
 
   return (
     <main className="min-h-screen bg-white text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
