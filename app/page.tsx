@@ -570,32 +570,37 @@ export default function Home() {
 
         const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
         const text = await res.text();
-        const rows = text.split('\n').slice(2); // Pula título e cabeçalho conforme seu print
+        const rows = text.split('\n').slice(1); // Ajustado para ler a partir da segunda linha
         
         const rawData = rows.map(row => {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
-          // Índice 16 é a Coluna Q (Ativo Site) conforme seu print
-          if(!clean(cols[1]) || clean(cols[16]) !== "SIM") return null;
+          const skuBase = clean(cols[1]); // Coluna B
+          const ativoSite = clean(cols[16]); // Coluna Q
+          
+          if(!skuBase || ativoSite.toUpperCase() !== "SIM") return null;
 
-          const parseValor = (val) => parseFloat(val.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
+          const parseValor = (val) => {
+            if (!val) return 0;
+            return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+          };
 
-          const fotos = [19, 20, 21, 22, 23] // Colunas T a X (Índices 19-23)
+          const fotos = [19, 20, 21, 22, 23] // Colunas T a X
             .map(idx => clean(cols[idx]))
             .filter(url => url && url.startsWith('http'));
 
           return {
-            skuBase: clean(cols[1]),    // Col B (SKU Base)
-            nome: clean(cols[3]),       // Col D (Nome Produto)
-            categoria: clean(cols[4]).toLowerCase().trim(), // Col E (Categoria)
-            subcategoria: clean(cols[5]), // Col F
-            cor: clean(cols[6]),        // Col G
-            tamanho: clean(cols[7]),    // Col H
-            estoque: parseInt(clean(cols[10])) || 0, // Col K (Disponível)
-            preco: parseValor(clean(cols[11])),      // Col L (Preço)
+            skuBase: skuBase,
+            nome: clean(cols[3]),       // Coluna D
+            categoria: clean(cols[4]).toLowerCase().trim(), // Coluna E
+            subcategoria: clean(cols[5]), // Coluna F
+            cor: clean(cols[6]),        // Coluna G
+            tamanho: clean(cols[7]),    // Coluna H
+            estoque: parseInt(clean(cols[10])) || 0, // Coluna K (Disponível)
+            preco: parseValor(clean(cols[11])),      // Coluna L
             precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
-            descricao: clean(cols[18]), // Col S (Descrição)
+            descricao: clean(cols[18]), // Coluna S
             imagens: fotos
           };
         }).filter(Boolean);
