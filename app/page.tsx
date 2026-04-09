@@ -553,7 +553,6 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lógica de Processamento da Planilha Nova (A a W)
   useEffect(() => {
     const fetchDados = async () => {
       try {
@@ -566,7 +565,7 @@ export default function Home() {
                 if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
                 return null;
             }).filter(Boolean);
-            if(parsedBanners.length > 0) setBannersAPI(parsedBanners);
+            setBannersAPI(parsedBanners);
         }
 
         const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
@@ -577,59 +576,39 @@ export default function Home() {
           const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
           const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
-          // Verificação de SKU Base (Col B / Indice 1) e Nome (Col D / Indice 3)
-          if(!clean(cols[1]) || !clean(cols[3])) return null;
+          if(!clean(cols[1]) || clean(cols[15]) !== "SIM") return null;
 
-          // Filtro Ativo Site (Col P / Indice 15)
-          if (clean(cols[15]) !== "SIM") return null;
+          const parseValor = (val) => parseFloat(val.replace('R$', '').replace('.', '').replace(',', '.').trim()) || 0;
 
-          const precoBase = parseFloat(clean(cols[11]).replace(/[^0-9,-]/g, '').replace(',', '.')) || 0;
-          const promoStr = clean(cols[12]);
-          const precoPromo = (promoStr !== "REAL" && promoStr !== "") ? parseFloat(promoStr.replace(/[^0-9,-]/g, '').replace(',', '.')) : 0;
-
-          // Coleta de Fotos (Col S a W / Indices 18 a 22)
           const fotos = [18, 19, 20, 21, 22]
             .map(idx => clean(cols[idx]))
             .filter(url => url && url.startsWith('http'));
 
           return {
-            skuBase: clean(cols[1]),
-            nome: clean(cols[3]),
-            categoria: clean(cols[4]).toLowerCase(),
-            subcategoria: clean(cols[5]),
-            cor: clean(cols[6]),
-            tamanho: clean(cols[7]),
-            estoque: parseInt(clean(cols[10])) || 0, // Disponível (Indice 10)
-            preco: precoBase,
-            precoPromo: precoPromo,
-            descricao: clean(cols[17]), // Indice 17
-            imagens: fotos,
-            ehNovidade: true // Podemos ajustar lógica de data se necessário
+            skuBase: clean(cols[1]),    // Col B (1)
+            nome: clean(cols[3]),       // Col D (3)
+            categoria: clean(cols[4]).toLowerCase().trim(), // Col E (4)
+            subcategoria: clean(cols[5]), 
+            cor: clean(cols[6]),        
+            tamanho: clean(cols[7]),    
+            estoque: parseInt(clean(cols[10])) || 0, // Col K (10)
+            preco: parseValor(clean(cols[11])),      // Col L (11)
+            precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
+            descricao: clean(cols[17]), // Col R (17)
+            imagens: fotos
           };
         }).filter(Boolean);
 
-        // Agrupamento por SKU Base para montar a grade
         const grouped = rawData.reduce((acc, item) => {
           let exist = acc.find(p => p.id === item.skuBase);
           if (exist) {
-            // Se cor nova, adiciona ao array
             if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
-            
-            // Gerencia a grade de tamanhos
             const gExistente = exist.grade.find(g => g.tam === item.tamanho);
             if (gExistente) gExistente.qtd += item.estoque;
             else exist.grade.push({ tam: item.tamanho, qtd: item.estoque });
-            
             exist.estoqueTotal += item.estoque;
           } else {
-            acc.push({ 
-              ...item, 
-              id: item.skuBase, 
-              cores: item.cor ? [item.cor] : [],
-              grade: [{ tam: item.tamanho, qtd: item.estoque }],
-              estoqueTotal: item.estoque,
-              temPromo: item.precoPromo > 0
-            });
+            acc.push({ ...item, id: item.skuBase, cores: item.cor ? [item.cor] : [], grade: [{ tam: item.tamanho, qtd: item.estoque }], estoqueTotal: item.estoque, temPromo: item.precoPromo > 0, ehNovidade: true });
           }
           return acc;
         }, []);
@@ -660,26 +639,28 @@ export default function Home() {
     setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
   };
 
-  // Funções de Finalização Únicas
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
     const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
-    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
-    msg += `👤 *Della:* ${nomeDella.trim()}\n`;
-    msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
-    msg += `────────────────────\n\n`;
-
+    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n👤 *Della:* ${nomeDella.trim()}\n📍 *Cidade:* ${cidadeDella.trim()}\n────────────────────\n\n`;
     carrinho.forEach((item) => {
       const valor = item.temPromo ? item.precoPromo : item.preco;
-      msg += `🛍️ *${item.nome}*\n`;
-      msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
-      msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
+      msg += `🛍️ *${item.nome}*\n   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
     });
-
-    msg += `────────────────────\n`;
-    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-    msg += `_Gostaria de combinar a entrega/retirada para Eng. Paulo de Frontin, Mendes ou arredores._\n\n`;
-    msg += `_Aguardo o link/chave para pagamento!_`;
+    msg += `────────────────────\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n_Desejo combinar a entrega/retirada!_`;
     return msg;
+  };
+
+  const finalizarWhatsApp = (nome, cidade) => {
+    const msg = gerarResumoPedido(nome, cidade, carrinho);
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  const finalizarTelegram = (nome, cidade) => {
+    const msg = gerarResumoPedido(nome, cidade, carrinho);
+    navigator.clipboard.writeText(msg).then(() => {
+      setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
+      window.open(`https://t.me/closetdellas9`, '_blank');
+    });
   };
 
   const finalizarWhatsApp = (nome, cidade) => {
@@ -715,7 +696,7 @@ export default function Home() {
         fechar={() => setCarrinhoAberto(false)} 
         carrinho={carrinho} 
         remover={(idx) => setCarrinho(carrinho.filter((_, i) => i !== idx))} 
-        finalizar={finalWhatsApp} 
+        finalizar={finalizarWhatsApp} 
         finalizarTelegram={finalizarTelegram}
       />
 
