@@ -196,18 +196,23 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   const [tamanho, setTamanho] = useState(null);
   const [cor, setCor] = useState(null);
 
-  // Limpa as seleções ao abrir um novo produto
-  useEffect(() => {
+    useEffect(() => {
     setTamanho(null);
     setCor(null);
-  }, [produto]);
+  }, [produto, aberto]);
 
-  // Filtra tamanhos únicos baseados na cor selecionada
-  const tamanhosFiltrados = produto.grade
+  // Extrai cores únicas para os botões
+  const coresUnicas = [...new Set(produto.grade.map(item => item.cor))].filter(Boolean);
+
+  // Agrupa os tamanhos para evitar duplicidade de botões (ex: vários "U")
+  const tamanhosAgrupados = produto.grade
     .filter(g => !cor || g.cor === cor)
     .reduce((acc, current) => {
-      if (!acc.find(item => item.tam === current.tam)) {
-        acc.push(current);
+      const existente = acc.find(item => item.tam === current.tam);
+      if (!existente) {
+        acc.push({ ...current });
+      } else {
+        existente.qtd += current.qtd; // Soma o estoque se houver duplicidade na planilha
       }
       return acc;
     }, []);
@@ -282,9 +287,9 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
 
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10 flex-wrap">
-              {tamanhosFiltrados.map((item) => (
+              {tamanhosAgrupados.map((item) => (
                 <button 
-                  key={item.sku} 
+                  key={item.tam} 
                   disabled={item.qtd <= 0} 
                   onClick={() => setTamanho(item.tam)} 
                   className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
