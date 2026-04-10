@@ -736,7 +736,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#FFF5F7] text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
+    <main className="min-h-screen bg-[#FCE4EC] text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
