@@ -661,12 +661,16 @@ export default function Home() {
     window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
   };
 
-  const finalizarTelegram = (nome, cidade) => {
+  const finalizarTelegram = async (nome, cidade) => {
     const msg = gerarResumoPedido(nome, cidade, carrinho);
-    navigator.clipboard.writeText(msg).then(() => {
-      setNotificacao("Pedido copiado! Agora é só colar no Telegram da loja. ✨");
-      window.open(`https://t.me/closetdellas9`, '_blank');
-    });
+    try {
+      await navigator.clipboard.writeText(msg);
+      setNotificacao("Resumo copiado! Cole no Telegram da loja. ✨");
+    } catch (err) {
+      setNotificacao("Erro ao copiar. Tente pelo WhatsApp! ❌");
+    }
+    // Abre o Telegram fora do 'try/catch' para evitar bloqueio de pop-up
+    window.open(`https://t.me/closetdellas9`, '_blank');
   };
 
   return (
