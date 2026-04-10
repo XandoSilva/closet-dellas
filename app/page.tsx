@@ -660,7 +660,7 @@ export default function Home() {
       msg += `1 ${item.skuBot}\n`;
     });
     msg += `────────────────────\n\n`;
-    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre o caimento das peças em ${cidadeDella.trim()}, é só me chamar! 💖`;
+    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças é só me chamar! 💖`;
     return msg;
   };
 
