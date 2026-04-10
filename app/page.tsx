@@ -577,12 +577,11 @@ export default function Home() {
           const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
           
           if(!clean(cols[0]) || clean(cols[15]) !== "SIM") return null;
-
           const parseValor = (val) => parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
 
           return {
-            skuAgrupador: clean(cols[0]), // Coluna A (ex: ACES-0001)
-            skuCompleto: clean(cols[1]),  // Coluna B (ex: ACES-0001-PRAT-U)
+            skuAgrupador: clean(cols[0]), // Coluna A
+            skuCompleto: clean(cols[1]),  // Coluna B (O que o Bot quer)
             nome: clean(cols[3]),
             categoria: clean(cols[4]).toLowerCase().trim(),
             subcategoria: clean(cols[5]),
@@ -639,11 +638,8 @@ export default function Home() {
   };
 
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
-    const primeiroNome = nomeDella.trim().split(' ')[0];
-    let msg = `Oi, ${primeiroNome}! Escolhas maravilhosas! ✨ Já visualizei seu pedido aqui no Closet Dellas e estou separando tudo com muito carinho.\n\n`;
-    msg += `Para agilizar nosso atendimento, aqui está o resumo técnico:\n`;
-    msg += `────────────────────\n`;
-    msg += `Venda\n`;
+    // BLOCO TÉCNICO NO TOPO PARA O ROBÔ NÃO FALHAR
+    let msg = `Venda\n`;
     msg += `Cliente: ${nomeDella.trim()}\n`;
     msg += `Pagamento: A combinar\n`;
     msg += `Desconto: 0%\n`;
@@ -651,8 +647,14 @@ export default function Home() {
     carrinho.forEach((item) => {
       msg += `1 ${item.skuBot}\n`;
     });
-    msg += `────────────────────\n\n`;
-    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças, é só me chamar! 💖`;
+
+    msg += `\n────────────────────\n\n`;
+
+    // BLOCO HUMANIZADO ABAIXO
+    const primeiroNome = nomeDella.trim().split(' ')[0];
+    msg += `Oi, ${primeiroNome}! Escolhas maravilhosas! ✨ Já visualizei seu pedido aqui no Closet Dellas e estou separando tudo com muito carinho.\n\n`;
+    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças em ${cidadeDella.trim()}, é só me chamar! 💖`;
+    
     return msg;
   };
 
