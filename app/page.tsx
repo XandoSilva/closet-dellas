@@ -647,12 +647,19 @@ export default function Home() {
 
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
     const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
-    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n👤 *Della:* ${nomeDella.trim()}\n📍 *Cidade:* ${cidadeDella.trim()}\n────────────────────\n\n`;
+    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
+    msg += `👤 *Della:* ${nomeDella.trim()}\n`;
+    msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
+    msg += `────────────────────\n\n`;
     carrinho.forEach((item) => {
       const valor = item.temPromo ? item.precoPromo : item.preco;
-      msg += `🛍️ *${item.nome}*\n   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
+      msg += `🛍️ *${item.nome}*\n`;
+      msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
+      msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
     });
-    msg += `────────────────────\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n_Desejo combinar a entrega/retirada!_`;
+    msg += `────────────────────\n`;
+    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
+    msg += `_Desejo combinar a entrega/retirada!_`;
     return msg;
   };
 
@@ -665,11 +672,9 @@ export default function Home() {
     const msg = gerarResumoPedido(nome, cidade, carrinho);
     try {
       await navigator.clipboard.writeText(msg);
-      setNotificacao("Resumo copiado! Cole no Telegram da loja. ✨");
     } catch (err) {
-      setNotificacao("Erro ao copiar. Tente pelo WhatsApp! ❌");
+      console.error("Erro ao copiar", err);
     }
-    // Abre o Telegram fora do 'try/catch' para evitar bloqueio de pop-up
     window.open(`https://t.me/closetdellas9`, '_blank');
   };
 
