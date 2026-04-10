@@ -196,6 +196,22 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   const [tamanho, setTamanho] = useState(null);
   const [cor, setCor] = useState(null);
 
+  // Limpa as seleções ao abrir um novo produto
+  useEffect(() => {
+    setTamanho(null);
+    setCor(null);
+  }, [produto]);
+
+  // Filtra tamanhos únicos baseados na cor selecionada
+  const tamanhosFiltrados = produto.grade
+    .filter(g => !cor || g.cor === cor)
+    .reduce((acc, current) => {
+      if (!acc.find(item => item.tam === current.tam)) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+
   const handleAddCart = () => {
     if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor para sua peça! 🎨");
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
@@ -266,9 +282,9 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
 
             <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
             <div className="flex gap-3 mb-10 flex-wrap">
-              {produto.grade.map((item) => (
+              {tamanhosFiltrados.map((item) => (
                 <button 
-                  key={item.tam} 
+                  key={item.sku} 
                   disabled={item.qtd <= 0} 
                   onClick={() => setTamanho(item.tam)} 
                   className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
