@@ -638,7 +638,7 @@ export default function Home() {
   };
 
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
-    // BLOCO TÉCNICO NO TOPO PARA O ROBÔ NÃO FALHAR
+    // BLOCO TÉCNICO NO TOPO (Para o Robô)
     let msg = `Venda\n`;
     msg += `Cliente: ${nomeDella.trim()}\n`;
     msg += `Pagamento: A combinar\n`;
@@ -648,12 +648,14 @@ export default function Home() {
       msg += `1 ${item.skuBot}\n`;
     });
 
-    msg += `\n────────────────────\n\n`;
+    // SEPARADOR CRUCIAL (Para o Robô parar de ler)
+    msg += `FIM_ITENS\n`; 
+    msg += `────────────────────\n\n`;
 
-    // BLOCO HUMANIZADO ABAIXO
-    const primeiroNome = nomeDella.trim().split(' ')[0];
-    msg += `Oi, ${primeiroNome}! Escolhas maravilhosas! ✨ Já visualizei seu pedido aqui no Closet Dellas e estou separando tudo com muito carinho.\n\n`;
-    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças em ${cidadeDella.trim()}, é só me chamar! 💖`;
+    // BLOCO HUMANIZADO (Para a Loja)
+    msg += `Olá, Closet Dellas! ✨\n`;
+    msg += `Me chamo ${nomeDella.trim()} e falo de ${cidadeDella.trim()}.\n`;
+    msg += `Acabei de escolher essas peças lindas no site e gostaria de combinar a entrega! 💖`;
     
     return msg;
   };
