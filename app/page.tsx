@@ -220,7 +220,17 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   const handleAddCart = () => {
     if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor para sua peça! 🎨");
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
-    adicionarAoCarrinho({ ...produto, tamanhoSelecionado: tamanho, corSelecionada: cor });
+    
+    // Busca o SKU específico da variação para o Robô do Telegram dar baixa
+    const variacao = produto.grade.find(g => (!cor || g.cor === cor) && g.tam === tamanho);
+    
+    adicionarAoCarrinho({ 
+      ...produto, 
+      tamanhoSelecionado: tamanho, 
+      corSelecionada: cor,
+      skuBot: variacao ? variacao.sku : (produto.skuCompleto || produto.id)
+    });
+
     setTamanho(null);
     setCor(null); 
     fechar();
