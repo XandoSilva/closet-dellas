@@ -833,9 +833,9 @@ export default function Home() {
       <section className="max-w-7xl mx-auto pt-16 px-6">
         <div className="flex flex-col gap-6 mb-16 items-center">
           <div className="flex justify-center gap-4 w-full flex-wrap">
-            <button onClick={() => { setCategoriaAtiva('ultimas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'ultimas' ? 'bg-red-600 text-white border-red-600 shadow-xl scale-105' : 'bg-white border-zinc-100 text-red-600 hover:border-red-600'}`}>🚨 ÚLTIMAS PEÇAS</button>
-            <button onClick={() => { setCategoriaAtiva('novidades'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'novidades' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-white border-zinc-100 text-[#611F3A] hover:border-[#611F3A]'}`}>⭐ NOVIDADES</button>
-            <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-white border-zinc-100 text-[#611F3A] hover:border-[#611F3A]'}`}>VER TODAS</button>
+            <button onClick={() => { setCategoriaAtiva('ultimas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'ultimas' ? 'bg-red-600 text-white border-red-600 shadow-xl scale-105' : 'bg-transparent border-red-600/30 text-red-600 hover:border-red-600 hover:bg-red-600/5'}`}>🚨 ÚLTIMAS PEÇAS</button>
+            <button onClick={() => { setCategoriaAtiva('novidades'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'novidades' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:border-[#611F3A] hover:bg-[#611F3A]/5'}`}>⭐ NOVIDADES</button>
+            <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:border-[#611F3A] hover:bg-[#611F3A]/5'}`}>VER TODAS</button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
@@ -849,7 +849,7 @@ export default function Home() {
 
               return (
                 <div key={cat.id} className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
-                  <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-200 text-[#611F3A] hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
+                  <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:border-[#611F3A] hover:bg-[#611F3A]/5'}`}>
                     {cat.label} 
                     {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
                   </button>
