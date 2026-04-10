@@ -504,164 +504,30 @@ export default function Home() {
   const [bannerAtual, setBannerAtual] = useState(0);
   const [politicaAberta, setPoliticaAberta] = useState(null);
 
-  useEffect(() => {
-    if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-    }
-    window.scrollTo(0, 0);
-  }, []);
-
-  const foneWhatsAppRaw = "5521971366354";
-  const CLARITY_ID = "w2dhylfktb";
-  const GA4_ID = "G-P13JKPTP4E";
-
-  // URLs das planilhas atualizadas
-  const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiXIKGK6tBbAxErk8F6eCYoJPmb7FjK7Yo-UDDVlraJm_Q-8x3ea2EtR4dS9hHkqBbGHEnPZEC6-64/pub?gid=1773071955&single=true&output=csv";
-  const SHEET_BANNERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiXIKGK6tBbAxErk8F6eCYoJPmb7FjK7Yo-UDDVlraJm_Q-8x3ea2EtR4dS9hHkqBbGHEnPZEC6-64/pub?gid=1879558148&single=true&output=csv"; 
-
-  const bannersFallback = [
-    { imagem: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600&h=800&fit=crop", tag: "Curadoria de Luxo", tituloPrincipal: "A elegância que", tituloDestaque: "você merece." },
-    { imagem: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&h=800&fit=crop", tag: "Novidades Chegando", tituloPrincipal: "Nova coleção", tituloDestaque: "selecionada a dedo." }
-  ];
-
-  const bannersExibicao = bannersAPI.length > 0 ? bannersAPI : bannersFallback;
-
-  const categoriasBase = [
-    { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'blusas', label: 'BLUSAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'cropped', label: 'CROPPED', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'calças', label: 'CALÇAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'body', label: 'BODY', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'saias', label: 'SAIAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'shorts', label: 'SHORTS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'casacos', label: 'CASACOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-    { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
-  ];
-
-  useEffect(() => {
-    if (bannersExibicao.length <= 1) return;
-    const intervalo = setInterval(() => {
-      setBannerAtual((prev) => (prev + 1 === bannersExibicao.length ? 0 : prev + 1));
-    }, 5000);
-    return () => clearInterval(intervalo);
-  }, [bannersExibicao.length]);
-
-  useEffect(() => {
-    const handleScroll = () => setMostrarTopo(window.scrollY > 400);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
-        if(resBanners.ok) {
-            const textBanners = await resBanners.text();
-            const rowsBanners = textBanners.split('\n').slice(1);
-            const parsedBanners = rowsBanners.map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c ? c.replace(/(^"|"$)/g, '').trim() : '');
-                if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
-                return null;
-            }).filter(Boolean);
-            setBannersAPI(parsedBanners);
-        }
-
-        const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
-        const text = await res.text();
-        const rows = text.split('\n').slice(2); // Pula a linha vazia e o cabeçalho
-        
-        const rawData = rows.map(row => {
-          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          
-          const skuUnico = clean(cols[0]); // Coluna A (Agrupador)
-          const ativoSite = clean(cols[15]); // Coluna P (Ativo Site)
-          
-          if(!skuUnico || ativoSite.toUpperCase() !== "SIM") return null;
-
-          const parseValor = (val) => {
-            if (!val) return 0;
-            return parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
-          };
-
-          const fotos = [18, 19, 20, 21, 22] // Colunas S a W (Foto 1 a Foto 5)
-            .map(idx => clean(cols[idx]))
-            .filter(url => url && url.startsWith('http'));
-
-          return {
-            skuBase: skuUnico,          // Usamos o SKU Único para agrupar cores/tamanhos
-            nome: clean(cols[3]),       // Coluna D (Nome Produto)
-            categoria: clean(cols[4]).toLowerCase().trim(), // Coluna E
-            subcategoria: clean(cols[5]), // Coluna F
-            cor: clean(cols[6]),        // Coluna G
-            tamanho: clean(cols[7]),    // Coluna H
-            estoque: parseInt(clean(cols[10])) || 0, // Coluna K (Disponível)
-            preco: parseValor(clean(cols[11])),      // Coluna L (Preço)
-            precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
-            descricao: clean(cols[17]), // Coluna R (Descrição)
-            imagens: fotos
-          };
-        }).filter(Boolean);
-
-        const grouped = rawData.reduce((acc, item) => {
-          let exist = acc.find(p => p.id === item.skuBase);
-          if (exist) {
-            if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
-            const gExistente = exist.grade.find(g => g.tam === item.tamanho);
-            if (gExistente) gExistente.qtd += item.estoque;
-            else exist.grade.push({ tam: item.tamanho, qtd: item.estoque });
-            exist.estoqueTotal += item.estoque;
-          } else {
-            acc.push({ ...item, id: item.skuBase, cores: item.cor ? [item.cor] : [], grade: [{ tam: item.tamanho, qtd: item.estoque }], estoqueTotal: item.estoque, temPromo: item.precoPromo > 0, ehNovidade: true });
-          }
-          return acc;
-        }, []);
-
-        setTodosProdutos(grouped);
-        setCarregando(false);
-      } catch (e) { setCarregando(false); }
-    };
-    fetchDados();
-  }, []);
-
-  const produtosFiltrados = todosProdutos.filter(p => {
-    const termoBusca = busca.trim().toLowerCase();
-    if (termoBusca !== '') return p.nome.toLowerCase().includes(termoBusca) || p.id.toLowerCase().includes(termoBusca);
-    if (categoriaAtiva === 'ultimas') return p.estoqueTotal === 1;
-    if (categoriaAtiva === 'novidades') return p.ehNovidade;
-    const matchCategoria = categoriaAtiva === 'todas' || p.categoria === categoriaAtiva;
-    const subP = (p.subcategoria || "").toLowerCase().trim();
-    const subAtiva = (subCategoriaAtiva || "").toLowerCase().trim();
-    const matchSubcategoria = !subCategoriaAtiva || subP === subAtiva;
-    return matchCategoria && matchSubcategoria;
-  });
-
-  const adicionarAoCarrinho = (item) => {
-    setCarrinho(prev => [...prev, item]);
-    setNotificacao("Escolha impecável! ✨");
-    setSacolaPulse(true);
-    setTimeout(() => { setNotificacao(""); setSacolaPulse(false); }, 3000);
-  };
-
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
-    const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
+    const primeiroNome = nomeDella.trim().split(' ')[0];
+
+    // INÍCIO HUMANIZADO
+    let msg = `Oi, ${primeiroNome}! Escolhas maravilhosas! ✨ Já visualizei seu pedido aqui no Closet Dellas e estou separando tudo com muito carinho para você.\n\n`;
     
-    // FORMATO DE COMANDO PARA O AGENTE: SKU_BASE | COR | TAM | VALOR
-    let msg = `✨ *VENDA CLOSET DELLAS* ✨\n\n`;
-    msg += `👤 *CLIENTE:* ${nomeDella.trim()}\n`;
-    msg += `📍 *CIDADE:* ${cidadeDella.trim()}\n\n`;
-    msg += `📦 *ITENS PARA BAIXA DE ESTOQUE:* \n`;
+    msg += `Para agilizar nosso atendimento, aqui está o resumo técnico:\n`;
+    msg += `────────────────────\n`;
+    
+    // BLOCO TÉCNICO (O que o seu Robô/Agente de Vendas lê)
+    msg += `Venda\n`;
+    msg += `Cliente: ${nomeDella.trim()}\n`;
+    msg += `Pagamento: A combinar\n`;
+    msg += `Desconto: 0%\n`;
+    msg += `Itens:\n`;
     
     carrinho.forEach((item) => {
-      const valor = item.temPromo ? item.precoPromo : item.preco;
-      // O item.id aqui já é o SKU BASE vindo da sua Coluna B
-      msg += `• ${item.id} | ${item.nome} | ${item.corSelecionada || 'U'} | ${item.tamanhoSelecionado} | R$ ${Number(valor).toFixed(2)}\n`;
+      msg += `1 ${item.skuBot}\n`;
     });
     
-    msg += `\n💰 *VALOR TOTAL:* R$ ${total.toFixed(2)}\n\n`;
-    msg += `#pedido #site #closetdellas`;
+    msg += `────────────────────\n\n`;
+
+    // FECHAMENTO HUMANIZADO
+    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre o caimento das peças em ${cidadeDella.trim()}, é só me chamar! 💖`;
     
     return msg;
   };
@@ -675,9 +541,7 @@ export default function Home() {
     const msg = gerarResumoPedido(nome, cidade, carrinho);
     try {
       await navigator.clipboard.writeText(msg);
-    } catch (err) {
-      console.error("Erro ao copiar", err);
-    }
+    } catch (err) { console.error(err); }
     window.open(`https://t.me/closetdellas9`, '_blank');
   };
 
