@@ -647,19 +647,22 @@ export default function Home() {
 
   const gerarResumoPedido = (nomeDella, cidadeDella, carrinho) => {
     const total = carrinho.reduce((acc, item) => acc + (item.temPromo ? item.precoPromo : item.preco), 0);
-    let msg = `✨ *PEDIDO CLOSET DELLAS* ✨\n\n`;
-    msg += `👤 *Della:* ${nomeDella.trim()}\n`;
-    msg += `📍 *Cidade:* ${cidadeDella.trim()}\n`;
-    msg += `────────────────────\n\n`;
+    
+    // FORMATO DE COMANDO PARA O AGENTE: SKU_BASE | COR | TAM | VALOR
+    let msg = `✨ *VENDA CLOSET DELLAS* ✨\n\n`;
+    msg += `👤 *CLIENTE:* ${nomeDella.trim()}\n`;
+    msg += `📍 *CIDADE:* ${cidadeDella.trim()}\n\n`;
+    msg += `📦 *ITENS PARA BAIXA DE ESTOQUE:* \n`;
+    
     carrinho.forEach((item) => {
       const valor = item.temPromo ? item.precoPromo : item.preco;
-      msg += `🛍️ *${item.nome}*\n`;
-      msg += `   └ [REF: ${item.id}] | Cor: ${item.corSelecionada || 'Única'} | Tam: ${item.tamanhoSelecionado}\n`;
-      msg += `   └ Valor: R$ ${Number(valor).toFixed(2)}\n\n`;
+      // O item.id aqui já é o SKU BASE vindo da sua Coluna B
+      msg += `• ${item.id} | ${item.nome} | ${item.corSelecionada || 'U'} | ${item.tamanhoSelecionado} | R$ ${Number(valor).toFixed(2)}\n`;
     });
-    msg += `────────────────────\n`;
-    msg += `💰 *TOTAL: R$ ${total.toFixed(2)}*\n\n`;
-    msg += `_Desejo combinar a entrega/retirada!_`;
+    
+    msg += `\n💰 *VALOR TOTAL:* R$ ${total.toFixed(2)}\n\n`;
+    msg += `#pedido #site #closetdellas`;
+    
     return msg;
   };
 
