@@ -212,7 +212,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
       if (!existente) {
         acc.push({ ...current });
       } else {
-        existente.qtd += current.qtd; // Soma o estoque se houver duplicidade na planilha
+        existente.qtd += current.qtd; // Soma o estoque se houver duplicidade
       }
       return acc;
     }, []);
