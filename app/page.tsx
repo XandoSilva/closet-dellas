@@ -362,11 +362,16 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       {produto.ehNovidade && !esgotado && !produto.temPromo && <span className="absolute top-7 right-7 bg-[#D4AF37] text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">New</span>}
       
       {esgotado && <span className="absolute top-7 left-7 bg-zinc-400 text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md">Sold Out</span>}
-      {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
+        {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
 
       <div className="relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm cursor-pointer" onClick={() => abrirDetalhe(produto)}>
-        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-        <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
+        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+        {(!produto.imagens || produto.imagens.length === 0) && (
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none overflow-hidden">
+            <div className="bg-[#611F3A] text-white py-3 transform -rotate-45 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl border-y border-[#D4AF37]/50 w-[160%] text-center">Em Breve</div>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
           <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">Quick View</div>
         </div>
       </div>
@@ -379,14 +384,16 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <h4 className="text-base font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
         
         <div className="flex items-center gap-2 mb-4">
-          {produto.temPromo ? (
-            <>
-              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
-            </>
-          ) : (
-            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
-          )}
+          {(!produto.imagens || produto.imagens.length === 0) ? (
+            <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
+          ) : produto.temPromo ? (
+            <>
+              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+            </>
+          ) : (
+            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+          )}
         </div>
 
         {produto.cores && produto.cores.length > 0 && (
@@ -595,6 +602,7 @@ export default function Home() {
     { id: 'shorts', label: 'SHORTS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
     { id: 'casacos', label: 'CASACOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
     { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+    { id: 'em breve', label: '⏳ EM BREVE', subs: [] },
   ];
 
   useEffect(() => {
@@ -654,7 +662,8 @@ export default function Home() {
         }).filter(Boolean);
 
         const grouped = rawData.reduce((acc, item) => {
-          let exist = acc.find(p => p.id === item.skuAgrupador);
+          if (item.imagens.length === 0) item.categoria = 'em breve';
+          let exist = acc.find(p => p.id === item.skuAgrupador);
           if (exist) {
             if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
             exist.grade.push({ tam: item.tamanho, cor: item.cor, sku: item.skuCompleto, qtd: item.estoque });
