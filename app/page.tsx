@@ -581,8 +581,8 @@ export default function Home() {
           const parseValor = (val) => parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
 
           return {
-            skuUnico: clean(cols[0]),   // Agrupador (ex: VEST-0008)
-            skuBase: clean(cols[1]),    // Identificador Bot (ex: VEST-0008-CINZ-U)
+            skuAgrupador: clean(cols[0]), // Coluna A (ex: ACES-0001)
+            skuCompleto: clean(cols[1]),  // Coluna B (ex: ACES-0001-PRAT-U)
             nome: clean(cols[3]),
             categoria: clean(cols[4]).toLowerCase().trim(),
             subcategoria: clean(cols[5]),
@@ -597,21 +597,13 @@ export default function Home() {
         }).filter(Boolean);
 
         const grouped = rawData.reduce((acc, item) => {
-          let exist = acc.find(p => p.id === item.skuUnico);
+          let exist = acc.find(p => p.id === item.skuAgrupador);
           if (exist) {
             if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
-            exist.grade.push({ tam: item.tamanho, cor: item.cor, sku: item.skuBase, qtd: item.estoque });
+            exist.grade.push({ tam: item.tamanho, cor: item.cor, sku: item.skuCompleto, qtd: item.estoque });
             exist.estoqueTotal += item.estoque;
           } else {
-            acc.push({ 
-              ...item, 
-              id: item.skuUnico, 
-              cores: item.cor ? [item.cor] : [], 
-              grade: [{ tam: item.tamanho, cor: item.cor, sku: item.skuBase, qtd: item.estoque }], 
-              estoqueTotal: item.estoque, 
-              temPromo: item.precoPromo > 0, 
-              ehNovidade: true 
-            });
+            acc.push({ ...item, id: item.skuAgrupador, cores: item.cor ? [item.cor] : [], grade: [{ tam: item.tamanho, cor: item.cor, sku: item.skuCompleto, qtd: item.estoque }], estoqueTotal: item.estoque, temPromo: item.precoPromo > 0, ehNovidade: true });
           }
           return acc;
         }, []);
@@ -636,8 +628,8 @@ export default function Home() {
   });
 
   const adicionarAoCarrinho = (produto, corSel, tamSel) => {
-    const variacao = produto.grade.find(g => g.cor === corSel && g.tam === tamSel);
-    const skuFinal = variacao ? variacao.sku : produto.id;
+    const variacao = produto.grade.find(g => (g.cor === corSel || !corSel) && g.tam === tamSel);
+    const skuFinal = variacao ? variacao.sku : produto.skuCompleto;
 
     const item = { ...produto, skuBot: skuFinal, corSelecionada: corSel, tamanhoSelecionado: tamSel };
     setCarrinho(prev => [...prev, item]);
@@ -660,7 +652,7 @@ export default function Home() {
       msg += `1 ${item.skuBot}\n`;
     });
     msg += `────────────────────\n\n`;
-    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças é só me chamar! 💖`;
+    msg += `Como você prefere finalizar o pagamento? Se tiver alguma dúvida sobre as peças, é só me chamar! 💖`;
     return msg;
   };
 
