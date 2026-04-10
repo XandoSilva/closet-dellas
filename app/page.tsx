@@ -848,26 +848,31 @@ export default function Home() {
               ) || [];
 
               return (
-                <div key={cat.id} className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
+                <div key={cat.id} className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`}>
+                  {/* Escudo invisível que aparece apenas após o clique para absorver toques fantasmas */}
+                  {menuAbertoCat === cat.id && (
+                    <div 
+                      className="fixed inset-0 z-[190] bg-transparent" 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setMenuAbertoCat(null); }}
+                    />
+                  )}
+                  
                   <button 
                     onClick={(e) => { 
                       e.preventDefault();
                       e.stopPropagation();
-                      if (menuAbertoCat === cat.id) {
-                        setMenuAbertoCat(null);
-                      } else {
-                        setMenuAbertoCat(cat.id);
-                        setCategoriaAtiva(cat.id);
-                        setSubCategoriaAtiva(null);
-                      }
+                      setMenuAbertoCat(menuAbertoCat === cat.id ? null : cat.id); 
+                      setCategoriaAtiva(cat.id); 
+                      setSubCategoriaAtiva(null); 
                     }} 
-                    className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white hover:border-[#611F3A]'}`}
+                    className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 relative z-[200] ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white'}`}
                   >
                     {cat.label} 
                     {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
                   </button>
+
                   {subsComProduto.length > 0 && menuAbertoCat === cat.id && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-[200] w-48 animate-in fade-in slide-in-from-top-2">
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 z-[210] w-48 animate-in fade-in slide-in-from-top-2">
                       <div className="bg-white shadow-[0_30px_60px_rgba(0,0,0,0.2)] rounded-2xl border border-zinc-100 overflow-hidden">
                         {subsComProduto.map((sub) => (
                           <button 
@@ -876,10 +881,8 @@ export default function Home() {
                               e.preventDefault();
                               e.stopPropagation();
                               setSubCategoriaAtiva(sub);
-                              // O segredo: fechamos o menu com um delay maior para o navegador 'esquecer' o toque
-                              setTimeout(() => {
-                                setMenuAbertoCat(null);
-                              }, 350);
+                              // Fecha o menu imediatamente
+                              setMenuAbertoCat(null);
                             }} 
                             className={`w-full text-center px-6 py-4 text-[10px] font-bold uppercase tracking-widest active:bg-zinc-100 transition-colors border-b last:border-0 border-zinc-50 ${subCategoriaAtiva === sub ? 'text-[#D4AF37] bg-zinc-50' : 'text-zinc-500'}`}
                           >
