@@ -849,7 +849,7 @@ export default function Home() {
 
               return (
                 <div key={cat.id} className={`relative group/menu ${menuAbertoCat === cat.id ? 'z-50' : 'z-10'}`} onMouseEnter={() => setMenuAbertoCat(cat.id)} onMouseLeave={() => setMenuAbertoCat(null)}>
-                  <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-50 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
+                  <button onClick={() => { setCategoriaAtiva(cat.id); setSubCategoriaAtiva(null); }} className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-white border-zinc-200 text-[#611F3A] hover:border-[#611F3A] hover:text-[#611F3A]'}`}>
                     {cat.label} 
                     {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
                   </button>
