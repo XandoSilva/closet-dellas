@@ -21,7 +21,7 @@ const MAPA_CORES = {
   'fúcsia': '#FF00FF',
   'terracota': '#E2725B',
   'nude': '#E3BC9A',
-  'off white': '#FAF9F6',
+  'offwhite': '#FAF9F6',
   'lavanda': '#E6E6FA',
   'azul marinho': '#000080',
   'marrom': '#5C4033',
@@ -31,6 +31,12 @@ const MAPA_CORES = {
   'azul piscina': '#00BFFF',
   'laranja': '#FFA500',
   'azul turquesa': '#40d5e0',
+  'onça': '#D2B48C',
+  'areia': '#E1CDA8',
+  'verde militar': '#4B5320',
+  'verde escuro': '#006400',
+  'azul claro': '#ADD8E6',
+  'estampas diversas': '#E2E2E2',
 };
 
 // === FUNÇÃO AUXILIAR DE OTIMIZAÇÃO (CLOUDINARY) ===
