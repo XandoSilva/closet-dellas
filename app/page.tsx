@@ -332,6 +332,16 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   const [cor, setCor] = useState(null);
   const esgotado = produto.estoqueTotal <= 0;
 
+  // AGRUPAMENTO DE TAMANHOS PARA O CARD (Remove botões duplicados na listagem)
+  const tamanhosAgrupados = produto.grade
+    .filter(g => !cor || g.cor === cor)
+    .reduce((acc, current) => {
+      const existe = acc.find(item => item.tam.trim() === current.tam.trim());
+      if (!existe) acc.push({ ...current });
+      else existe.qtd += current.qtd;
+      return acc;
+    }, []);
+
   const handleQuickAdd = () => {
     if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor primeiro! 🎨");
     if (!tamanho) return setNotificacao("Selecione um tamanho disponível! ✨");
@@ -385,11 +395,22 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         )}
 
         <div className="flex gap-2 mb-5 flex-wrap">
-          {produto.grade.map((item) => (
-            <button key={item.tam} disabled={item.qtd <= 0} onClick={() => setTamanho(item.tam)} className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${item.qtd <= 0 ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' : tamanho === item.tam ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'}`}>
-              {item.tam}
-            </button>
-          ))}
+          {tamanhosAgrupados.map((item) => (
+        <button 
+          key={item.tam} 
+          disabled={item.qtd <= 0} 
+          onClick={() => setTamanho(item.tam)} 
+          className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
+            item.qtd <= 0 
+            ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
+            : tamanho === item.tam 
+            ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
+            : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
+          }`}
+        >
+          {item.tam}
+        </button>
+      ))}
         </div>
         
         <div className="flex gap-2 mt-auto">
@@ -657,11 +678,13 @@ export default function Home() {
     return matchCategoria && matchSubcategoria;
   });
 
-  const adicionarAoCarrinho = (produto, corSel, tamSel) => {
-    const variacao = produto.grade.find(g => (g.cor === corSel || !corSel) && g.tam === tamSel);
-    const skuFinal = variacao ? variacao.sku : produto.skuCompleto;
+  const adicionarAoCarrinho = (obj) => {
+    // Agora aceita um objeto único para evitar erros de parâmetros entre Card e Modal
+    const { id, corSelecionada, tamanhoSelecionado, grade, skuCompleto } = obj;
+    const variacao = grade.find(g => (!corSelecionada || g.cor === corSelecionada) && g.tam === tamanhoSelecionado);
+    const skuFinal = variacao ? variacao.sku : (skuCompleto || id);
 
-    const item = { ...produto, skuBot: skuFinal, corSelecionada: corSel, tamanhoSelecionado: tamSel };
+    const item = { ...obj, skuBot: skuFinal };
     setCarrinho(prev => [...prev, item]);
     setNotificacao("Escolha impecável! ✨");
     setSacolaPulse(true);
