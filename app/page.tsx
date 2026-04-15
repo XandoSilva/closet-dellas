@@ -628,66 +628,342 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
-        if(resBanners.ok) {
-            const textBanners = await resBanners.text();
-            const rowsBanners = textBanners.split('\n').slice(1);
-            const parsedBanners = rowsBanners.map(row => {
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c ? c.replace(/(^"|"$)/g, '').trim() : '');
-                if(cols[0]) return { imagem: cols[0], tag: cols[1] || '', tituloPrincipal: cols[2] || '', tituloDestaque: cols[3] || '' };
-                return null;
-            }).filter(Boolean);
-            setBannersAPI(parsedBanners);
-        }
+  const fetchDados = async () => {
+    const splitCsvRow = (row: string) =>
+      row
+        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+        .map((c) => (c ? c.replace(/(^"|"$)/g, '').trim() : ''));
 
-        const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
-        const text = await res.text();
-        const rows = text.split('\n').slice(2);
-        
-        const rawData = rows.map(row => {
-          const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-          const clean = (col) => col ? col.replace(/(^"|"$)/g, '').trim() : '';
-          
-          if(!clean(cols[0]) || clean(cols[15]) !== "SIM") return null;
-          const parseValor = (val) => parseFloat(val.replace(/[R$\s.]/g, '').replace(',', '.')) || 0;
+    const normalizar = (txt: string = '') =>
+      txt
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+
+    const parseValor = (val: string = '') => {
+      if (!val) return 0;
+      const limpo = String(val)
+        .replace(/[R$\s]/g, '')
+        .replace(/\./g, '')
+        .replace(',', '.')
+        .trim();
+
+      const num = parseFloat(limpo);
+      return Number.isFinite(num) ? num : 0;
+    };
+
+    const parseInteiro = (val: string = '') => {
+      const num = parseInt(String(val).replace(/\D/g, ''), 10);
+      return Number.isFinite(num) ? num : 0;
+    };
+
+    const montarIndexCabecalho = (headerRow: string[]) => {
+      const mapa: Record<string, number> = {};
+      headerRow.forEach((col, idx) => {
+        mapa[normalizar(col)] = idx;
+      });
+      return mapa;
+    };
+
+    const acharColuna = (
+      headerMap: Record<string, number>,
+      aliases: string[],
+      fallback?: number
+    ) => {
+      for (const alias of aliases) {
+        const chave = normalizar(alias);
+        if (headerMap[chave] !== undefined) return headerMap[chave];
+      }
+      return fallback ?? -1;
+    };
+
+    const valorColuna = (
+      cols: string[],
+      headerMap: Record<string, number>,
+      aliases: string[],
+      fallback?: number
+    ) => {
+      const idx = acharColuna(headerMap, aliases, fallback);
+      if (idx < 0) return '';
+      return cols[idx] ?? '';
+    };
+
+    try {
+      // ===== BANNERS =====
+      const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
+
+      if (resBanners.ok) {
+        const textBanners = await resBanners.text();
+        const rowsBanners = textBanners
+          .split('\n')
+          .map((r) => r.replace(/\r/g, ''))
+          .filter(Boolean);
+
+        const headerBanners = splitCsvRow(rowsBanners[0] || '');
+        const headerMapBanners = montarIndexCabecalho(headerBanners);
+
+        const parsedBanners = rowsBanners
+          .slice(1)
+          .map((row) => {
+            const cols = splitCsvRow(row);
+
+            const imagem = valorColuna(cols, headerMapBanners, ['imagem', 'image', 'banner', 'url imagem'], 0);
+            const tag = valorColuna(cols, headerMapBanners, ['tag', 'etiqueta', 'chamada'], 1);
+            const tituloPrincipal = valorColuna(cols, headerMapBanners, ['titulo principal', 'titulo', 'headline'], 2);
+            const tituloDestaque = valorColuna(cols, headerMapBanners, ['titulo destaque', 'subtitulo', 'destaque'], 3);
+
+            if (!imagem) return null;
+
+            return { imagem, tag, tituloPrincipal, tituloDestaque };
+          })
+          .filter(Boolean);
+
+        setBannersAPI(parsedBanners as any);
+      }
+
+      // ===== PRODUTOS =====
+      const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
+      const text = await res.text();
+
+      const rows = text
+        .split('\n')
+        .map((r) => r.replace(/\r/g, ''))
+        .filter(Boolean);
+
+      if (rows.length < 2) {
+        setTodosProdutos([]);
+        setCarregando(false);
+        return;
+      }
+
+      // Se sua planilha tiver uma linha extra antes do cabeçalho,
+      // ele tenta usar a 2ª linha; caso contrário usa a 1ª.
+      let headerRow = splitCsvRow(rows[0]);
+      let startDataIndex = 1;
+
+      const headerTemCaraDeCabecalho =
+        headerRow.some((h) =>
+          [
+            'sku',
+            'categoria',
+            'nome',
+            'estoque',
+            'preco',
+            'preço',
+            'descricao',
+            'descrição',
+          ].includes(normalizar(h))
+        );
+
+      if (!headerTemCaraDeCabecalho && rows[1]) {
+        headerRow = splitCsvRow(rows[1]);
+        startDataIndex = 2;
+      }
+
+      const headerMap = montarIndexCabecalho(headerRow);
+
+      const rawData = rows
+        .slice(startDataIndex)
+        .map((row) => {
+          const cols = splitCsvRow(row);
+
+          const skuAgrupador = valorColuna(
+            cols,
+            headerMap,
+            ['sku agrupador', 'sku pai', 'ref agrupadora', 'referencia agrupadora', 'sku'],
+            0
+          );
+
+          const skuCompleto = valorColuna(
+            cols,
+            headerMap,
+            ['sku completo', 'sku variacao', 'sku variação', 'codigo sku', 'codigo', 'código'],
+            1
+          );
+
+          const nome = valorColuna(
+            cols,
+            headerMap,
+            ['nome', 'produto', 'nome produto', 'descricao produto'],
+            3
+          );
+
+          const categoria = valorColuna(
+            cols,
+            headerMap,
+            ['categoria', 'categoria principal'],
+            4
+          );
+
+          const subcategoria = valorColuna(
+            cols,
+            headerMap,
+            ['subcategoria', 'sub categoria', 'sub-categoria'],
+            5
+          );
+
+          const cor = valorColuna(
+            cols,
+            headerMap,
+            ['cor', 'cor produto'],
+            6
+          );
+
+          const tamanho = valorColuna(
+            cols,
+            headerMap,
+            ['tamanho', 'tam', 'grade'],
+            7
+          );
+
+          const estoque = parseInteiro(
+            valorColuna(
+              cols,
+              headerMap,
+              ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
+              10
+            )
+          );
+
+          const preco = parseValor(
+            valorColuna(
+              cols,
+              headerMap,
+              ['preco', 'preço', 'valor', 'valor real', 'preco real', 'preço real'],
+              11
+            )
+          );
+
+          const precoPromoBruto = valorColuna(
+            cols,
+            headerMap,
+            ['preco promo', 'preço promo', 'valor promo', 'promocao', 'promoção', 'preco promocional'],
+            12
+          );
+
+          const tipoPreco = normalizar(
+            valorColuna(
+              cols,
+              headerMap,
+              ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço']
+            )
+          );
+
+          const ativoSite = normalizar(
+            valorColuna(
+              cols,
+              headerMap,
+              ['ativo site', 'site', 'publicar site', 'ativo no site', 'status site'],
+              15
+            )
+          );
+
+          const descricao = valorColuna(
+            cols,
+            headerMap,
+            ['descricao', 'descrição', 'descricao curta', 'descrição curta'],
+            17
+          );
+
+          const imagens = [
+            valorColuna(cols, headerMap, ['imagem 1', 'foto 1', 'url imagem 1'], 18),
+            valorColuna(cols, headerMap, ['imagem 2', 'foto 2', 'url imagem 2'], 19),
+            valorColuna(cols, headerMap, ['imagem 3', 'foto 3', 'url imagem 3'], 20),
+            valorColuna(cols, headerMap, ['imagem 4', 'foto 4', 'url imagem 4'], 21),
+            valorColuna(cols, headerMap, ['imagem 5', 'foto 5', 'url imagem 5'], 22),
+          ].filter((url) => url && url.startsWith('http'));
+
+          if (!skuAgrupador) return null;
+
+          const siteAtivo =
+            ativoSite === '' ||
+            ['sim', 's', 'ativo', 'ok', 'true', '1'].includes(ativoSite);
+
+          if (!siteAtivo) return null;
+
+          let precoPromo = parseValor(precoPromoBruto);
+
+          if (!precoPromo && tipoPreco === 'promo') {
+            precoPromo = preco;
+          }
 
           return {
-            skuAgrupador: clean(cols[0]), // Coluna A
-            skuCompleto: clean(cols[1]),  // Coluna B (O que o Bot quer)
-            nome: clean(cols[3]),
-            categoria: clean(cols[4]).toLowerCase().trim(),
-            subcategoria: clean(cols[5]),
-            cor: clean(cols[6]),
-            tamanho: clean(cols[7]),
-            estoque: parseInt(clean(cols[10])) || 0,
-            preco: parseValor(clean(cols[11])),
-            precoPromo: (clean(cols[12]) !== "REAL" && clean(cols[12]) !== "") ? parseValor(clean(cols[12])) : 0,
-            descricao: clean(cols[17]),
-            imagens: [18, 19, 20, 21, 22].map(idx => clean(cols[idx])).filter(url => url && url.startsWith('http'))
+            skuAgrupador,
+            skuCompleto: skuCompleto || skuAgrupador,
+            nome,
+            categoria: (categoria || '').toLowerCase().trim(),
+            subcategoria,
+            cor,
+            tamanho,
+            estoque,
+            preco,
+            precoPromo,
+            descricao,
+            imagens,
           };
-        }).filter(Boolean);
+        })
+        .filter(Boolean);
 
-        const grouped = rawData.reduce((acc, item) => {
-          if (item.imagens.length === 0) item.categoria = 'em breve';
-          let exist = acc.find(p => p.id === item.skuAgrupador);
-          if (exist) {
-            if (item.cor && !exist.cores.includes(item.cor)) exist.cores.push(item.cor);
-            exist.grade.push({ tam: item.tamanho, cor: item.cor, sku: item.skuCompleto, qtd: item.estoque });
-            exist.estoqueTotal += item.estoque;
-          } else {
-            acc.push({ ...item, id: item.skuAgrupador, cores: item.cor ? [item.cor] : [], grade: [{ tam: item.tamanho, cor: item.cor, sku: item.skuCompleto, qtd: item.estoque }], estoqueTotal: item.estoque, temPromo: item.precoPromo > 0, ehNovidade: true });
+      const grouped = rawData.reduce((acc: any[], item: any) => {
+        if (item.imagens.length === 0) item.categoria = 'em breve';
+
+        let exist = acc.find((p) => p.id === item.skuAgrupador);
+
+        if (exist) {
+          if (item.cor && !exist.cores.includes(item.cor)) {
+            exist.cores.push(item.cor);
           }
-          return acc;
-        }, []);
 
-        setTodosProdutos(grouped);
-        setCarregando(false);
-      } catch (e) { setCarregando(false); }
-    };
-    fetchDados();
-  }, []);
+          exist.grade.push({
+            tam: item.tamanho,
+            cor: item.cor,
+            sku: item.skuCompleto,
+            qtd: item.estoque,
+          });
+
+          exist.estoqueTotal += item.estoque;
+
+          if (!exist.descricao && item.descricao) exist.descricao = item.descricao;
+          if ((!exist.imagens || exist.imagens.length === 0) && item.imagens.length > 0) {
+            exist.imagens = item.imagens;
+          }
+          if (!exist.temPromo && item.precoPromo > 0) {
+            exist.temPromo = true;
+            exist.precoPromo = item.precoPromo;
+          }
+        } else {
+          acc.push({
+            ...item,
+            id: item.skuAgrupador,
+            cores: item.cor ? [item.cor] : [],
+            grade: [
+              {
+                tam: item.tamanho,
+                cor: item.cor,
+                sku: item.skuCompleto,
+                qtd: item.estoque,
+              },
+            ],
+            estoqueTotal: item.estoque,
+            temPromo: item.precoPromo > 0,
+            ehNovidade: true,
+          });
+        }
+
+        return acc;
+      }, []);
+
+      setTodosProdutos(grouped);
+      setCarregando(false);
+    } catch (e) {
+      console.error('Erro ao buscar dados da planilha:', e);
+      setCarregando(false);
+    }
+  };
+
+  fetchDados();
+}, []);
 
   const produtosFiltrados = todosProdutos.filter(p => {
     const termoBusca = busca.trim().toLowerCase();
