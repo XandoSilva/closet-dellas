@@ -764,201 +764,146 @@ export default function Home() {
       const headerMap = montarIndexCabecalho(headerRow);
 
       const rawData = rows
-        .slice(startDataIndex)
-        .map((row) => {
-          const cols = splitCsvRow(row);
+  .slice(startDataIndex)
+  .map((row) => {
+    const cols = splitCsvRow(row);
 
-          const skuAgrupador = valorColuna(
-            cols,
-            headerMap,
-            ['sku agrupador', 'sku pai', 'ref agrupadora', 'referencia agrupadora', 'sku'],
-            0
-          );
+    const skuAgrupador = valorColuna(
+      cols,
+      headerMap,
+      ['sku agrupador', 'sku pai', 'ref agrupadora', 'referencia agrupadora', 'sku'],
+      0
+    );
 
-          const skuCompleto = valorColuna(
-            cols,
-            headerMap,
-            ['sku completo', 'sku variacao', 'sku variação', 'codigo sku', 'codigo', 'código'],
-            1
-          );
+    const skuCompleto = valorColuna(
+      cols,
+      headerMap,
+      ['sku completo', 'sku variacao', 'sku variação', 'codigo sku', 'codigo', 'código'],
+      1
+    );
 
-          const nome = valorColuna(
-            cols,
-            headerMap,
-            ['nome', 'produto', 'nome produto', 'descricao produto'],
-            3
-          );
+    const nome = valorColuna(
+      cols,
+      headerMap,
+      ['nome', 'produto', 'nome produto', 'descricao produto'],
+      3
+    );
 
-          const categoria = valorColuna(
-            cols,
-            headerMap,
-            ['categoria', 'categoria principal'],
-            4
-          );
+    const categoria = valorColuna(
+      cols,
+      headerMap,
+      ['categoria', 'categoria principal'],
+      4
+    );
 
-          const subcategoria = valorColuna(
-            cols,
-            headerMap,
-            ['subcategoria', 'sub categoria', 'sub-categoria'],
-            5
-          );
+    const subcategoria = valorColuna(
+      cols,
+      headerMap,
+      ['subcategoria', 'sub categoria', 'sub-categoria'],
+      5
+    );
 
-          const cor = valorColuna(
-            cols,
-            headerMap,
-            ['cor', 'cor produto'],
-            6
-          );
+    const cor = valorColuna(
+      cols,
+      headerMap,
+      ['cor', 'cor produto'],
+      6
+    );
 
-          const tamanho = valorColuna(
-            cols,
-            headerMap,
-            ['tamanho', 'tam', 'grade'],
-            7
-          );
+    const tamanho = valorColuna(
+      cols,
+      headerMap,
+      ['tamanho', 'tam', 'grade'],
+      7
+    );
 
-          const estoque = parseInteiro(
-            valorColuna(
-              cols,
-              headerMap,
-              ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
-              10
-            )
-          );
+    const estoque = parseInteiro(
+      valorColuna(
+        cols,
+        headerMap,
+        ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
+        10
+      )
+    );
 
-          const precoAtual = parseValor(
-  valorColuna(
-    cols,
-    headerMap,
-    ['preco', 'preço', 'valor', 'valor atual', 'preco atual', 'preço atual'],
-    11
-  )
-);
+    const precoAtual = parseValor(
+      valorColuna(
+        cols,
+        headerMap,
+        ['preco', 'preço', 'valor', 'valor atual', 'preco atual', 'preço atual'],
+        11
+      )
+    );
 
-const precoReal = parseValor(
-  valorColuna(
-    cols,
-    headerMap,
-    ['preco real', 'preço real', 'valor real', 'preco de', 'preço de', 'valor de'],
-    13
-  )
-);
+    const precoReal = parseValor(
+      valorColuna(
+        cols,
+        headerMap,
+        ['preco real', 'preço real', 'valor real', 'preco de', 'preço de', 'valor de'],
+        13
+      )
+    );
 
-const tipoPreco = normalizar(
-  valorColuna(
-    cols,
-    headerMap,
-    ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço'],
-    12
-  )
-);
+    const tipoPreco = normalizar(
+      valorColuna(
+        cols,
+        headerMap,
+        ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço'],
+        12
+      )
+    );
 
-const preco = tipoPreco === 'promo' && precoReal > 0 ? precoReal : precoAtual;
-const precoPromo = tipoPreco === 'promo' ? precoAtual : 0;
+    const ativoSite = normalizar(
+      valorColuna(
+        cols,
+        headerMap,
+        ['ativo site', 'site', 'publicar site', 'ativo no site', 'status site'],
+        15
+      )
+    );
 
-          const ativoSite = normalizar(
-            valorColuna(
-              cols,
-              headerMap,
-              ['ativo site', 'site', 'publicar site', 'ativo no site', 'status site'],
-              15
-            )
-          );
+    const descricao = valorColuna(
+      cols,
+      headerMap,
+      ['descricao', 'descrição', 'descricao curta', 'descrição curta'],
+      17
+    );
 
-          const descricao = valorColuna(
-            cols,
-            headerMap,
-            ['descricao', 'descrição', 'descricao curta', 'descrição curta'],
-            17
-          );
+    const imagens = [
+      valorColuna(cols, headerMap, ['imagem 1', 'foto 1', 'url imagem 1'], 18),
+      valorColuna(cols, headerMap, ['imagem 2', 'foto 2', 'url imagem 2'], 19),
+      valorColuna(cols, headerMap, ['imagem 3', 'foto 3', 'url imagem 3'], 20),
+      valorColuna(cols, headerMap, ['imagem 4', 'foto 4', 'url imagem 4'], 21),
+      valorColuna(cols, headerMap, ['imagem 5', 'foto 5', 'url imagem 5'], 22),
+    ].filter((url) => url && url.startsWith('http'));
 
-          const imagens = [
-            valorColuna(cols, headerMap, ['imagem 1', 'foto 1', 'url imagem 1'], 18),
-            valorColuna(cols, headerMap, ['imagem 2', 'foto 2', 'url imagem 2'], 19),
-            valorColuna(cols, headerMap, ['imagem 3', 'foto 3', 'url imagem 3'], 20),
-            valorColuna(cols, headerMap, ['imagem 4', 'foto 4', 'url imagem 4'], 21),
-            valorColuna(cols, headerMap, ['imagem 5', 'foto 5', 'url imagem 5'], 22),
-          ].filter((url) => url && url.startsWith('http'));
+    if (!skuAgrupador) return null;
 
-          if (!skuAgrupador) return null;
+    const siteAtivo =
+      ativoSite === '' ||
+      ['sim', 's', 'ativo', 'ok', 'true', '1'].includes(ativoSite);
 
-          const siteAtivo =
-            ativoSite === '' ||
-            ['sim', 's', 'ativo', 'ok', 'true', '1'].includes(ativoSite);
+    if (!siteAtivo) return null;
 
-          if (!siteAtivo) return null;
+    const preco = tipoPreco === 'promo' && precoReal > 0 ? precoReal : precoAtual;
+    const precoPromo = tipoPreco === 'promo' ? precoAtual : 0;
 
-          let precoPromo = parseValor(precoPromoBruto);
-
-          if (!precoPromo && tipoPreco === 'promo') {
-            precoPromo = preco;
-          }
-
-          return {
-            skuAgrupador,
-            skuCompleto: skuCompleto || skuAgrupador,
-            nome,
-            categoria: (categoria || '').toLowerCase().trim(),
-            subcategoria,
-            cor,
-            tamanho,
-            estoque,
-            preco,
-            precoPromo,
-            descricao,
-            imagens,
-          };
-        })
-        .filter(Boolean);
-
-      const grouped = rawData.reduce((acc: any[], item: any) => {
-        if (item.imagens.length === 0) item.categoria = 'em breve';
-
-        let exist = acc.find((p) => p.id === item.skuAgrupador);
-
-        if (exist) {
-          if (item.cor && !exist.cores.includes(item.cor)) {
-            exist.cores.push(item.cor);
-          }
-
-          exist.grade.push({
-            tam: item.tamanho,
-            cor: item.cor,
-            sku: item.skuCompleto,
-            qtd: item.estoque,
-          });
-
-          exist.estoqueTotal += item.estoque;
-
-          if (!exist.descricao && item.descricao) exist.descricao = item.descricao;
-          if ((!exist.imagens || exist.imagens.length === 0) && item.imagens.length > 0) {
-            exist.imagens = item.imagens;
-          }
-          if (!exist.temPromo && item.precoPromo > 0) {
-            exist.temPromo = true;
-            exist.precoPromo = item.precoPromo;
-          }
-        } else {
-          acc.push({
-            ...item,
-            id: item.skuAgrupador,
-            cores: item.cor ? [item.cor] : [],
-            grade: [
-              {
-                tam: item.tamanho,
-                cor: item.cor,
-                sku: item.skuCompleto,
-                qtd: item.estoque,
-              },
-            ],
-            estoqueTotal: item.estoque,
-            temPromo: item.precoPromo > 0,
-            ehNovidade: true,
-          });
-        }
-
-        return acc;
-      }, []);
+    return {
+      skuAgrupador,
+      skuCompleto: skuCompleto || skuAgrupador,
+      nome,
+      categoria: (categoria || '').toLowerCase().trim(),
+      subcategoria,
+      cor,
+      tamanho,
+      estoque,
+      preco,
+      precoPromo,
+      descricao,
+      imagens,
+    };
+  })
+  .filter(Boolean);
 
       setTodosProdutos(grouped);
       setCarregando(false);
