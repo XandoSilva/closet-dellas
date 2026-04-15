@@ -851,32 +851,76 @@ export default function Home() {
       17
     );
 
-    const imagens = [
-      valorColuna(cols, headerMap, ['imagem 1', 'foto 1', 'url imagem 1'], 18),
-      valorColuna(cols, headerMap, ['imagem 2', 'foto 2', 'url imagem 2'], 19),
-      valorColuna(cols, headerMap, ['imagem 3', 'foto 3', 'url imagem 3'], 20),
-      valorColuna(cols, headerMap, ['imagem 4', 'foto 4', 'url imagem 4'], 21),
-      valorColuna(cols, headerMap, ['imagem 5', 'foto 5', 'url imagem 5'], 22),
-    ].filter((url) => url && url.startsWith('http'));
-
-    if (!skuAgrupador) return null;
+    if (!skuAgrupador || !nome) return null;
 
     return {
       skuAgrupador,
       skuCompleto: skuCompleto || skuAgrupador,
       nome,
       categoria: (categoria || '').toLowerCase().trim(),
-      subcategoria,
-      cor,
-      tamanho,
+      subcategoria: subcategoria || '',
+      cor: cor || '',
+      tamanho: tamanho || '',
       estoque,
       preco: precoReal,
       precoPromo: precoPromoSugerido,
-      descricao,
-      imagens,
+      descricao: descricao || '',
+      imagens: [],
     };
   })
   .filter(Boolean);
+
+const grouped = rawData.reduce((acc: any[], item: any) => {
+  const existente = acc.find((p) => p.id === item.skuAgrupador);
+
+  if (existente) {
+    if (item.cor && !existente.cores.includes(item.cor)) {
+      existente.cores.push(item.cor);
+    }
+
+    existente.grade.push({
+      tam: item.tamanho,
+      cor: item.cor,
+      sku: item.skuCompleto,
+      qtd: item.estoque,
+    });
+
+    existente.estoqueTotal += item.estoque;
+
+    if (!existente.descricao && item.descricao) {
+      existente.descricao = item.descricao;
+    }
+
+    if (!existente.temPromo && item.precoPromo > 0) {
+      existente.temPromo = true;
+      existente.precoPromo = item.precoPromo;
+    }
+
+    return acc;
+  }
+
+  acc.push({
+    ...item,
+    id: item.skuAgrupador,
+    cores: item.cor ? [item.cor] : [],
+    grade: [
+      {
+        tam: item.tamanho,
+        cor: item.cor,
+        sku: item.skuCompleto,
+        qtd: item.estoque,
+      },
+    ],
+    estoqueTotal: item.estoque,
+    temPromo: item.precoPromo > 0,
+    ehNovidade: true,
+  });
+
+  return acc;
+}, []);
+
+setTodosProdutos(grouped);
+setCarregando(false);
 
       setTodosProdutos(grouped);
       setCarregando(false);
