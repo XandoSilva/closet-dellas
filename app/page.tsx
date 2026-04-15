@@ -826,29 +826,35 @@ export default function Home() {
             )
           );
 
-          const preco = parseValor(
-            valorColuna(
-              cols,
-              headerMap,
-              ['preco', 'preço', 'valor', 'valor real', 'preco real', 'preço real'],
-              11
-            )
-          );
+          const precoAtual = parseValor(
+  valorColuna(
+    cols,
+    headerMap,
+    ['preco', 'preço', 'valor', 'valor atual', 'preco atual', 'preço atual'],
+    11
+  )
+);
 
-          const precoPromoBruto = valorColuna(
-            cols,
-            headerMap,
-            ['preco promo', 'preço promo', 'valor promo', 'promocao', 'promoção', 'preco promocional'],
-            12
-          );
+const precoReal = parseValor(
+  valorColuna(
+    cols,
+    headerMap,
+    ['preco real', 'preço real', 'valor real', 'preco de', 'preço de', 'valor de'],
+    13
+  )
+);
 
-          const tipoPreco = normalizar(
-            valorColuna(
-              cols,
-              headerMap,
-              ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço']
-            )
-          );
+const tipoPreco = normalizar(
+  valorColuna(
+    cols,
+    headerMap,
+    ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço'],
+    12
+  )
+);
+
+const preco = tipoPreco === 'promo' && precoReal > 0 ? precoReal : precoAtual;
+const precoPromo = tipoPreco === 'promo' ? precoAtual : 0;
 
           const ativoSite = normalizar(
             valorColuna(
