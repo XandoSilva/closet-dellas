@@ -826,21 +826,21 @@ export default function Home() {
       )
     );
 
-    const precoAtual = parseValor(
-      valorColuna(
-        cols,
-        headerMap,
-        ['preco', 'preço', 'valor', 'valor atual', 'preco atual', 'preço atual'],
-        11
-      )
-    );
-
     const precoReal = parseValor(
       valorColuna(
         cols,
         headerMap,
-        ['preco real', 'preço real', 'valor real', 'preco de', 'preço de', 'valor de'],
-        13
+        ['preço sugerido real', 'preco sugerido real', 'preço real', 'preco real', 'real'],
+        4
+      )
+    );
+
+    const precoPromoSugerido = parseValor(
+      valorColuna(
+        cols,
+        headerMap,
+        ['preço promo sugerido', 'preco promo sugerido', 'preço promo', 'preco promo', 'promo'],
+        5
       )
     );
 
@@ -848,8 +848,7 @@ export default function Home() {
       valorColuna(
         cols,
         headerMap,
-        ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço'],
-        12
+        ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço']
       )
     );
 
@@ -885,8 +884,8 @@ export default function Home() {
 
     if (!siteAtivo) return null;
 
-    const preco = tipoPreco === 'promo' && precoReal > 0 ? precoReal : precoAtual;
-    const precoPromo = tipoPreco === 'promo' ? precoAtual : 0;
+    const preco = precoReal;
+    const precoPromo = tipoPreco === 'promo' ? precoPromoSugerido || precoReal : 0;
 
     return {
       skuAgrupador,
