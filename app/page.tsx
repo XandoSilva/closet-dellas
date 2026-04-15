@@ -629,78 +629,92 @@ export default function Home() {
 
   useEffect(() => {
   const fetchDados = async () => {
-    const splitCsvRow = (row: string) =>
-      row
-        .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-        .map((c) => (c ? c.replace(/(^"|"$)/g, '').trim() : ''));
+  const splitCsvRow = (row: string) =>
+    row
+      .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
+      .map((c) => (c ? c.replace(/"/g, '').trim() : ''));
 
-    const normalizar = (txt: string = '') =>
-      txt
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .trim();
+  const normalizar = (txt: string) =>
+    String(txt || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
 
-    const parseValor = (val: string = '') => {
-      if (!val) return 0;
-      const limpo = String(val)
-        .replace(/[R$\s]/g, '')
-        .replace(/\./g, '')
-        .replace(',', '.')
-        .trim();
+  const parseValor = (val: string) => {
+    if (!val) return 0;
+    const limpo = String(val)
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .trim();
+    const num = parseFloat(limpo);
+    return Number.isFinite(num) ? num : 0;
+  };
 
-      const num = parseFloat(limpo);
-      return Number.isFinite(num) ? num : 0;
-    };
+  const parseInteiro = (val: string) => {
+    const num = parseInt(String(val || '').replace(/\D/g, ''), 10);
+    return Number.isFinite(num) ? num : 0;
+  };
 
-    const parseInteiro = (val: string = '') => {
-      const num = parseInt(String(val).replace(/\D/g, ''), 10);
-      return Number.isFinite(num) ? num : 0;
-    };
+  const montarIndexCabecalho = (headerRow: string[]) => {
+    const mapa: Record<string, number> = {};
+    headerRow.forEach((col, idx) => {
+      mapa[normalizar(col)] = idx;
+    });
+    return mapa;
+  };
 
-    const montarIndexCabecalho = (headerRow: string[]) => {
-      const mapa: Record<string, number> = {};
-      headerRow.forEach((col, idx) => {
-        mapa[normalizar(col)] = idx;
-      });
-      return mapa;
-    };
+  const acharColuna = (
+    headerMap: Record<string, number>,
+    aliases: string[],
+    fallback?: number
+  ) => {
+    for (const alias of aliases) {
+      const chave = normalizar(alias);
+      if (headerMap[chave] !== undefined) return headerMap[chave];
+    }
+    return fallback ?? -1;
+  };
 
-    const acharColuna = (
-      headerMap: Record<string, number>,
-      aliases: string[],
-      fallback?: number
-    ) => {
-      for (const alias of aliases) {
-        const chave = normalizar(alias);
-        if (headerMap[chave] !== undefined) return headerMap[chave];
-      }
-      return fallback ?? -1;
-    };
+  const valorColuna = (
+    cols: string[],
+    headerMap: Record<string, number>,
+    aliases: string[],
+    fallback?: number
+  ) => {
+    const idx = acharColuna(headerMap, aliases, fallback);
+    if (idx < 0) return '';
+    return cols[idx] ?? '';
+  };
 
-    const valorColuna = (
-      cols: string[],
-      headerMap: Record<string, number>,
-      aliases: string[],
-      fallback?: number
-    ) => {
-      const idx = acharColuna(headerMap, aliases, fallback);
-      if (idx < 0) return '';
-      return cols[idx] ?? '';
-    };
+  const extrairImagensLinha = (cols: string[], headerMap: Record<string, number>) => {
+    const candidatos = [
+      valorColuna(cols, headerMap, ['imagem 1', 'foto 1', 'url imagem 1', 'img 1', 'foto1'], 18),
+      valorColuna(cols, headerMap, ['imagem 2', 'foto 2', 'url imagem 2', 'img 2', 'foto2'], 19),
+      valorColuna(cols, headerMap, ['imagem 3', 'foto 3', 'url imagem 3', 'img 3', 'foto3'], 20),
+      valorColuna(cols, headerMap, ['imagem 4', 'foto 4', 'url imagem 4', 'img 4', 'foto4'], 21),
+      valorColuna(cols, headerMap, ['imagem 5', 'foto 5', 'url imagem 5', 'img 5', 'foto5'], 22),
+      valorColuna(cols, headerMap, ['imagem', 'foto', 'imagem principal', 'foto principal', 'principal'], 18),
+    ];
 
-    try {
-      // ===== BANNERS =====
-      const resBanners = await fetch(SHEET_BANNERS_URL, { next: { revalidate: 60 } });
+    const urls = candidatos
+      .map((url) => (url || '').trim())
+      .filter((url) => url && /^https?:\/\/.+/i.test(url));
 
-      if (resBanners.ok) {
-        const textBanners = await resBanners.text();
-        const rowsBanners = textBanners
-          .split('\n')
-          .map((r) => r.replace(/\r/g, ''))
-          .filter(Boolean);
+    return urls;
+  };
 
-        const headerBanners = splitCsvRow(rowsBanners[0] || '');
+  try {
+    const resBanners = await fetch(SHEETBANNERSURL);
+    if (resBanners.ok) {
+      const textBanners = await resBanners.text();
+      const rowsBanners = textBanners
+        .split('\n')
+        .map((r) => r.replace(/\r/g, ''))
+        .filter(Boolean);
+
+      if (rowsBanners.length > 1) {
+        const headerBanners = splitCsvRow(rowsBanners[0]);
         const headerMapBanners = montarIndexCabecalho(headerBanners);
 
         const parsedBanners = rowsBanners
@@ -708,227 +722,245 @@ export default function Home() {
           .map((row) => {
             const cols = splitCsvRow(row);
 
-            const imagem = valorColuna(cols, headerMapBanners, ['imagem', 'image', 'banner', 'url imagem'], 0);
-            const tag = valorColuna(cols, headerMapBanners, ['tag', 'etiqueta', 'chamada'], 1);
-            const tituloPrincipal = valorColuna(cols, headerMapBanners, ['titulo principal', 'titulo', 'headline'], 2);
-            const tituloDestaque = valorColuna(cols, headerMapBanners, ['titulo destaque', 'subtitulo', 'destaque'], 3);
+            const imagem = valorColuna(
+              cols,
+              headerMapBanners,
+              ['imagem', 'image', 'banner', 'url imagem', 'url', 'foto'],
+              0
+            );
+
+            const tag = valorColuna(
+              cols,
+              headerMapBanners,
+              ['tag', 'etiqueta', 'chamada'],
+              1
+            );
+
+            const tituloPrincipal = valorColuna(
+              cols,
+              headerMapBanners,
+              ['titulo principal', 'titulo', 'headline'],
+              2
+            );
+
+            const tituloDestaque = valorColuna(
+              cols,
+              headerMapBanners,
+              ['titulo destaque', 'subtitulo', 'destaque'],
+              3
+            );
 
             if (!imagem) return null;
 
-            return { imagem, tag, tituloPrincipal, tituloDestaque };
+            return {
+              imagem,
+              tag,
+              tituloPrincipal,
+              tituloDestaque,
+            };
           })
           .filter(Boolean);
 
         setBannersAPI(parsedBanners as any);
       }
+    }
 
-      // ===== PRODUTOS =====
-      const res = await fetch(SHEET_CSV_URL, { next: { revalidate: 60 } });
-      const text = await res.text();
+    const res = await fetch(SHEETCSVURL);
+    const text = await res.text();
+    const rows = text
+      .split('\n')
+      .map((r) => r.replace(/\r/g, ''))
+      .filter(Boolean);
 
-      const rows = text
-        .split('\n')
-        .map((r) => r.replace(/\r/g, ''))
-        .filter(Boolean);
+    if (rows.length < 2) {
+      setTodosProdutos([]);
+      setCarregando(false);
+      return;
+    }
 
-      if (rows.length < 2) {
-        setTodosProdutos([]);
-        setCarregando(false);
-        return;
-      }
+    let headerRow = splitCsvRow(rows[0]);
+    let startDataIndex = 1;
 
-      // Se sua planilha tiver uma linha extra antes do cabeçalho,
-      // ele tenta usar a 2ª linha; caso contrário usa a 1ª.
-      let headerRow = splitCsvRow(rows[0]);
-      let startDataIndex = 1;
+    const headerTemCaraDeCabecalho = headerRow.some((h) =>
+      ['sku', 'categoria', 'nome', 'estoque', 'preco', 'preço', 'descricao', 'descrição', 'imagem'].includes(normalizar(h))
+    );
 
-      const headerTemCaraDeCabecalho =
-        headerRow.some((h) =>
-          [
-            'sku',
-            'categoria',
-            'nome',
-            'estoque',
-            'preco',
-            'preço',
-            'descricao',
-            'descrição',
-          ].includes(normalizar(h))
+    if (!headerTemCaraDeCabecalho && rows[1]) {
+      headerRow = splitCsvRow(rows[1]);
+      startDataIndex = 2;
+    }
+
+    const headerMap = montarIndexCabecalho(headerRow);
+
+    const rawData = rows
+      .slice(startDataIndex)
+      .map((row) => {
+        const cols = splitCsvRow(row);
+
+        const skuAgrupador = valorColuna(
+          cols,
+          headerMap,
+          ['sku agrupador', 'sku pai', 'ref agrupadora', 'referencia agrupadora', 'sku'],
+          0
         );
 
-      if (!headerTemCaraDeCabecalho && rows[1]) {
-        headerRow = splitCsvRow(rows[1]);
-        startDataIndex = 2;
+        const skuCompleto = valorColuna(
+          cols,
+          headerMap,
+          ['sku completo', 'sku variacao', 'sku variação', 'codigo sku', 'codigo', 'código'],
+          1
+        );
+
+        const nome = valorColuna(
+          cols,
+          headerMap,
+          ['nome', 'produto', 'nome produto', 'descricao produto'],
+          3
+        );
+
+        const categoria = valorColuna(
+          cols,
+          headerMap,
+          ['categoria', 'categoria principal'],
+          4
+        );
+
+        const subcategoria = valorColuna(
+          cols,
+          headerMap,
+          ['subcategoria', 'sub categoria', 'sub-categoria'],
+          5
+        );
+
+        const cor = valorColuna(
+          cols,
+          headerMap,
+          ['cor', 'cor produto'],
+          6
+        );
+
+        const tamanho = valorColuna(
+          cols,
+          headerMap,
+          ['tamanho', 'tam', 'grade'],
+          7
+        );
+
+        const estoque = parseInteiro(
+          valorColuna(
+            cols,
+            headerMap,
+            ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
+            10
+          )
+        );
+
+        const precoReal = parseValor(
+          valorColuna(
+            cols,
+            headerMap,
+            ['preço sugerido real', 'preco sugerido real', 'preço real', 'preco real', 'real'],
+            4
+          )
+        );
+
+        const precoPromoSugerido = parseValor(
+          valorColuna(
+            cols,
+            headerMap,
+            ['preço promo sugerido', 'preco promo sugerido', 'preço promo', 'preco promo', 'promo'],
+            5
+          )
+        );
+
+        const descricao = valorColuna(
+          cols,
+          headerMap,
+          ['descricao', 'descrição', 'descricao curta', 'descrição curta'],
+          17
+        );
+
+        const imagens = extrairImagensLinha(cols, headerMap);
+
+        if (!skuAgrupador || !nome) return null;
+
+        return {
+          skuAgrupador,
+          skuCompleto: skuCompleto || skuAgrupador,
+          nome,
+          categoria: (categoria || '').toLowerCase().trim(),
+          subcategoria: subcategoria || '',
+          cor: cor || '',
+          tamanho: tamanho || '',
+          estoque,
+          preco: precoReal,
+          precoPromo: precoPromoSugerido,
+          descricao: descricao || '',
+          imagens,
+        };
+      })
+      .filter(Boolean);
+
+    const grouped = rawData.reduce((acc: any[], item: any) => {
+      const existente = acc.find((p) => p.id === item.skuAgrupador);
+
+      if (existente) {
+        if (item.cor && !existente.cores.includes(item.cor)) {
+          existente.cores.push(item.cor);
+        }
+
+        existente.grade.push({
+          tam: item.tamanho,
+          cor: item.cor,
+          sku: item.skuCompleto,
+          qtd: item.estoque,
+        });
+
+        existente.estoqueTotal += item.estoque;
+
+        if (!existente.descricao && item.descricao) {
+          existente.descricao = item.descricao;
+        }
+
+        if ((!existente.imagens || existente.imagens.length === 0) && item.imagens.length > 0) {
+          existente.imagens = item.imagens;
+        }
+
+        if (!existente.temPromo && item.precoPromo > 0) {
+          existente.temPromo = true;
+          existente.precoPromo = item.precoPromo;
+        }
+
+        return acc;
       }
 
-      const headerMap = montarIndexCabecalho(headerRow);
+      acc.push({
+        ...item,
+        id: item.skuAgrupador,
+        cores: item.cor ? [item.cor] : [],
+        grade: [
+          {
+            tam: item.tamanho,
+            cor: item.cor,
+            sku: item.skuCompleto,
+            qtd: item.estoque,
+          },
+        ],
+        estoqueTotal: item.estoque,
+        temPromo: item.precoPromo > 0,
+        ehNovidade: true,
+      });
 
-      const rawData = rows
-  .slice(startDataIndex)
-  .map((row) => {
-    const cols = splitCsvRow(row);
+      return acc;
+    }, []);
 
-    const skuAgrupador = valorColuna(
-      cols,
-      headerMap,
-      ['sku agrupador', 'sku pai', 'ref agrupadora', 'referencia agrupadora', 'sku'],
-      0
-    );
-
-    const skuCompleto = valorColuna(
-      cols,
-      headerMap,
-      ['sku completo', 'sku variacao', 'sku variação', 'codigo sku', 'codigo', 'código'],
-      1
-    );
-
-    const nome = valorColuna(
-      cols,
-      headerMap,
-      ['nome', 'produto', 'nome produto', 'descricao produto'],
-      3
-    );
-
-    const categoria = valorColuna(
-      cols,
-      headerMap,
-      ['categoria', 'categoria principal'],
-      4
-    );
-
-    const subcategoria = valorColuna(
-      cols,
-      headerMap,
-      ['subcategoria', 'sub categoria', 'sub-categoria'],
-      5
-    );
-
-    const cor = valorColuna(
-      cols,
-      headerMap,
-      ['cor', 'cor produto'],
-      6
-    );
-
-    const tamanho = valorColuna(
-      cols,
-      headerMap,
-      ['tamanho', 'tam', 'grade'],
-      7
-    );
-
-    const estoque = parseInteiro(
-      valorColuna(
-        cols,
-        headerMap,
-        ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
-        10
-      )
-    );
-
-    const precoReal = parseValor(
-      valorColuna(
-        cols,
-        headerMap,
-        ['preço sugerido real', 'preco sugerido real', 'preço real', 'preco real', 'real'],
-        4
-      )
-    );
-
-    const precoPromoSugerido = parseValor(
-      valorColuna(
-        cols,
-        headerMap,
-        ['preço promo sugerido', 'preco promo sugerido', 'preço promo', 'preco promo', 'promo'],
-        5
-      )
-    );
-
-    const descricao = valorColuna(
-      cols,
-      headerMap,
-      ['descricao', 'descrição', 'descricao curta', 'descrição curta'],
-      17
-    );
-
-    if (!skuAgrupador || !nome) return null;
-
-    return {
-      skuAgrupador,
-      skuCompleto: skuCompleto || skuAgrupador,
-      nome,
-      categoria: (categoria || '').toLowerCase().trim(),
-      subcategoria: subcategoria || '',
-      cor: cor || '',
-      tamanho: tamanho || '',
-      estoque,
-      preco: precoReal,
-      precoPromo: precoPromoSugerido,
-      descricao: descricao || '',
-      imagens: [],
-    };
-  })
-  .filter(Boolean);
-
-const grouped = rawData.reduce((acc: any[], item: any) => {
-  const existente = acc.find((p) => p.id === item.skuAgrupador);
-
-  if (existente) {
-    if (item.cor && !existente.cores.includes(item.cor)) {
-      existente.cores.push(item.cor);
-    }
-
-    existente.grade.push({
-      tam: item.tamanho,
-      cor: item.cor,
-      sku: item.skuCompleto,
-      qtd: item.estoque,
-    });
-
-    existente.estoqueTotal += item.estoque;
-
-    if (!existente.descricao && item.descricao) {
-      existente.descricao = item.descricao;
-    }
-
-    if (!existente.temPromo && item.precoPromo > 0) {
-      existente.temPromo = true;
-      existente.precoPromo = item.precoPromo;
-    }
-
-    return acc;
+    setTodosProdutos(grouped);
+    setCarregando(false);
+  } catch (e) {
+    console.error('Erro ao buscar dados da planilha', e);
+    setCarregando(false);
   }
-
-  acc.push({
-    ...item,
-    id: item.skuAgrupador,
-    cores: item.cor ? [item.cor] : [],
-    grade: [
-      {
-        tam: item.tamanho,
-        cor: item.cor,
-        sku: item.skuCompleto,
-        qtd: item.estoque,
-      },
-    ],
-    estoqueTotal: item.estoque,
-    temPromo: item.precoPromo > 0,
-    ehNovidade: true,
-  });
-
-  return acc;
-}, []);
-
-setTodosProdutos(grouped);
-setCarregando(false);
-
-      setTodosProdutos(grouped);
-      setCarregando(false);
-    } catch (e) {
-      console.error('Erro ao buscar dados da planilha:', e);
-      setCarregando(false);
-    }
-  };
+};
 
   fetchDados();
 }, []);
