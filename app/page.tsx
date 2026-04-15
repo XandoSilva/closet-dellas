@@ -844,23 +844,6 @@ export default function Home() {
       )
     );
 
-    const tipoPreco = normalizar(
-      valorColuna(
-        cols,
-        headerMap,
-        ['tipo preco', 'tipo preço', 'tabela preco', 'tabela preço', 'status preco', 'status preço']
-      )
-    );
-
-    const ativoSite = normalizar(
-      valorColuna(
-        cols,
-        headerMap,
-        ['ativo site', 'site', 'publicar site', 'ativo no site', 'status site'],
-        15
-      )
-    );
-
     const descricao = valorColuna(
       cols,
       headerMap,
@@ -878,15 +861,6 @@ export default function Home() {
 
     if (!skuAgrupador) return null;
 
-    const siteAtivo =
-      ativoSite === '' ||
-      ['sim', 's', 'ativo', 'ok', 'true', '1'].includes(ativoSite);
-
-    if (!siteAtivo) return null;
-
-    const preco = precoReal;
-    const precoPromo = tipoPreco === 'promo' ? precoPromoSugerido || precoReal : 0;
-
     return {
       skuAgrupador,
       skuCompleto: skuCompleto || skuAgrupador,
@@ -896,8 +870,8 @@ export default function Home() {
       cor,
       tamanho,
       estoque,
-      preco,
-      precoPromo,
+      preco: precoReal,
+      precoPromo: precoPromoSugerido,
       descricao,
       imagens,
     };
