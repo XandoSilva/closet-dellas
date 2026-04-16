@@ -817,11 +817,12 @@ export default function Home() {
             7
           );
 
+          // MUDANÇA: Prioridade máxima para a coluna "Disponível" (Estoque Real)
           const estoque = parseInteiro(
             valorColuna(
               cols,
               headerMap,
-              ['estoque', 'qtd estoque', 'quantidade', 'saldo'],
+              ['disponivel', 'disponível', 'estoque', 'qtd estoque', 'quantidade', 'saldo'],
               10
             )
           );
