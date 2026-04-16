@@ -202,7 +202,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   const [tamanho, setTamanho] = useState(null);
   const [cor, setCor] = useState(null);
 
-    useEffect(() => {
+  useEffect(() => {
     setTamanho(null);
     setCor(null);
   }, [produto, aberto]);
@@ -210,7 +210,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   // Extrai cores únicas para os botões
   const coresUnicas = [...new Set(produto.grade.map(item => item.cor))].filter(Boolean);
 
-  // Agrupa os tamanhos para evitar duplicidade de botões (ex: vários "U")
+  // Agrupa os tamanhos baseados na COR selecionada
   const tamanhosAgrupados = produto.grade
     .filter(g => !cor || g.cor === cor)
     .reduce((acc, current) => {
@@ -218,16 +218,21 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
       if (!existente) {
         acc.push({ ...current });
       } else {
-        existente.qtd += current.qtd; // Soma o estoque se houver duplicidade
+        existente.qtd += current.qtd;
       }
       return acc;
     }, []);
+
+  // NOVO: Verifica se a cor tem estoque baseado no TAMANHO selecionado
+  const isCorEsgotada = (corAlvo) => {
+    const variacoes = produto.grade.filter(g => g.cor === corAlvo && (!tamanho || g.tam === tamanho));
+    return variacoes.reduce((acc, curr) => acc + curr.qtd, 0) <= 0;
+  };
 
   const handleAddCart = () => {
     if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor para sua peça! 🎨");
     if (!tamanho) return setNotificacao("Por favor, selecione um tamanho disponível! 📏");
     
-    // Busca o SKU específico da variação para o Robô do Telegram dar baixa
     const variacao = produto.grade.find(g => (!cor || g.cor === cor) && g.tam === tamanho);
     
     adicionarAoCarrinho({ 
@@ -274,26 +279,33 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           </p>
           <div className="mt-auto">
             
-            {/* SELEÇÃO DE CORES */}
+            {/* SELEÇÃO DE CORES COM CROSS-FILTERING */}
             {produto.cores && produto.cores.length > 0 && (
               <div className="mb-8">
                 <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione a Cor:</p>
                 <div className="flex gap-4 flex-wrap">
                   {produto.cores.map((c) => {
                     const corHex = MAPA_CORES[c.toLowerCase().trim()] || '#E2E2E2';
+                    const esgotada = isCorEsgotada(c);
                     return (
                       <button 
                         key={c}
-                        onClick={() => setCor(c)}
-                        title={c}
-                        className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
-                          cor === c 
-                          ? 'ring-2 ring-[#611F3A] ring-offset-2 scale-110 shadow-lg border-white' 
-                          : 'border-zinc-100 hover:scale-105'
+                        disabled={esgotada}
+                        // NOVO: Clique na mesma cor desmarca ela (toggle)
+                        onClick={() => setCor(cor === c ? null : c)}
+                        title={esgotada ? `${c} - Indisponível neste tamanho` : c}
+                        className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center relative overflow-hidden ${
+                          esgotada 
+                          ? 'opacity-30 cursor-not-allowed grayscale border-zinc-200' 
+                          : cor === c 
+                            ? 'ring-2 ring-[#611F3A] ring-offset-2 scale-110 shadow-lg border-white' 
+                            : 'border-zinc-100 hover:scale-105'
                         }`}
                         style={{ backgroundColor: corHex }}
                       >
-                        {!MAPA_CORES[c.toLowerCase().trim()] && <span className="text-[8px] uppercase">{c[0]}</span>}
+                        {/* Linha vermelha cortando a cor esgotada */}
+                        {esgotada && <div className="absolute w-[150%] h-[2px] bg-red-500 rotate-45 z-20"></div>}
+                        {!MAPA_CORES[c.toLowerCase().trim()] && <span className="text-[8px] uppercase z-10">{c[0]}</span>}
                       </button>
                     );
                   })}
@@ -307,7 +319,8 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
                 <button 
                   key={item.tam} 
                   disabled={item.qtd <= 0} 
-                  onClick={() => setTamanho(item.tam)} 
+                  // NOVO: Clique no mesmo tamanho desmarca ele (toggle)
+                  onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
                   className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
                     item.qtd <= 0 
                     ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' 
@@ -338,7 +351,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   const [cor, setCor] = useState(null);
   const esgotado = produto.estoqueTotal <= 0;
 
-  // AGRUPAMENTO DE TAMANHOS PARA O CARD (Remove botões duplicados na listagem)
+  // AGRUPAMENTO DE TAMANHOS PARA O CARD
   const tamanhosAgrupados = produto.grade
     .filter(g => !cor || g.cor === cor)
     .reduce((acc, current) => {
@@ -347,6 +360,12 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       else existe.qtd += current.qtd;
       return acc;
     }, []);
+
+  // NOVO: Verifica se a cor tem estoque baseado no TAMANHO selecionado
+  const isCorEsgotada = (corAlvo) => {
+    const variacoes = produto.grade.filter(g => g.cor === corAlvo && (!tamanho || g.tam === tamanho));
+    return variacoes.reduce((acc, curr) => acc + curr.qtd, 0) <= 0;
+  };
 
   const handleQuickAdd = () => {
     if (produto.cores && produto.cores.length > 0 && !cor) return setNotificacao("Selecione uma cor primeiro! 🎨");
@@ -365,18 +384,18 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
 
       <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm ${(!produto.imagens || produto.imagens.length === 0) ? 'cursor-default' : 'cursor-pointer'}`} onClick={() => (!produto.imagens || produto.imagens.length === 0) ? null : abrirDetalhe(produto)}>
-        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
-        {(!produto.imagens || produto.imagens.length === 0) && (
-          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none overflow-hidden">
-            <div className="bg-[#611F3A] text-white py-3 transform -rotate-45 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl border-y border-[#D4AF37]/50 w-[160%] text-center">Em Breve</div>
-          </div>
-        )}
-        {produto.imagens && produto.imagens.length > 0 && (
-          <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
-            <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">Quick View</div>
-          </div>
-        )}
-      </div>
+        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+        {(!produto.imagens || produto.imagens.length === 0) && (
+          <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none overflow-hidden">
+            <div className="bg-[#611F3A] text-white py-3 transform -rotate-45 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl border-y border-[#D4AF37]/50 w-[160%] text-center">Em Breve</div>
+          </div>
+        )}
+        {produto.imagens && produto.imagens.length > 0 && (
+          <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
+            <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">Quick View</div>
+          </div>
+        )}
+      </div>
 
       <div className="text-left px-2 flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
@@ -387,23 +406,40 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         
         <div className="flex items-center gap-2 mb-4">
           {(!produto.imagens || produto.imagens.length === 0) ? (
-            <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
-          ) : produto.temPromo ? (
-            <>
-              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
-            </>
-          ) : (
-            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
-          )}
+            <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
+          ) : produto.temPromo ? (
+            <>
+              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+            </>
+          ) : (
+            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+          )}
         </div>
 
+        {/* SELEÇÃO DE CORES COM CROSS-FILTERING */}
         {produto.cores && produto.cores.length > 0 && (
           <div className="flex gap-2 mb-4 flex-wrap">
             {produto.cores.map((c) => {
               const corHex = MAPA_CORES[c.toLowerCase().trim()] || '#E2E2E2';
+              const esgotada = isCorEsgotada(c);
               return (
-                <button key={c} onClick={() => setCor(c)} title={c} className={`w-7 h-7 rounded-full border-2 transition-all ${cor === c ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' : 'border-zinc-100'}`} style={{ backgroundColor: corHex }} />
+                <button 
+                  key={c} 
+                  disabled={esgotada}
+                  onClick={() => setCor(cor === c ? null : c)} 
+                  title={esgotada ? `${c} (Esgotado)` : c} 
+                  className={`w-7 h-7 rounded-full border-2 transition-all relative flex items-center justify-center overflow-hidden ${
+                    esgotada 
+                    ? 'opacity-30 cursor-not-allowed grayscale border-zinc-200' 
+                    : cor === c 
+                      ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' 
+                      : 'border-zinc-100 hover:scale-105'
+                  }`} 
+                  style={{ backgroundColor: corHex }} 
+                >
+                  {esgotada && <div className="absolute w-[150%] h-[1.5px] bg-red-500 rotate-45 z-20"></div>}
+                </button>
               );
             })}
           </div>
@@ -411,33 +447,33 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
 
         <div className="flex gap-2 mb-5 flex-wrap">
           {tamanhosAgrupados.map((item) => (
-        <button 
-          key={item.tam} 
-          disabled={item.qtd <= 0} 
-          onClick={() => setTamanho(item.tam)} 
-          className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
-            item.qtd <= 0 
-            ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
-            : tamanho === item.tam 
-            ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
-            : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
-          }`}
-        >
-          {item.tam}
-        </button>
-      ))}
+            <button 
+              key={item.tam} 
+              disabled={item.qtd <= 0} 
+              onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
+              className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
+                item.qtd <= 0 
+                ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
+                : tamanho === item.tam 
+                ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
+                : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
+              }`}
+            >
+              {item.tam}
+            </button>
+          ))}
         </div>
         
         <div className="flex gap-2 mt-auto">
-          {(!produto.imagens || produto.imagens.length === 0) ? (
-            <button disabled className="w-full bg-zinc-50 text-zinc-400 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-none cursor-not-allowed border border-zinc-100">Aguarde o Lançamento</button>
-          ) : (
-            <>
-              <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
-              <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-all active:scale-95 disabled:bg-zinc-200 disabled:shadow-none">{esgotado ? 'Indisponível' : 'Adicionar'}</button>
-            </>
-          )}
-        </div>
+          {(!produto.imagens || produto.imagens.length === 0) ? (
+            <button disabled className="w-full bg-zinc-50 text-zinc-400 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-none cursor-not-allowed border border-zinc-100">Aguarde o Lançamento</button>
+          ) : (
+            <>
+              <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
+              <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-all active:scale-95 disabled:bg-zinc-200 disabled:shadow-none">{esgotado ? 'Indisponível' : 'Adicionar'}</button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
