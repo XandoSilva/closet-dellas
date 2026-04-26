@@ -1150,10 +1150,18 @@ export default function Home() {
       <section className="relative w-full aspect-[28/9] min-h-[315px] bg-zinc-900 overflow-hidden">
         {bannersExibicao.map((banner, index) => (
             <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === bannerAtual ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
-                <img src={otimizarImg(banner.imagem)} className="absolute inset-0 w-full h-full object-cover scale-105" alt="Banner" />
+                <img 
+                  src={otimizarImg(banner.imagem)} 
+                  className="absolute inset-0 w-full h-full object-cover" 
+                  alt="Banner" 
+                  style={{ transform: `translateY(${scrollY * 0.25}px) scale(1.15)` }}
+                />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
                 <div className="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 h-full flex flex-col justify-center text-left text-white">
-                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
+                    <div 
+                      className="animate-in fade-in slide-in-from-bottom-8 duration-700"
+                      style={{ transform: `translateY(${scrollY * -0.15}px)` }}
+                    >
                         <span className="text-[10px] uppercase tracking-[0.5em] font-bold mb-6 block text-[#D4AF37]">{banner.tag}</span>
                         <h2 className="text-4xl md:text-7xl font-serif italic mb-8 leading-[1.1] max-w-2xl drop-shadow-2xl">
                           {banner.tituloPrincipal} <br/>
