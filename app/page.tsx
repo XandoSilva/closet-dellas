@@ -49,12 +49,12 @@ const otimizarImg = (url) => {
 
 function SkeletonCard() {
   return (
-    <div className="flex flex-col bg-white p-4 rounded-[2rem] border border-zinc-100 animate-pulse">
+    <div className="flex flex-col bg-white p-4 rounded-[2.5rem] border border-zinc-50 animate-pulse">
       <div className="aspect-[3/4] rounded-2xl bg-zinc-100 mb-6" />
-      <div className="h-3 w-1/3 bg-zinc-200 rounded mb-3" />
-      <div className="h-5 w-3/4 bg-zinc-200 rounded mb-3" />
-      <div className="h-5 w-1/4 bg-zinc-200 rounded mb-6" />
-      <div className="h-12 w-full bg-zinc-200 rounded-full mt-auto" />
+      <div className="h-2 w-1/4 bg-zinc-100 rounded mb-3" />
+      <div className="h-4 w-3/4 bg-zinc-100 rounded mb-3" />
+      <div className="h-4 w-1/4 bg-zinc-100 rounded mb-6" />
+      <div className="h-10 w-full bg-zinc-100 rounded-full mt-auto" />
     </div>
   );
 }
@@ -178,7 +178,7 @@ function CarrosselProduto({ imagens, nome, esgotado }) {
   const anterior = (e) => { e.preventDefault(); e.stopPropagation(); const p = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1; scrollTo(p); };
 
   return (
-    <div className={`relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-2xl ${esgotado ? 'grayscale opacity-70' : ''}`}>
+    <div className={`relative h-full w-full overflow-hidden bg-zinc-50 group/fotos rounded-2xl ${esgotado ? 'grayscale opacity-60' : ''}`}>
       <div ref={scrollRef} onScroll={handleScroll} className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {fotosExibir.map((img, index) => (
             <img key={index} src={otimizarImg(img)} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center transition-transform duration-700 group-hover/fotos:scale-105" />
@@ -270,14 +270,14 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
           </h2>
           
           {!esgotado && (
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-4 mb-8">
               {produto.temPromo ? (
                 <>
-                  <span className="text-lg line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-                  <p className="text-3xl font-bold text-red-600 tracking-tight">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+                  <span className="text-sm line-through text-zinc-300 font-light">R$ {Number(produto.preco).toFixed(2)}</span>
+                  <p className="text-3xl font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
                 </>
               ) : (
-                <p className="text-3xl font-bold text-[#611F3A] tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
+                <p className="text-3xl font-medium text-[#611F3A] tracking-tighter font-serif">R$ {Number(produto.preco).toFixed(2)}</p>
               )}
             </div>
           )}
@@ -401,12 +401,12 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   };
 
   return (
-    <div className="group flex flex-col bg-white p-4 rounded-[2rem] border border-transparent transition-all duration-500 hover:border-zinc-100 hover:shadow-[0_30px_60px_rgba(97,31,58,0.08)] relative animate-in fade-in duration-700">
-      {produto.temPromo && !esgotado && <span className="absolute top-7 right-7 bg-red-600 text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">Oferta</span>}
-      {produto.ehNovidade && !esgotado && !produto.temPromo && <span className="absolute top-7 right-7 bg-[#D4AF37] text-white text-[9px] uppercase tracking-[0.2em] font-bold px-4 py-2 rounded-full z-30 shadow-lg">New</span>}
+    <div className="group flex flex-col bg-white p-4 rounded-[2.5rem] border border-zinc-50/50 transition-all duration-700 hover:border-zinc-200 hover:shadow-[0_40px_80px_rgba(0,0,0,0.04)] relative animate-in fade-in duration-1000">
+      {produto.temPromo && !esgotado && <span className="absolute top-7 right-7 bg-red-600 text-white text-[8px] uppercase tracking-[0.3em] font-bold px-3 py-1.5 rounded-full z-30 shadow-md">Oferta</span>}
+      {produto.ehNovidade && !esgotado && !produto.temPromo && <span className="absolute top-7 right-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-[0.3em] font-bold px-3 py-1.5 rounded-full z-30 shadow-md">Novidade</span>}
       
-      {esgotado && <span className="absolute top-7 left-7 bg-zinc-400 text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md">Sold Out</span>}
-      {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
+      {esgotado && <span className="absolute top-7 left-7 bg-zinc-800 text-white text-[7px] uppercase tracking-[0.4em] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm opacity-80">Esgotado</span>}
+      {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#D4AF37] text-white text-[7px] uppercase tracking-[0.4em] font-bold px-3 py-1.5 rounded-full z-10 shadow-sm animate-pulse">Exclusiva</span>}
 
       <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm ${(!produto.imagens || produto.imagens.length === 0 || esgotado) ? 'cursor-default' : 'cursor-pointer'}`} onClick={() => (!produto.imagens || produto.imagens.length === 0 || esgotado) ? null : abrirDetalhe(produto)}>
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} esgotado={esgotado} />
@@ -416,7 +416,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           </div>
         )}
         {produto.imagens && produto.imagens.length > 0 && !esgotado && (
-          <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
+          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none md:flex items-center justify-center hidden">
             <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">Quick View</div>
           </div>
         )}
@@ -430,16 +430,16 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         <h4 className="text-base font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
         
         {!esgotado && (
-          <div className="flex items-center gap-2 mb-4">
+          <div className="flex items-baseline gap-2 mb-4">
             {(!produto.imagens || produto.imagens.length === 0) ? (
               <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
             ) : produto.temPromo ? (
               <>
-                <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-                <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+                <span className="text-[10px] line-through text-zinc-300">R$ {Number(produto.preco).toFixed(2)}</span>
+                <p className="text-lg font-bold text-red-600 tracking-tight">R$ {Number(produto.precoPromo).toFixed(2)}</p>
               </>
             ) : (
-              <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+              <p className="text-lg font-medium text-[#611F3A] tracking-tight font-serif">R$ {Number(produto.preco).toFixed(2)}</p>
             )}
           </div>
         )}
@@ -461,7 +461,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
                     ? 'opacity-30 cursor-not-allowed grayscale border-zinc-200' 
                     : cor === c 
                       ? 'ring-2 ring-[#611F3A] ring-offset-1 scale-110 shadow-md border-white' 
-                      : 'border-zinc-100 hover:scale-105'
+                      : 'border-zinc-50 hover:border-zinc-200'
                   }`} 
                   style={{ backgroundColor: corHex }} 
                 >
@@ -481,10 +481,10 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
                 onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
                 className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
                   item.qtd <= 0 
-                  ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
+                  ? 'bg-transparent text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
                   : tamanho === item.tam 
                   ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
-                  : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
+                  : 'bg-white text-zinc-500 border-zinc-100 hover:border-[#611F3A]'
                 }`}
               >
                 {item.tam}
@@ -499,9 +499,9 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           ) : (
             <>
               {!esgotado && (
-                <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
+                <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-800 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-md hover:bg-black transition-colors">Detalhes</button>
               )}
-              <button onClick={esgotado ? handleAviseMe : handleQuickAdd} className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg transition-all active:scale-95 ${esgotado ? 'bg-zinc-800 text-white hover:bg-black' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}>{esgotado ? 'Avise-me' : 'Adicionar'}</button>
+              <button onClick={esgotado ? handleAviseMe : handleQuickAdd} className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-md transition-all active:scale-95 ${esgotado ? 'bg-zinc-50 text-zinc-400 border border-zinc-200 hover:bg-zinc-100' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}>{esgotado ? 'Avise-me' : 'Comprar'}</button>
             </>
           )}
         </div>
@@ -1097,7 +1097,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f5e3ed] text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
+    <main className="min-h-screen bg-[#FCFBFA] text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
       
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
@@ -1129,18 +1129,18 @@ export default function Home() {
         <svg fill="currentColor" viewBox="0 0 24 24" className="w-8 h-8"><path d="M12.031 2.007a9.969 9.969 0 00-8.5 15.228l-1.468 5.362 5.485-1.438a9.964 9.964 0 004.483 1.066h.004c5.5 0 9.975-4.475 9.975-9.974 0-2.666-1.038-5.17-2.923-7.054A9.92 9.92 0 0012.031 2.007zm0 16.634c-1.488 0-2.946-.4-4.226-1.157l-.303-.18-3.14.823.84-3.064-.197-.313a8.31 8.31 0 01-1.272-4.44c0-4.582 3.73-8.312 8.312-8.312 2.221 0 4.31.865 5.88 2.435s2.43 3.658 2.43 5.877c0 4.58-3.73 8.31-8.31 8.31zm4.562-6.234c-.25-.125-1.48-.73-1.708-.813-.23-.083-.396-.125-.563.125-.166.25-.645.813-.79.98-.146.166-.293.187-.543.062-.25-.125-1.056-.39-2.01-1.242-.74-.662-1.24-1.48-1.386-1.73-.146-.25-.015-.385.11-.51.112-.112.25-.291.375-.437.125-.146.166-.25.25-.417.083-.166.042-.312-.02-.437-.063-.125-.563-1.355-.772-1.854-.203-.487-.409-.422-.563-.43-.146-.008-.313-.01-.48-.01a.916.916 0 00-.663.308c-.229.25-.875.855-.875 2.083s.896 2.417 1.02 2.583c.125.166 1.762 2.688 4.267 3.77.596.258 1.062.412 1.425.528.598.19 1.141.163 1.57.1.478-.071 1.48-.605 1.688-1.19.21-.584.21-1.085.147-1.19-.063-.105-.23-.167-.48-.292z"/></svg>
       </a>
 
-      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-zinc-100 shadow-sm transition-all duration-500">
+      <nav className="bg-white/90 backdrop-blur-xl sticky top-0 z-[100] border-b border-zinc-100 transition-all duration-700">
         <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <h1 className="text-3xl md:text-4xl font-serif font-extrabold text-[#611F3A] tracking-tighter">Closet <span className="italic font-light text-[#D4AF37]">Dellas</span></h1>
+          <h1 className="text-3xl md:text-4xl font-serif font-extrabold text-[#611F3A] tracking-tighter hover:opacity-80 transition-opacity cursor-pointer" onClick={() => window.scrollTo({top:0, behavior:'smooth'})}>Closet <span className="italic font-light text-[#D4AF37]">Dellas</span></h1>
           <div className="relative w-full md:w-[450px]">
-            <input type="text" placeholder="Encontre sua próxima peça favorita... ✨" value={busca} onChange={(e) => setBusca(e.target.value)} className="w-full bg-zinc-50 border-none rounded-full px-12 py-3.5 text-xs focus:ring-2 focus:ring-[#611F3A]/5 outline-none transition-all placeholder:text-zinc-300 shadow-inner" />
+            <input type="text" placeholder="Pesquisar..." value={busca} onChange={(e) => setBusca(e.target.value)} className="w-full bg-zinc-50 border border-zinc-100 rounded-full px-12 py-3 text-xs focus:bg-white focus:ring-2 focus:ring-[#611F3A]/5 outline-none transition-all placeholder:text-zinc-400" />
             <span className="absolute left-5 top-1/2 -translate-y-1/2 opacity-20">🔍</span>
             {busca && <button onClick={() => setBusca('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-300 hover:text-[#611F3A]">✕</button>}
           </div>
-          <div className="hidden md:flex gap-8 items-center">
+          <div className="hidden md:flex gap-10 items-center">
             <button onClick={() => setGuiaAberto(true)} className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#611F3A] hover:text-[#D4AF37] transition-colors">Guia de Medidas</button>
-            <button onClick={() => setCarrinhoAberto(true)} className={`bg-[#611F3A] text-white px-8 py-3.5 rounded-full font-bold text-xs flex items-center gap-3 hover:bg-[#D4AF37] transition-all relative shadow-xl ${sacolaPulse ? 'scale-110 ring-4 ring-[#611F3A]/10' : ''}`}>
-              <span className="text-base">👜</span> <span className="uppercase tracking-widest">Sacola</span>
+            <button onClick={() => setCarrinhoAberto(true)} className={`bg-[#611F3A] text-white px-8 py-3 rounded-full font-bold text-[10px] flex items-center gap-3 hover:bg-black transition-all relative shadow-lg ${sacolaPulse ? 'scale-105' : ''}`}>
+              <span className="text-sm">👜</span> <span className="uppercase tracking-[0.2em]">Sacola</span>
               <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full">{carrinho.length}</span>
             </button>
           </div>
@@ -1172,12 +1172,12 @@ export default function Home() {
         )}
       </section>
 
-      <section className="bg-[#F9F6F7] py-6 px-6 md:px-12 border-b border-zinc-100">
+      <section className="bg-white py-8 px-6 md:px-12 border-b border-zinc-50">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-center md:justify-between gap-6 text-[#611F3A]">
-          <div className="flex items-center gap-2"><span className="text-xl">💳</span><p className="text-[10px] uppercase font-bold tracking-widest">Parcelamento até 3x</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">🚚</span><p className="text-[10px] uppercase font-bold tracking-widest">Frete Grátis em Eng. Paulo de Frontin e Mendes</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">✨</span><p className="text-[10px] uppercase font-bold tracking-widest">Curadoria Exclusiva</p></div>
-          <div className="flex items-center gap-2"><span className="text-xl">👜</span><p className="text-[10px] uppercase font-bold tracking-widest">Malinha Delivery <span className="text-[#D4AF37] ml-1">(Em Breve)</span></p></div>
+          <div className="flex items-center gap-2"><span className="text-lg"></span><p className="text-[9px] uppercase font-bold tracking-[0.2em] opacity-70">Parcelamento até 3x</p></div>
+          <div className="flex items-center gap-2"><span className="text-lg">🚚</span><p className="text-[9px] uppercase font-bold tracking-[0.2em] opacity-70">Frete Cortesia (Região)</p></div>
+          <div className="flex items-center gap-2"><span className="text-lg">✨</span><p className="text-[9px] uppercase font-bold tracking-[0.2em] opacity-70">Curadoria de Luxo</p></div>
+          <div className="flex items-center gap-2"><span className="text-lg">🛍️</span><p className="text-[9px] uppercase font-bold tracking-[0.2em] opacity-70">Malinha Delivery</p></div>
         </div>
       </section>
 
@@ -1192,11 +1192,11 @@ export default function Home() {
       </section>
 
       <section className="max-w-7xl mx-auto pt-16 px-6">
-        <div className="flex flex-col gap-6 mb-16 items-center">
+        <div className="flex flex-col gap-8 mb-20 items-center">
           <div className="flex justify-center gap-4 w-full flex-wrap">
-            <button onClick={() => { setCategoriaAtiva('ultimas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'ultimas' ? 'bg-red-600 text-white border-red-600 shadow-xl scale-105' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white hover:border-[#611F3A]'}`}>🚨 ÚLTIMAS PEÇAS</button>
-            <button onClick={() => { setCategoriaAtiva('novidades'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'novidades' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white hover:border-[#611F3A]'}`}>⭐ NOVIDADES</button>
-            <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3.5 rounded-full text-[11px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-500 shadow-sm ${categoriaAtiva === 'todas' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-xl scale-105' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white hover:border-[#611F3A]'}`}>VER TODAS</button>
+            <button onClick={() => { setCategoriaAtiva('ultimas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] border transition-all duration-500 ${categoriaAtiva === 'ultimas' ? 'bg-red-600 text-white border-red-600 shadow-lg' : 'bg-transparent border-zinc-200 text-zinc-400 hover:border-red-600 hover:text-red-600'}`}>Últimas Peças</button>
+            <button onClick={() => { setCategoriaAtiva('novidades'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] border transition-all duration-500 ${categoriaAtiva === 'novidades' ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-lg' : 'bg-transparent border-zinc-200 text-zinc-400 hover:border-[#611F3A] hover:text-[#611F3A]'}`}>Novidades</button>
+            <button onClick={() => { setCategoriaAtiva('todas'); setSubCategoriaAtiva(null); }} className={`px-8 md:px-12 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] border transition-all duration-500 ${categoriaAtiva === 'todas' ? 'bg-black text-white border-black shadow-lg' : 'bg-transparent border-zinc-200 text-zinc-400 hover:border-black hover:text-black'}`}>Coleção Completa</button>
           </div>
 
           <div className="flex flex-wrap justify-center gap-3 w-full">
@@ -1226,7 +1226,7 @@ export default function Home() {
                       setCategoriaAtiva(cat.id); 
                       setSubCategoriaAtiva(null); 
                     }} 
-                    className={`px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border-2 transition-all duration-300 flex items-center gap-2 relative z-[200] ${categoriaAtiva === cat.id ? 'bg-[#611F3A] text-white border-[#611F3A] shadow-md' : 'bg-transparent border-[#611F3A]/30 text-[#611F3A] hover:bg-[#611F3A] hover:text-white'}`}
+                    className={`px-6 py-2 rounded-full text-[9px] font-bold uppercase tracking-[0.3em] border transition-all duration-300 flex items-center gap-2 relative z-[200] ${categoriaAtiva === cat.id ? 'bg-white text-[#611F3A] border-[#611F3A] shadow-sm' : 'bg-transparent border-zinc-100 text-zinc-400 hover:text-zinc-600'}`}
                   >
                     {cat.label} 
                     {subsComProduto.length > 0 && <span className="text-[8px] opacity-40">{menuAbertoCat === cat.id ? '▲' : '▼'}</span>}
@@ -1266,7 +1266,7 @@ export default function Home() {
         ) : produtosFiltrados.length === 0 ? (
           <NoResults mensagem={busca ? `Não encontramos nada para "${busca}".` : `A coleção está sendo atualizada! Volte em breve.`} />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16 mb-24">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16 mb-24">
             {produtosFiltrados.map(p => (
               <ProdutoCard key={p.id} produto={p} categoriasBase={categoriasBase} abrirDetalhe={setProdutoDetalheAberto} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} />
             ))}
@@ -1276,7 +1276,7 @@ export default function Home() {
 
       <ModalDetalheProduto aberto={!!produtoDetalheAberto} produto={produtoDetalheAberto} fechar={() => setProdutoDetalheAberto(null)} adicionarAoCarrinho={adicionarAoCarrinho} setNotificacao={setNotificacao} categoriasBase={categoriasBase} />
       
-      <section className="bg-[#FAF9F6] py-20 px-6 md:px-12 border-t border-zinc-100">
+      <section className="bg-white py-24 px-6 md:px-12 border-t border-zinc-50">
         <div className="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
           <span className="text-3xl mb-6 block">✨</span>
           <h3 className="text-3xl md:text-4xl font-serif italic text-[#611F3A] mb-6">Nossa Essência</h3>
