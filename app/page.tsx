@@ -1,9 +1,26 @@
-/* eslint-disable */
-// @ts-nocheck
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
 import Script from 'next/script'; 
+import Image from 'next/image';
+
+// === DEFINIÇÃO DE TIPOS (INTERFACES) ===
+interface GradeItem {
+  tam: string;
+  cor: string;
+  sku: string;
+  qtd: number;
+}
+
+interface Produto {
+  id: string;
+  nome: string;
+  preco: number;
+  imagens: string[];
+  estoqueTotal: number;
+  grade: GradeItem[];
+  // ... adicione as demais propriedades
+}
 
 // === CONFIGURAÇÃO DE CORES (ADICIONE NOVAS CORES AQUI) ===
 const MAPA_CORES = {
@@ -181,7 +198,15 @@ function CarrosselProduto({ imagens, nome, esgotado }) {
     <div className={`relative h-full w-full overflow-hidden bg-zinc-50 group/fotos rounded-2xl ${esgotado ? 'grayscale opacity-60' : ''}`}>
       <div ref={scrollRef} onScroll={handleScroll} className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {fotosExibir.map((img, index) => (
-            <img key={index} src={otimizarImg(img)} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center transition-transform duration-700 group-hover/fotos:scale-105" />
+            <div key={index} className="relative w-full h-full flex-shrink-0 snap-center">
+              <Image 
+                src={otimizarImg(img)} 
+                alt={`${nome} - Foto ${index + 1}`} 
+                fill
+                className="object-cover transition-transform duration-700 group-hover/fotos:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
         ))}
       </div>
       {fotosExibir.length > 1 && (
