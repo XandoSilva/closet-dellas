@@ -345,9 +345,10 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
                 </div>
                 <button 
                   onClick={handleAddCart} 
-                  className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95"
+                  className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95 relative overflow-hidden group/btn"
                 >
-                  Adicionar à Sacola
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent -translate-x-full animate-[shine_4s_infinite] pointer-events-none" />
+                  <span className="relative z-10">Adicionar à Sacola</span>
                 </button>
               </>
             ) : (
@@ -501,7 +502,15 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
               {!esgotado && (
                 <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-800 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-md hover:bg-black transition-colors">Detalhes</button>
               )}
-              <button onClick={esgotado ? handleAviseMe : handleQuickAdd} className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-md transition-all active:scale-95 ${esgotado ? 'bg-zinc-50 text-zinc-400 border border-zinc-200 hover:bg-zinc-100' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}>{esgotado ? 'Avise-me' : 'Comprar'}</button>
+              <button 
+                onClick={esgotado ? handleAviseMe : handleQuickAdd} 
+                className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-md transition-all active:scale-95 relative overflow-hidden ${esgotado ? 'bg-zinc-50 text-zinc-400 border border-zinc-200 hover:bg-zinc-100' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}
+              >
+                {!esgotado && (
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-[#D4AF37]/40 to-transparent -translate-x-full animate-[shine_4s_infinite] pointer-events-none" />
+                )}
+                <span className="relative z-10">{esgotado ? 'Avise-me' : 'Comprar'}</span>
+              </button>
             </>
           )}
         </div>
@@ -1098,7 +1107,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#FCFBFA] text-zinc-900 font-sans relative overflow-x-hidden pb-24 md:pb-0">
-      
+      <style jsx global>{`
+        @keyframes shine {
+          0% { transform: translateX(-150%) skewX(-25deg); }
+          20% { transform: translateX(150%) skewX(-25deg); }
+          100% { transform: translateX(150%) skewX(-25deg); }
+        }
+        .animate-shine {
+          animation: shine 4s infinite;
+        }
+      `}</style>
+
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`} strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
         {`window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', '${GA4_ID}');`}
