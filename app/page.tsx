@@ -201,6 +201,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   if (!aberto || !produto) return null;
   const [tamanho, setTamanho] = useState(null);
   const [cor, setCor] = useState(null);
+  const esgotado = produto.estoqueTotal <= 0;
 
   useEffect(() => {
     setTamanho(null);
@@ -227,6 +228,12 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
   const isCorEsgotada = (corAlvo) => {
     const variacoes = produto.grade.filter(g => g.cor === corAlvo && (!tamanho || g.tam === tamanho));
     return variacoes.reduce((acc, curr) => acc + curr.qtd, 0) <= 0;
+  };
+
+  const handleAviseMe = () => {
+    const msg = `Olá Closet Dellas! ✨ Gostaria de ser avisada quando o produto *${produto.nome}* (REF: ${produto.id}) voltar ao estoque! 💖`;
+    const foneWhatsAppRaw = "5521971366354";
+    window.open(`https://api.whatsapp.com/send?phone=${foneWhatsAppRaw}&text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleAddCart = () => {
@@ -259,19 +266,21 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
             {categoriasBase.find((c) => c.id === produto.categoria)?.label || 'DIVERSOS'} • {produto.subcategoria}
           </p>
           <h2 className="text-2xl md:text-4xl font-serif italic text-[#611F3A] mb-4 leading-snug break-words whitespace-normal">
-            {produto.nome}
+            {produto.nome} {esgotado && <span className="text-sm not-italic bg-zinc-100 text-zinc-500 px-3 py-1 rounded-full ml-2 align-middle">ESGOTADO</span>}
           </h2>
           
-          <div className="flex items-center gap-3 mb-8">
-            {produto.temPromo ? (
-              <>
-                <span className="text-lg line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-                <p className="text-3xl font-bold text-red-600 tracking-tight">R$ {Number(produto.precoPromo).toFixed(2)}</p>
-              </>
-            ) : (
-              <p className="text-3xl font-bold text-[#611F3A] tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
-            )}
-          </div>
+          {!esgotado && (
+            <div className="flex items-center gap-3 mb-8">
+              {produto.temPromo ? (
+                <>
+                  <span className="text-lg line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+                  <p className="text-3xl font-bold text-red-600 tracking-tight">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+                </>
+              ) : (
+                <p className="text-3xl font-bold text-[#611F3A] tracking-tight">R$ {Number(produto.preco).toFixed(2)}</p>
+              )}
+            </div>
+          )}
 
           <div className="h-px w-12 bg-[#D4AF37]/30 mb-8" />
           <p className="text-sm text-zinc-500 mb-10 leading-relaxed font-light">
@@ -313,32 +322,42 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
               </div>
             )}
 
-            <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
-            <div className="flex gap-3 mb-10 flex-wrap">
-              {tamanhosAgrupados.map((item) => (
+            {!esgotado ? (
+              <>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-zinc-400 mb-4">Selecione o Tamanho:</p>
+                <div className="flex gap-3 mb-10 flex-wrap">
+                  {tamanhosAgrupados.map((item) => (
+                    <button 
+                      key={item.tam} 
+                      disabled={item.qtd <= 0} 
+                      onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
+                      className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
+                        item.qtd <= 0 
+                        ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' 
+                        : tamanho === item.tam 
+                        ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-lg' 
+                        : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'
+                      }`}
+                    >
+                      {item.tam}
+                    </button>
+                  ))}
+                </div>
                 <button 
-                  key={item.tam} 
-                  disabled={item.qtd <= 0} 
-                  // NOVO: Clique no mesmo tamanho desmarca ele (toggle)
-                  onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
-                  className={`w-12 h-12 rounded-full text-xs font-bold transition-all border-2 ${
-                    item.qtd <= 0 
-                    ? 'bg-zinc-50 text-zinc-200 border-zinc-100 cursor-not-allowed line-through' 
-                    : tamanho === item.tam 
-                    ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-lg' 
-                    : 'bg-white text-zinc-600 border-zinc-100 hover:border-[#611F3A]'
-                  }`}
+                  onClick={handleAddCart} 
+                  className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95"
                 >
-                  {item.tam}
+                  Adicionar à Sacola
                 </button>
-              ))}
-            </div>
-            <button 
-              onClick={handleAddCart} 
-              className="w-full bg-[#611F3A] text-white py-5 rounded-full text-[11px] uppercase tracking-[0.3em] font-bold shadow-xl hover:bg-[#D4AF37] transition-all transform active:scale-95"
-            >
-              Adicionar à Sacola
-            </button>
+              </>
+            ) : (
+              <button 
+                onClick={handleAviseMe} 
+                className="w-full bg-zinc-800 text-white py-5 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-xl hover:bg-black transition-all transform active:scale-95"
+              >
+                Avise-me quando chegar
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -365,6 +384,12 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
   const isCorEsgotada = (corAlvo) => {
     const variacoes = produto.grade.filter(g => g.cor === corAlvo && (!tamanho || g.tam === tamanho));
     return variacoes.reduce((acc, curr) => acc + curr.qtd, 0) <= 0;
+  };
+
+  const handleAviseMe = (e) => {
+    e?.stopPropagation();
+    const msg = `Olá Closet Dellas! ✨ Gostaria de ser avisada quando o produto *${produto.nome}* (REF: ${produto.id}) voltar ao estoque! 💖`;
+    window.open(`https://wa.me/5521971366354?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleQuickAdd = () => {
@@ -404,18 +429,20 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
         </div>
         <h4 className="text-base font-serif italic text-zinc-800 leading-tight mb-3 flex-1">{produto.nome}</h4>
         
-        <div className="flex items-center gap-2 mb-4">
-          {(!produto.imagens || produto.imagens.length === 0) ? (
-            <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
-          ) : produto.temPromo ? (
-            <>
-              <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
-              <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
-            </>
-          ) : (
-            <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
-          )}
-        </div>
+        {!esgotado && (
+          <div className="flex items-center gap-2 mb-4">
+            {(!produto.imagens || produto.imagens.length === 0) ? (
+              <p className="text-[10px] font-bold text-[#D4AF37] tracking-[0.2em] uppercase">Lançamento em Breve</p>
+            ) : produto.temPromo ? (
+              <>
+                <span className="text-xs line-through text-zinc-400">R$ {Number(produto.preco).toFixed(2)}</span>
+                <p className="text-lg font-bold text-red-600 tracking-tighter">R$ {Number(produto.precoPromo).toFixed(2)}</p>
+              </>
+            ) : (
+              <p className="text-lg font-bold text-[#611F3A] tracking-tighter">R$ {Number(produto.preco).toFixed(2)}</p>
+            )}
+          </div>
+        )}
 
         {/* SELEÇÃO DE CORES COM CROSS-FILTERING */}
         {produto.cores && produto.cores.length > 0 && (
@@ -445,24 +472,26 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           </div>
         )}
 
-        <div className="flex gap-2 mb-5 flex-wrap">
-          {tamanhosAgrupados.map((item) => (
-            <button 
-              key={item.tam} 
-              disabled={item.qtd <= 0} 
-              onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
-              className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
-                item.qtd <= 0 
-                ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
-                : tamanho === item.tam 
-                ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
-                : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
-              }`}
-            >
-              {item.tam}
-            </button>
-          ))}
-        </div>
+        {!esgotado && (
+          <div className="flex gap-2 mb-5 flex-wrap">
+            {tamanhosAgrupados.map((item) => (
+              <button 
+                key={item.tam} 
+                disabled={item.qtd <= 0} 
+                onClick={() => setTamanho(tamanho === item.tam ? null : item.tam)} 
+                className={`w-9 h-9 rounded-full text-[11px] font-bold border-2 transition-all ${
+                  item.qtd <= 0 
+                  ? 'bg-zinc-50 text-zinc-200 border-zinc-50 cursor-not-allowed line-through' 
+                  : tamanho === item.tam 
+                  ? 'bg-[#611F3A] text-white border-[#611F3A] scale-110 shadow-md' 
+                  : 'bg-white text-zinc-500 border-zinc-200 hover:border-[#611F3A]'
+                }`}
+              >
+                {item.tam}
+              </button>
+            ))}
+          </div>
+        )}
         
         <div className="flex gap-2 mt-auto">
           {(!produto.imagens || produto.imagens.length === 0) ? (
@@ -470,7 +499,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
           ) : (
             <>
               <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
-              <button onClick={handleQuickAdd} disabled={esgotado} className="flex-1 bg-[#611F3A] text-white py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg hover:bg-[#D4AF37] transition-all active:scale-95 disabled:bg-zinc-200 disabled:shadow-none">{esgotado ? 'Indisponível' : 'Adicionar'}</button>
+              <button onClick={esgotado ? handleAviseMe : handleQuickAdd} className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg transition-all active:scale-95 ${esgotado ? 'bg-zinc-800 text-white hover:bg-black' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}>{esgotado ? 'Avise-me' : 'Adicionar'}</button>
             </>
           )}
         </div>
