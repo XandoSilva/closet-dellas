@@ -1,0 +1,50 @@
+export const MAPA_CORES = {
+  'preto': '#000000',
+  'branco': '#FFFFFF',
+  'vermelho': '#FF0000',
+  'azul': '#0000FF',
+  'rosa': '#FFC0CB',
+  'verde': '#008000',
+  'amarelo': '#FFFF00',
+  'fendi': '#A19586',
+  'pink': '#FF1493',
+  'cinza': '#808080',
+  'vinho': '#722F37',
+  'fúcsia': '#FF00FF',
+  'terracota': '#E2725B',
+  'nude': '#E3BC9A',
+  'offwhite': '#FAF9F6',
+  'lavanda': '#E6E6FA',
+  'azul marinho': '#000080',
+  'marrom': '#5C4033',
+  'bege': '#b3ad7e',
+  'dourado': '#D4AF37',
+  'prata': '#C0C0C0',
+  'azul piscina': '#00BFFF',
+  'laranja': '#FFA500',
+  'azul turquesa': '#40d5e0',
+  'onça': '#D2B48C',
+  'areia': '#E1CDA8',
+  'verde militar': '#4B5320',
+  'verde escuro': '#006400',
+  'azul claro': '#ADD8E6',
+  'estampas diversas': '#E2E2E2',
+};
+
+export const CATEGORIAS_BASE = [
+  { id: 'vestidos', label: 'VESTIDOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'blusas', label: 'BLUSAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'cropped', label: 'CROPPED', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'calças', label: 'CALÇAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'body', label: 'BODY', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'conjuntos', label: 'CONJUNTOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'saias', label: 'SAIAS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'shorts', label: 'SHORTS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'casacos', label: 'CASACOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'acessórios', label: 'ACESSÓRIOS', subs: ['Longo (a)', 'Midi', 'Curto (a)', 'T-shirt', 'Regata', 'Básico', 'Crochê', 'Renda', 'Corset', 'Amarração', 'Pantalona', 'Alfaiataria', 'Jeans', 'Tricô', 'Sobretudo', 'Jaqueta', 'Bobojaco', 'Cintos'] },
+  { id: 'em breve', label: '⏳ EM BREVE', subs: [] },
+];
+
+export const FONE_WHATSAPP = "5521971366354";
+export const CLARITY_ID = "w2dhylfktb";
+export const GA4_ID = "G-P13JKPTP4E";
