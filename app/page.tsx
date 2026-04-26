@@ -408,14 +408,14 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       {esgotado && <span className="absolute top-7 left-7 bg-zinc-400 text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md">Sold Out</span>}
       {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
 
-      <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm ${(!produto.imagens || produto.imagens.length === 0) ? 'cursor-default' : 'cursor-pointer'}`} onClick={() => (!produto.imagens || produto.imagens.length === 0) ? null : abrirDetalhe(produto)}>
+      <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm ${(!produto.imagens || produto.imagens.length === 0 || esgotado) ? 'cursor-default' : 'cursor-pointer'}`} onClick={() => (!produto.imagens || produto.imagens.length === 0 || esgotado) ? null : abrirDetalhe(produto)}>
         <CarrosselProduto imagens={produto.imagens} nome={produto.nome} esgotado={esgotado} />
         {(!produto.imagens || produto.imagens.length === 0) && (
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none overflow-hidden">
             <div className="bg-[#611F3A] text-white py-3 transform -rotate-45 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl border-y border-[#D4AF37]/50 w-[160%] text-center">Em Breve</div>
           </div>
         )}
-        {produto.imagens && produto.imagens.length > 0 && (
+        {produto.imagens && produto.imagens.length > 0 && !esgotado && (
           <div className="absolute inset-0 bg-[#611F3A]/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none md:flex items-center justify-center hidden">
             <div className="bg-white/95 text-[#611F3A] px-8 py-4 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold shadow-2xl transition-all transform translate-y-8 group-hover:translate-y-0">Quick View</div>
           </div>
@@ -498,7 +498,9 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
             <button disabled className="w-full bg-zinc-50 text-zinc-400 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-none cursor-not-allowed border border-zinc-100">Aguarde o Lançamento</button>
           ) : (
             <>
-              <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
+              {!esgotado && (
+                <button onClick={() => abrirDetalhe(produto)} className="md:hidden flex-1 bg-zinc-900 text-white py-4 rounded-full text-[11px] uppercase font-bold shadow-lg hover:bg-black transition-colors">Detalhes</button>
+              )}
               <button onClick={esgotado ? handleAviseMe : handleQuickAdd} className={`flex-1 py-4 rounded-full text-[11px] uppercase tracking-[0.2em] font-bold shadow-lg transition-all active:scale-95 ${esgotado ? 'bg-zinc-800 text-white hover:bg-black' : 'bg-[#611F3A] text-white hover:bg-[#D4AF37]'}`}>{esgotado ? 'Avise-me' : 'Adicionar'}</button>
             </>
           )}
