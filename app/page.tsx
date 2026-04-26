@@ -158,7 +158,7 @@ function Notificacao({ mensagem }) {
   );
 }
 
-function CarrosselProduto({ imagens, nome }) {
+function CarrosselProduto({ imagens, nome, esgotado }) {
   const [fotoAtual, setFotoAtual] = useState(0);
   const scrollRef = useRef(null);
   const fotosExibir = imagens && imagens.length > 0 ? imagens : ['https://via.placeholder.com/400x600?text=Sem+Foto'];
@@ -178,7 +178,7 @@ function CarrosselProduto({ imagens, nome }) {
   const anterior = (e) => { e.preventDefault(); e.stopPropagation(); const p = fotoAtual === 0 ? fotosExibir.length - 1 : fotoAtual - 1; scrollTo(p); };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-2xl">
+    <div className={`relative h-full w-full overflow-hidden bg-zinc-100 group/fotos rounded-2xl ${esgotado ? 'grayscale opacity-70' : ''}`}>
       <div ref={scrollRef} onScroll={handleScroll} className="flex h-full w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {fotosExibir.map((img, index) => (
             <img key={index} src={otimizarImg(img)} alt={`${nome} - Foto ${index + 1}`} className="w-full h-full object-cover flex-shrink-0 snap-center transition-transform duration-700 group-hover/fotos:scale-105" />
@@ -252,7 +252,7 @@ function ModalDetalheProduto({ produto, aberto, fechar, adicionarAoCarrinho, set
       <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative animate-in zoom-in duration-300 flex flex-col md:flex-row" onClick={e => e.stopPropagation()}>
         <button onClick={fechar} className="absolute top-6 right-6 bg-white/80 w-10 h-10 rounded-full flex items-center justify-center text-[#611F3A] hover:bg-zinc-100 text-xl z-50 shadow-sm transition-all">✕</button>
         <div className="w-full md:w-1/2 aspect-[3/4] bg-zinc-100">
-          <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+          <CarrosselProduto imagens={produto.imagens} nome={produto.nome} esgotado={produto.estoqueTotal <= 0} />
         </div>
         <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-start">
           <p className="text-[10px] text-[#D4AF37] uppercase tracking-[0.3em] font-bold mb-4">
@@ -384,7 +384,7 @@ function ProdutoCard({ produto, categoriasBase, adicionarAoCarrinho, setNotifica
       {!esgotado && produto.estoqueTotal === 1 && <span className="absolute top-7 left-7 bg-[#611F3A] text-white text-[8px] uppercase tracking-widest font-bold px-3 py-1.5 rounded-full z-10 shadow-md animate-pulse">Última Peça</span>}
 
       <div className={`relative aspect-[3/4] w-full rounded-2xl overflow-hidden mb-6 shadow-sm ${(!produto.imagens || produto.imagens.length === 0) ? 'cursor-default' : 'cursor-pointer'}`} onClick={() => (!produto.imagens || produto.imagens.length === 0) ? null : abrirDetalhe(produto)}>
-        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} />
+        <CarrosselProduto imagens={produto.imagens} nome={produto.nome} esgotado={esgotado} />
         {(!produto.imagens || produto.imagens.length === 0) && (
           <div className="absolute inset-0 bg-white/40 backdrop-blur-[2px] z-20 flex items-center justify-center pointer-events-none overflow-hidden">
             <div className="bg-[#611F3A] text-white py-3 transform -rotate-45 font-bold uppercase tracking-[0.4em] text-[10px] shadow-2xl border-y border-[#D4AF37]/50 w-[160%] text-center">Em Breve</div>
