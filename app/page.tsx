@@ -32,6 +32,7 @@ const MAPA_CORES = {
   'azul': '#0000FF',
   'rosa': '#FFC0CB',
   'verde': '#008000',
+  'ocre': '#CC7722',
   'amarelo': '#FFFF00',
   'fendi': '#A19586',
   'pink': '#FF1493',
