@@ -6,6 +6,7 @@ export const MAPA_CORES = {
   'rosa': '#FFC0CB',
   'verde': '#008000',
   'amarelo': '#FFFF00',
+  'ocre': '#CC7722',
   'fendi': '#A19586',
   'pink': '#FF1493',
   'cinza': '#808080',
