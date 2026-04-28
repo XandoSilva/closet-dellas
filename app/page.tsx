@@ -28,7 +28,6 @@ interface Produto {
 const MAPA_CORES = {
   'preto': '#000000',
   'branco': '#FFFFFF',
-  'ocre': '#CC7722',
   'vermelho': '#FF0000',
   'azul': '#0000FF',
   'rosa': '#FFC0CB',
